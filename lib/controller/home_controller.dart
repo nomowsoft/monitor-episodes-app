@@ -1,0 +1,653 @@
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:monitor_episodes/model/core/educational/educational.dart';
+import 'package:monitor_episodes/model/core/educational/educational_plan.dart';
+import 'package:monitor_episodes/model/core/episodes/student_of_episode.dart';
+import 'package:monitor_episodes/model/core/episodes/student_state.dart';
+import 'package:monitor_episodes/model/core/listen_line/listen_line.dart';
+import 'package:monitor_episodes/model/core/plan_lines/mistakes_plan_line.dart';
+import 'package:monitor_episodes/model/core/plan_lines/plan_line.dart';
+import 'package:monitor_episodes/model/core/plan_lines/plan_lines.dart';
+import 'package:monitor_episodes/model/core/quran/surah.dart';
+import 'package:monitor_episodes/model/core/shared/constants.dart';
+import 'package:monitor_episodes/model/core/shared/status_and_types.dart';
+import 'package:monitor_episodes/model/core/user/auth_model.dart';
+import 'package:monitor_episodes/model/services/educational_plan_service.dart';
+import 'package:monitor_episodes/model/services/listen_line_service.dart';
+import 'package:monitor_episodes/model/services/plan_lines_service.dart';
+import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
+import 'package:monitor_episodes/model/services/teacher_service.dart';
+
+import '../model/core/episodes/episode.dart';
+import '../model/core/shared/response_content.dart';
+import '../model/services/episodes_service.dart';
+
+class HomeController extends GetxController {
+  int _currentPageIndex = 1;
+  int _currentIndex = 1;
+  TeacherModel? _teacher;
+  late bool _gettingEpisodes,
+      _gettingStudentsOfEpisode,
+      _gettingPlanLines,
+      _gettingEducationalPlan;
+  List<Episode> _listEpisodes = [];
+  List<StudentOfEpisode> _listStudentsOfEpisode = [];
+  PlanLines? planLines;
+  EducationalPlan? educationalPlan;
+
+  @override
+  void onInit() async {
+    // ignore: todo
+    // TODO: implement onInit
+    super.onInit();
+    initFilds();
+    await getTeacherLocal();
+  }
+
+  initFilds() {
+    _gettingEpisodes = false;
+    _gettingStudentsOfEpisode = false;
+    _gettingPlanLines = false;
+    _gettingEducationalPlan = false;
+  }
+
+  //methods
+  Future getTeacherLocal() async {
+    _teacher = await TeacherService().getUserLocal;
+    update();
+  }
+
+  Future removeTeacherLocal() async {
+    _teacher = await TeacherService().removeTeacherLocal();
+    update();
+  }
+
+  Future<bool> addEdisode(Episode episode) async {
+    bool result = await EdisodesService().setEdisodeLocal(episode);
+    loadEpisodes();
+    return result;
+  }
+
+  Future<bool> editEdisode(Episode episode) async {
+    bool result = await EdisodesService().updateEdisode(episode);
+    loadEpisodes();
+    return result;
+  }
+
+  Future<bool> deleteEdisode(Episode episode) async {
+    try {
+     
+      await PlanLinesService().deleteAllPlanLinesOfEpisode(episode.id);
+      await EducationalPlanService()
+          .deleteAllEducationalPlansOfEpisode(episode.id);
+
+      List<StudentOfEpisode> listStudentOfEpisode =
+          await StudentsOfEpisodeService()
+                  .getStudentsOfEpisodeLocal(episode.id) ??
+              [];
+      if (listStudentOfEpisode.isNotEmpty) {
+        for (var student in listStudentOfEpisode) {
+          //Student State
+          await StudentsOfEpisodeService()
+              .deleteStudentStateOfEp(student.id ?? 0);
+          await ListenLineService().deleteListenLineStudent(student.id ?? 0);
+         
+        }
+      }
+      await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id);
+      await EdisodesService().deletedEpisode(episode.id); 
+      loadEpisodes();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future deleteAllEdisodes() async {
+    List<Episode>? listEpisodes = await EdisodesService().getEdisodesLocal()??[];
+    for (var episode in listEpisodes) {
+      await deleteEdisode(episode);
+    }
+  }
+
+  Future<bool> addStudent(StudentOfEpisode studentOfEpisode,
+      PlanLines planLines, int episodeId) async {
+    bool studentResult =
+        await StudentsOfEpisodeService().setStudentOfEpisode(studentOfEpisode);
+    bool planLinesResult =
+        await PlanLinesService().setPlanLinesLocal(planLines);
+    loadStudentsOfEpisode(episodeId);
+    return studentResult && planLinesResult;
+  }
+
+  Future<bool> editStudent(StudentOfEpisode studentOfEpisode,
+      PlanLines planLines, int episodeId) async {
+    bool studentResult = await StudentsOfEpisodeService()
+        .updateStudentsOfEpisodeLocal(studentOfEpisode);
+    bool planLinesResult =
+        await PlanLinesService().updatePlanLinesLocal(planLines);
+    if (studentResult && planLinesResult) {
+      int index = _listStudentsOfEpisode
+          .indexWhere((element) => element.id == studentOfEpisode.id);
+      _listStudentsOfEpisode[index] = studentOfEpisode;
+      loadPlanLines(episodeId, studentOfEpisode.id!);
+      //loadEducationalPlan(episodeId,studentOfEpisode.id!);
+    }
+    update();
+    return studentResult && planLinesResult;
+  }
+
+  Future<bool> deleteStudent(int episodeId, int id) async {
+    try {
+      await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
+      await PlanLinesService().deleteAllPlanLinesOfStudent(id);
+      // Student State
+      await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
+      await ListenLineService().deleteListenLineStudent(id);
+      await StudentsOfEpisodeService().deleteStudent(id);
+      update();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future deleteStudentFromList(int indexDelete) async {
+    _listStudentsOfEpisode.removeAt(indexDelete);
+    update();
+  }
+
+  Future loadEpisodes({bool isInit = false}) async {
+    if (isInit) {
+      _gettingEpisodes = true;
+    } else {
+      gettingEpisodes = true;
+    }
+    List<Episode>? listEpisodes = await EdisodesService().getEdisodesLocal();
+    if (listEpisodes != null) {
+      _listEpisodes = List<Episode>.from(listEpisodes);
+    }
+    if (isInit) {
+      _gettingEpisodes = false;
+    } else {
+      gettingEpisodes = false;
+    }
+    update();
+  }
+
+  Future loadStudentsOfEpisode(int episodeId, {bool isInit = false}) async {
+    if (isInit) {
+      _gettingStudentsOfEpisode = true;
+    } else {
+      gettingStudentsOfEpisode = true;
+    }
+    List<StudentOfEpisode> listStudentOfEpisode =
+        await StudentsOfEpisodeService().getStudentsOfEpisodeLocal(episodeId) ??
+            [];
+    for(int i =0; i<listStudentOfEpisode.length ;i++){
+      listStudentOfEpisode[i].state =
+          listStudentOfEpisode[i].stateDate == DateFormat('yyyy-MM-dd').format(DateTime.now())
+              ? listStudentOfEpisode[i].state
+              : 'student_preparation'.tr;
+    }
+    // listStudentOfEpisode.forEach((element) async {
+    //   element.state =
+    //       element.stateDate == DateFormat('yyyy-MM-dd').format(DateTime.now())
+    //           ? element.state
+    //           : 'student_preparation'.tr;
+    // });
+    _listStudentsOfEpisode = List<StudentOfEpisode>.from(listStudentOfEpisode);
+
+    if (isInit) {
+      _gettingStudentsOfEpisode = false;
+    } else {
+      gettingStudentsOfEpisode = false;
+    }
+    update();
+  }
+
+  Future loadPlanLines(int episodeId, int id, {bool isInit = false}) async {
+    if (isInit) {
+      _gettingPlanLines = true;
+    } else {
+      gettingPlanLines = true;
+    }
+    PlanLines? planLinesLocal =
+        await PlanLinesService().getPlanLinesLocal(episodeId, id);
+    if (planLinesLocal != null) {
+      planLines = planLinesLocal;
+    } else {
+      planLines = null;
+    }
+    if (isInit) {
+      _gettingPlanLines = false;
+    } else {
+      gettingPlanLines = false;
+    }
+    update();
+  }
+
+  Future loadEducationalPlan(int episodeId, int id,
+      {bool isInit = false}) async {
+    if (isInit) {
+      _gettingEducationalPlan = true;
+    } else {
+      gettingEducationalPlan = true;
+    }
+    EducationalPlan newEducationalPlan =
+        await EducationalPlanService().getEducationalPlanLocal(episodeId, id);
+    educationalPlan = newEducationalPlan;
+    if (isInit) {
+      _gettingEducationalPlan = false;
+    } else {
+      gettingEducationalPlan = false;
+    }
+    update();
+  }
+
+  initStudntData() {
+    planLines = null;
+    educationalPlan = null;
+  }
+
+  Future<ResponseContent> setAttendance(
+      int planId, String filter, int id) async {
+    ResponseContent studentStateResponse = ResponseContent();
+    await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
+        date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        episodeId: planId,
+        studentId: id,
+        state: filter));
+
+    int index =
+        _listStudentsOfEpisode.indexWhere((element) => element.id == id);
+    if (index >= 0) {
+      _listStudentsOfEpisode[index].state = filter.tr;
+      _listStudentsOfEpisode[index].stateDate =
+          DateFormat('yyyy-MM-dd').format(DateTime.now());
+      await StudentsOfEpisodeService()
+          .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index]);
+    }
+    studentStateResponse = ResponseContent(statusCode: '200', success: true);
+
+    update();
+    return studentStateResponse;
+  }
+
+  /// Follow _ up
+  changeFromSuraPlanLine(Surah surah, String planLine) {
+    if (PlanLinesType.listen == planLine) {
+      planLines!.listen!.fromSuraName = surah.name;
+      planLines!.listen!.fromAya = 1;
+    } else if (PlanLinesType.reviewsmall == planLine) {
+      planLines!.reviewsmall!.fromSuraName = surah.name;
+      planLines!.reviewsmall!.fromAya = 1;
+    } else if (PlanLinesType.reviewbig == planLine) {
+      planLines!.reviewbig!.fromSuraName = surah.name;
+      planLines!.reviewbig!.fromAya = 1;
+    } else if (PlanLinesType.tlawa == planLine) {
+      planLines!.tlawa!.fromSuraName = surah.name;
+      planLines!.tlawa!.fromAya = 1;
+    }
+    update();
+  }
+
+  changeToSuraPlanLine(Surah surah, String planLine) {
+    if (PlanLinesType.listen == planLine) {
+      planLines!.listen!.toSuraName = surah.name;
+      planLines!.listen!.toAya = planLines!.listen!.fromSuraName == surah.name
+          ? planLines!.listen!.fromAya
+          : 1;
+    } else if (PlanLinesType.reviewsmall == planLine) {
+      planLines!.reviewsmall!.toSuraName = surah.name;
+      planLines!.reviewsmall!.toAya =
+          planLines!.reviewsmall!.fromSuraName == surah.name
+              ? planLines!.reviewsmall!.fromAya
+              : 1;
+    } else if (PlanLinesType.reviewbig == planLine) {
+      planLines!.reviewbig!.toSuraName = surah.name;
+      planLines!.reviewbig!.toAya =
+          planLines!.reviewbig!.fromSuraName == surah.name
+              ? planLines!.reviewbig!.fromAya
+              : 1;
+    } else if (PlanLinesType.tlawa == planLine) {
+      planLines!.tlawa!.toSuraName = surah.name;
+      planLines!.tlawa!.toAya = planLines!.tlawa!.fromSuraName == surah.name
+          ? planLines!.tlawa!.fromAya
+          : 1;
+    }
+    update();
+  }
+
+  changeFromAyaPlanLine(int aya, String planLine) {
+    if (PlanLinesType.listen == planLine) {
+      planLines!.listen!.fromAya = aya;
+    } else if (PlanLinesType.reviewsmall == planLine) {
+      planLines!.reviewsmall!.fromAya = aya;
+    } else if (PlanLinesType.reviewbig == planLine) {
+      planLines!.reviewbig!.fromAya = aya;
+    } else if (PlanLinesType.tlawa == planLine) {
+      planLines!.tlawa!.fromAya = aya;
+    }
+    update();
+  }
+
+  changeToAyaPlanLine(int aya, String planLine) {
+    if (PlanLinesType.listen == planLine) {
+      planLines!.listen!.toAya = aya;
+    } else if (PlanLinesType.reviewsmall == planLine) {
+      planLines!.reviewsmall!.toAya = aya;
+    } else if (PlanLinesType.reviewbig == planLine) {
+      planLines!.reviewbig!.toAya = aya;
+    } else if (PlanLinesType.tlawa == planLine) {
+      planLines!.tlawa!.toAya = aya;
+    }
+    update();
+  }
+
+  addNote(String planLine, Mistakes mistakes) {
+    if (PlanLinesType.listen == planLine) {
+      planLines!.listen!.mistakes = mistakes;
+    } else if (PlanLinesType.reviewsmall == planLine) {
+      planLines!.reviewsmall!.mistakes = mistakes;
+    } else if (PlanLinesType.reviewbig == planLine) {
+      planLines!.reviewbig!.mistakes = mistakes;
+    } else if (PlanLinesType.tlawa == planLine) {
+      planLines!.tlawa!.mistakes = mistakes;
+    }
+    update();
+  }
+
+  addListenLine(String typePlanLine, int id, int episodeId) async {
+    late PlanLine planLine;
+    if (PlanLinesType.listen == typePlanLine) {
+      planLine = planLines!.listen!;
+    } else if (PlanLinesType.reviewsmall == typePlanLine) {
+      planLine = planLines!.reviewsmall!;
+    } else if (PlanLinesType.reviewbig == typePlanLine) {
+      planLine = planLines!.reviewbig!;
+    } else if (PlanLinesType.tlawa == typePlanLine) {
+      planLine = planLines!.tlawa!;
+    }
+    ListenLine listenLine = ListenLine(
+        linkId: id,
+        actualDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        typeFollow: getTypePlanLine(typePlanLine),
+        fromSuraId: Constants.listSurah
+            .firstWhere((element) => element.name == planLine.fromSuraName)
+            .id,
+        toSuraId: Constants.listSurah
+            .firstWhere((element) => element.name == planLine.toSuraName)
+            .id,
+        fromAya: planLine.fromAya,
+        toAya: planLine.toAya,
+        totalMstkQlty: planLine.mistakes?.totalMstkQlty ?? 0,
+        totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
+        totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0);
+
+    ResponseContent responseContent = ResponseContent();
+    await ListenLineService().setListenLineLocal(listenLine);
+    responseContent = ResponseContent(success: true, statusCode: '200');
+
+    if (responseContent.isSuccess) {
+      Educational educational = Educational(
+        actualDate: DateTime.tryParse(listenLine.actualDate),
+        fromAya: listenLine.fromAya,
+        toAya: listenLine.toAya,
+        fromSuraName: planLine.fromSuraName,
+        toSuraName: planLine.toSuraName,
+        totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
+        totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0,
+      );
+
+      // ResponseDataListenLine? dataListenLine = responseContent.data;
+
+      if (PlanLinesType.listen == typePlanLine) {
+        planLines!.listen!.fromSuraName = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.listen!.toAya
+            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
+                .listSurah.first.name
+            :
+             Constants
+                .listSurah[Constants.listSurah.indexWhere(
+                        (element) => element.name == planLine.toSuraName) +
+                    1]
+                .name
+            : planLines!.listen!.toSuraName;
+
+        planLines!.listen!.fromAya = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.listen!.toAya
+            ? 1
+            : planLines!.listen!.toAya + 1;
+        planLines!.listen!.toSuraName = '';
+        planLines!.listen!.toAya = 0;
+        planLines!.listen!.mistakes = null;
+        await PlanLinesService().updatePlanLinesLocal(planLines!);
+        // educationlPlan
+        if (educationalPlan != null) {
+          educationalPlan!.planListen.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(educationalPlan!);
+        } else {
+          EducationalPlan newEducationalPlan = await EducationalPlanService()
+              .getEducationalPlanLocal(episodeId, id);
+          newEducationalPlan.planListen.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(newEducationalPlan);
+        }
+      } else if (PlanLinesType.reviewsmall == typePlanLine) {
+        planLines!.reviewsmall!.fromSuraName = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.reviewsmall!.toAya
+            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
+                .listSurah.first.name
+            : Constants
+                .listSurah[Constants.listSurah.indexWhere(
+                        (element) => element.name == planLine.toSuraName) +
+                    1]
+                .name
+            : planLines!.reviewsmall!.toSuraName;
+        planLines!.reviewsmall!.fromAya = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.reviewsmall!.toAya
+            ? 1
+            : planLines!.reviewsmall!.toAya + 1;
+        planLines!.reviewsmall!.toSuraName = '';
+        planLines!.reviewsmall!.toAya = 0;
+        planLines!.reviewsmall!.mistakes = null;
+        await PlanLinesService().updatePlanLinesLocal(planLines!);
+        // educationlPlan
+        if (educationalPlan != null) {
+          educationalPlan!.planReviewSmall.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(educationalPlan!);
+        } else {
+          EducationalPlan newEducationalPlan = await EducationalPlanService()
+              .getEducationalPlanLocal(episodeId, id);
+          newEducationalPlan.planReviewSmall.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(newEducationalPlan);
+        }
+      } else if (PlanLinesType.reviewbig == typePlanLine) {
+        planLines!.reviewbig!.fromSuraName = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.reviewbig!.toAya
+            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
+                .listSurah.first.name
+            : Constants
+                .listSurah[Constants.listSurah.indexWhere(
+                        (element) => element.name == planLine.toSuraName) +
+                    1]
+                .name
+            : planLines!.reviewbig!.toSuraName;
+        planLines!.reviewbig!.fromAya = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.reviewbig!.toAya
+            ? 1
+            : planLines!.reviewbig!.toAya + 1;
+        planLines!.reviewbig!.toSuraName = '';
+        planLines!.reviewbig!.toAya = 0;
+        planLines!.reviewbig!.mistakes = null;
+        await PlanLinesService().updatePlanLinesLocal(planLines!);
+        // educationlPlan
+        if (educationalPlan != null) {
+          educationalPlan!.planReviewbig.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(educationalPlan!);
+        } else {
+          EducationalPlan newEducationalPlan = await EducationalPlanService()
+              .getEducationalPlanLocal(episodeId, id);
+          newEducationalPlan.planReviewbig.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(newEducationalPlan);
+        }
+      } else if (PlanLinesType.tlawa == typePlanLine) {
+        planLines!.tlawa!.fromSuraName = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.tlawa!.toAya
+            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
+                .listSurah.first.name
+            : Constants
+                .listSurah[(Constants.listSurah.indexWhere(
+                        (element) => element.name == planLine.toSuraName) +
+                    1)]
+                .name
+            : planLines!.tlawa!.toSuraName;
+        planLines!.tlawa!.fromAya = Constants.listVerse
+                    .where((element) =>
+                        element.surahId ==
+                        Constants.listSurah
+                            .firstWhere((element) =>
+                                element.name == planLine.toSuraName)
+                            .id)
+                    .last
+                    .originalSurahOrder ==
+                planLines!.tlawa!.toAya
+            ? 1
+            : planLines!.tlawa!.toAya + 1;
+        planLines!.tlawa!.toSuraName = '';
+        planLines!.tlawa!.toAya = 0;
+        planLines!.tlawa!.mistakes = null;
+        await PlanLinesService().updatePlanLinesLocal(planLines!);
+        // educationlPlan
+        if (educationalPlan != null) {
+          educationalPlan!.planTlawa.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(educationalPlan!);
+        } else {
+          EducationalPlan newEducationalPlan = await EducationalPlanService()
+              .getEducationalPlanLocal(episodeId, id);
+          newEducationalPlan.planTlawa.add(educational);
+          await EducationalPlanService()
+              .setEducationalPlanLocal(newEducationalPlan);
+        }
+      }
+
+      int index =
+          _listStudentsOfEpisode.indexWhere((element) => element.id == id);
+
+      if (index >= 0) {
+        if (_listStudentsOfEpisode[index].state == 'student_preparation'.tr) {
+          _listStudentsOfEpisode[index].state = 'present'.tr;
+          _listStudentsOfEpisode[index].stateDate =
+              DateFormat('yyyy-MM-dd').format(DateTime.now());
+          await StudentsOfEpisodeService()
+              .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index]);
+          await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
+              date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+              episodeId: _listStudentsOfEpisode[index].episodeId!,
+              studentId: id,
+              state: 'present'));
+        }
+      }
+    }
+    update();
+
+    return responseContent;
+  }
+
+  String getTypePlanLine(String typePlanLine) {
+    if (PlanLinesType.listen == typePlanLine) {
+      return 'listen';
+    } else if (PlanLinesType.reviewsmall == typePlanLine) {
+      return 'review_small';
+    } else if (PlanLinesType.reviewbig == typePlanLine) {
+      return 'review_big';
+    } else if (PlanLinesType.tlawa == typePlanLine) {
+      return 'tlawa';
+    }
+    return '';
+  }
+
+  // setter
+  set currentIndex(int index) => {_currentIndex = index, update()};
+  set currentPageIndex(int index) => {_currentPageIndex = index, update()};
+  set gettingEpisodes(bool val) => {_gettingEpisodes = val, update()};
+  set gettingStudentsOfEpisode(bool val) =>
+      {_gettingStudentsOfEpisode = val, update()};
+  set gettingPlanLines(bool val) => {_gettingPlanLines = val, update()};
+  set gettingEducationalPlan(bool val) =>
+      {_gettingEducationalPlan = val, update()};
+
+  //geter
+  int get currentIndex => _currentIndex;
+  int get currentPageIndex => _currentPageIndex;
+  TeacherModel? get teacher => _teacher;
+  bool get gettingEpisodes => _gettingEpisodes;
+  bool get gettingStudentsOfEpisode => _gettingStudentsOfEpisode;
+  bool get gettingPlanLines => _gettingPlanLines;
+  bool get gettingEducationalPlan => _gettingEducationalPlan;
+  List<Episode> get listEpisodes => _listEpisodes;
+  List<StudentOfEpisode> get listStudentsOfEpisode => _listStudentsOfEpisode;
+}
