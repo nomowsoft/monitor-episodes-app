@@ -11,10 +11,10 @@ import 'package:monitor_episodes/model/services/teacher_service.dart';
 import 'package:monitor_episodes/model/theme/theme_dark.dart';
 import 'package:monitor_episodes/model/theme/theme_light.dart';
 import 'package:monitor_episodes/ui/views/home/home.dart';
-import 'package:monitor_episodes/ui/views/sign_up/sign_up.dart';
 import 'model/core/shared/constants.dart';
+import 'ui/views/login_screen/login_screen.dart';
 
-void main()async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Translation translation = Translation();
   await translation.fetchLocale();
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
- 
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -69,13 +69,13 @@ class _SplashScreenState extends State<SplashScreen>
     // TODO: implement initState
     super.initState();
     SizeConfig('initialSize').init(originalWidth: 428, originalHeight: 926);
-    Constants().getConstants(); 
+    Constants().getConstants();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       TeacherModel? teacherModel = await TeacherService().getUserLocal;
-      if(teacherModel !=null){
-        isHome = true ;
+      if (teacherModel != null) {
+        isHome = true;
       }
-    }); 
+    });
 
     Timer(const Duration(seconds: 2), () {
       setState(() {
@@ -87,10 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
         });
       });
 
-      Get.off(
-          () => isHome
-              ?  const Home() 
-              : const SignUp(),
+      Get.off(() => isHome ? const Home() : const LoginScreen(),
           duration: const Duration(seconds: 1),
           curve: Curves.easeInOut,
           transition: isHome ? Transition.fadeIn : Transition.downToUp);

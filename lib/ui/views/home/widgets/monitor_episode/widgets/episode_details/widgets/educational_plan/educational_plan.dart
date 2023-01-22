@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:monitor_episodes/controller/home_controller.dart';
@@ -7,13 +7,12 @@ import 'package:monitor_episodes/model/core/episodes/episode.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/model/core/shared/status_and_types.dart';
 import 'package:monitor_episodes/ui/shared/widgets/buttons/custom_list_button_underlined.dart';
-import 'package:monitor_episodes/ui/shared/widgets/color_loader/color_loader.dart'; 
+import 'package:monitor_episodes/ui/shared/widgets/color_loader/color_loader.dart';
 
 class EducationalPlan extends StatefulWidget {
   final Episode episode;
   final int id;
-  const EducationalPlan(
-      {Key? key, required this.episode, required this.id})
+  const EducationalPlan({Key? key, required this.episode, required this.id})
       : super(key: key);
 
   @override
@@ -23,18 +22,16 @@ class EducationalPlan extends StatefulWidget {
 class _EducationalPlanState extends State<EducationalPlan> {
   int indextab = 0;
 
-
   @override
   void initState() {
     // ignore: todo
     // TODO: implement initState
     super.initState();
     HomeController homeController = Get.find<HomeController>();
-    if(homeController.educationalPlan ==null ){
-    homeController.loadEducationalPlan(
-        widget.episode.id, widget.id,
-        isInit: true);
-        }
+    if (homeController.educationalPlan == null) {
+      homeController.loadEducationalPlan(widget.episode.id, widget.id,
+          isInit: true);
+    }
   }
 
   @override
@@ -45,7 +42,8 @@ class _EducationalPlanState extends State<EducationalPlan> {
           ? const Center(
               child: ColorLoader(),
             )
-          : getLisTabs().isNotEmpty ? Column(
+          : getLisTabs().isNotEmpty
+              ? Column(
                   children: [
                     Container(
                       color: Colors.white,
@@ -73,40 +71,40 @@ class _EducationalPlanState extends State<EducationalPlan> {
                             separatorBuilder: (_, __) => const SizedBox(),
                             itemCount: getList(indextab).length)),
                   ],
-                ):const SizedBox(),
+                )
+              : const SizedBox(),
     );
   }
 
   List<Educational> getList(int tabIndex) {
     HomeController homeController = Get.find<HomeController>();
-    String tab =  getLisTabs()[tabIndex];
-    if(tab == PlanLinesType.listen){
+    String tab = getLisTabs()[tabIndex];
+    if (tab == PlanLinesType.listen) {
       return homeController.educationalPlan!.planListen;
     }
-    if(tab == PlanLinesType.reviewsmall){
+    if (tab == PlanLinesType.reviewsmall) {
       return homeController.educationalPlan!.planReviewSmall;
     }
-    if(tab == PlanLinesType.reviewbig){
+    if (tab == PlanLinesType.reviewbig) {
       return homeController.educationalPlan!.planReviewbig;
-    }
-    else{
+    } else {
       return homeController.educationalPlan!.planTlawa;
     }
-    
   }
+
   List<String> getLisTabs() {
     HomeController homeController = Get.find<HomeController>();
     List<String> tabs = [];
-    if(homeController.educationalPlan!.planListen.isNotEmpty){
+    if (homeController.educationalPlan!.planListen.isNotEmpty) {
       tabs.add(PlanLinesType.listen);
     }
-    if(homeController.educationalPlan!.planReviewSmall.isNotEmpty){
+    if (homeController.educationalPlan!.planReviewSmall.isNotEmpty) {
       tabs.add(PlanLinesType.reviewsmall);
     }
-    if(homeController.educationalPlan!.planReviewbig.isNotEmpty){
+    if (homeController.educationalPlan!.planReviewbig.isNotEmpty) {
       tabs.add(PlanLinesType.reviewbig);
     }
-    if(homeController.educationalPlan!.planTlawa.isNotEmpty){
+    if (homeController.educationalPlan!.planTlawa.isNotEmpty) {
       tabs.add(PlanLinesType.tlawa);
     }
     return tabs;
@@ -141,7 +139,9 @@ class _EducationalPlanState extends State<EducationalPlan> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'course'.tr,
@@ -152,33 +152,33 @@ class _EducationalPlanState extends State<EducationalPlan> {
                                     textScaleFactor: SizeConfig.textScaleFactor,
                                   ),
                                   Row(
-                                      children: [
-                                        Text(
-                                          '${'date'.tr} : ',
-                                          style: TextStyle(
-                                              color:Colors.black,
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w500),
-                                          textScaleFactor:
-                                              SizeConfig.textScaleFactor,
-                                        ),
-                                        SizedBox(
-                                          width : 10.w,
-                                        ),
-                                        Text(
-                                          educational.actualDate != null
-                                              ? getDateTimeName(
-                                                  educational.actualDate!)
-                                              : 'there_is_no'.tr,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w800),
-                                          textScaleFactor:
-                                              SizeConfig.textScaleFactor,
-                                        ),
-                                      ],
-                                    ),
+                                    children: [
+                                      Text(
+                                        '${'date'.tr} : ',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500),
+                                        textScaleFactor:
+                                            SizeConfig.textScaleFactor,
+                                      ),
+                                      SizedBox(
+                                        width: 10.w,
+                                      ),
+                                      Text(
+                                        educational.actualDate != null
+                                            ? getDateTimeName(
+                                                educational.actualDate!)
+                                            : 'there_is_no'.tr,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w800),
+                                        textScaleFactor:
+                                            SizeConfig.textScaleFactor,
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                               SizedBox(
@@ -324,100 +324,93 @@ class _EducationalPlanState extends State<EducationalPlan> {
                           height: 5.h,
                         ),
                         Container(
-                                margin: EdgeInsets.symmetric(horizontal: 12.w),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 6.h, horizontal: 10.w),
-                                decoration: BoxDecoration(
-                                  color: Get.theme.secondaryHeaderColor
-                                      .withOpacity(0.6),
-                                  //  shape: BoxShape.circle,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Notes'.tr,
-                                      style: TextStyle(
-                                          color: Get.theme.primaryColor,
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.w800),
-                                      textScaleFactor:
-                                          SizeConfig.textScaleFactor,
-                                    ),
-                                    SizedBox(
-                                      height: 5.h,
-                                    ),
-                                    Row(
+                          margin: EdgeInsets.symmetric(horizontal: 12.w),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 6.h, horizontal: 10.w),
+                          decoration: BoxDecoration(
+                            color:
+                                Get.theme.secondaryHeaderColor.withOpacity(0.6),
+                            //  shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Notes'.tr,
+                                style: TextStyle(
+                                    color: Get.theme.primaryColor,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w800),
+                                textScaleFactor: SizeConfig.textScaleFactor,
+                              ),
+                              SizedBox(
+                                height: 5.h,
+                              ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
                                       children: [
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                'save_errors'.tr,
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 14.sp,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                                textScaleFactor:
-                                                    SizeConfig.textScaleFactor,
-                                              ),
-                                              SizedBox(
-                                                height: 5.h,
-                                              ),
-                                              Text(
-                                                educational.totalMstkQty
-                                                        .toString() ,
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14.sp,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                                textScaleFactor:
-                                                    SizeConfig.textScaleFactor,
-                                              ),
-                                            ],
-                                          ),
+                                        Text(
+                                          'save_errors'.tr,
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500),
+                                          textScaleFactor:
+                                              SizeConfig.textScaleFactor,
                                         ),
-                                       SizedBox(
-                                          width: 5.w,
+                                        SizedBox(
+                                          height: 5.h,
                                         ),
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                'intonation_errors'.tr,
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 14.sp,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                                textScaleFactor:
-                                                    SizeConfig.textScaleFactor,
-                                              ),
-                                              SizedBox(
-                                                height: 5.h,
-                                              ),
-                                              Text(
-                                                educational.totalMstkRead
-                                                        .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14.sp,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                                textScaleFactor:
-                                                    SizeConfig.textScaleFactor,
-                                              ),
-                                            ],
-                                          ),
+                                        Text(
+                                          educational.totalMstkQty.toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500),
+                                          textScaleFactor:
+                                              SizeConfig.textScaleFactor,
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  SizedBox(
+                                    width: 5.w,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'intonation_errors'.tr,
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500),
+                                          textScaleFactor:
+                                              SizeConfig.textScaleFactor,
+                                        ),
+                                        SizedBox(
+                                          height: 5.h,
+                                        ),
+                                        Text(
+                                          educational.totalMstkRead.toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500),
+                                          textScaleFactor:
+                                              SizeConfig.textScaleFactor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ],
+                          ),
+                        ),
                       ]),
                 ),
               ],

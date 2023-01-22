@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 class Validator {
   
+  
   static String? passwordValidator(String? val) {
       String value = val?.trim() ?? '';
       if (value.isNotEmpty) {
