@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:monitor_episodes/model/core/shared/response_content.dart';
+
+import '../model/services/auth_service.dart';
 
 abstract class AuthController {
   late TextEditingController username;
@@ -35,7 +38,9 @@ class AuthControllerImp extends GetxController implements AuthController {
   }
 
   @override
-   signIn() async {
-
+  Future<ResponseContent> signIn() async {
+     ResponseContent response = await AuthService()
+        .postSignIn(username: username.text , password: password.text);
+    return response;
   }
 }
