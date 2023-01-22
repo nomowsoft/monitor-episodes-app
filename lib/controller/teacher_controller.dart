@@ -30,8 +30,8 @@ class TeacherController extends GetxController {
     phone = TextEditingController();
     country = TextEditingController();
     country.text = Constants.listCountries
-          .firstWhere((element) => element.code == 'SA')
-          .name;
+        .firstWhere((element) => element.code == 'SA')
+        .name;
     gender = genders[0];
     _gettingData = false;
   }
@@ -44,17 +44,22 @@ class TeacherController extends GetxController {
   // }
 
   Future signUp() async {
-    TeacherModel teacherModel = TeacherModel(
-        name: name.text,
-        phone: phone.text,
-        gender: gender,
-        address: country.text);
-    await TeacherService().setTeacherLocal(teacherModel);
-    update();
+    // TeacherModel teacherModel = TeacherModel(
+    //     name: name.text,
+    //     phone: phone.text,
+    //     gender: gender,
+    //     address: country.text);
+    // await TeacherService().setTeacherLocal(teacherModel);
+    // update();
   }
 
   set setCountry(String setCountry) {
     country.text = setCountry;
     update();
+  }
+
+  setCountryID(int countryID) {
+    country.text =
+        Constants.listCountries.firstWhere((element) => element.id == countryID).name;
   }
 }

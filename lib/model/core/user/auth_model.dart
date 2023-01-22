@@ -1,26 +1,29 @@
 class TeacherModel {
   int? id;
-  String name, gender, phone, address;
+  String name,password, gender, mobile, country;
 
   TeacherModel(
       {this.id,
       required this.name,
+      required this.password,
       required this.gender,
-      required this.phone,
-      required this.address});
+      required this.mobile,
+      required this.country});
 
   TeacherModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
+        password =json['password'],
         gender = json['gender'],
-        phone = json['phone'],
-        address = json['address'];
+        mobile = json['mobile'],
+        country = json['country_id'];
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
+        "password":password,
         "gender": gender,
-        "phone": phone,
-        "address": address,
+        "mobile": mobile,
+        "country": country,
       };
 }
