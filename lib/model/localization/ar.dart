@@ -268,5 +268,10 @@ Map<String, String> translateArabic = {
   "there_are_no": "لا يوجد ",
   "search_here": "إبحث هنا",
   "enter_episode": "أدخل الحلقة",
-"you_already_have_an_account":"لديك حساب بالفعل",
+  "create_new_account": "إنشاء حساب جديد",
+  "welcom": " مرحباً",
+  "username": "اسم المستخدم",
+  "enter_username":"أدخل اسم المستخدم ",
+  "":"",
+
 };

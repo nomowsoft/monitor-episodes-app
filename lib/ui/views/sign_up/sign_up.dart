@@ -21,6 +21,7 @@ class _SignUpState extends State<SignUp> {
   bool loginErorr = false;
   double opacityLogin = 1.0;
   bool isopen = true;
+  bool passwordObscure = true;
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -97,7 +98,7 @@ class _SignUpState extends State<SignUp> {
                                   height: 30.h,
                                 ),
                                 Text(
-                                  'welcome_with_monitor_episodes'.tr,
+                                  'create_new_account'.tr,
                                   style: TextStyle(
                                       color: Get.theme.primaryColor,
                                       fontSize: 16.sp,
@@ -108,13 +109,13 @@ class _SignUpState extends State<SignUp> {
                                   height: 50.h,
                                 ),
 
-                                /// name
+                                /// username
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'name'.tr,
+                                      'username'.tr,
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14.sp,
@@ -141,12 +142,70 @@ class _SignUpState extends State<SignUp> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        hintText: 'enter_name'.tr,
+                                        hintText: 'enter_username'.tr,
                                       ),
                                       onChanged: (val) {},
                                     ),
                                   ],
                                 ),
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+
+                                ///password
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'password'.tr,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                      textScaleFactor:
+                                          SizeConfig.textScaleFactor,
+                                    ),
+                                    SizedBox(
+                                      height: 5.h,
+                                    ),
+                                    TextFormField(
+                                      textInputAction: TextInputAction.done,
+                                      keyboardType: TextInputType.name,
+                                      keyboardAppearance: Brightness.light,
+                                      // controller: authControllerImp.password,
+                                      validator: Validator.passwordValidator,
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
+                                      obscureText: passwordObscure,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                      decoration: InputDecoration(
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                              passwordObscure
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                              color: Colors.black54),
+                                          onPressed: () {
+                                            setState(() {
+                                              passwordObscure =
+                                                  !passwordObscure;
+                                            });
+                                          },
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 10.w, vertical: 0),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        hintText: 'enter_password'.tr,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
                                 SizedBox(
                                   height: 10.h,
                                 ),
@@ -262,7 +321,8 @@ class _SignUpState extends State<SignUp> {
                                                   content: SelectCountry()),
                                         );
                                         if (country != null) {
-                                          teacherController.setCountry = country.name;
+                                          teacherController.setCountry =
+                                              country.name;
                                         }
                                       },
                                       child: AbsorbPointer(
