@@ -243,7 +243,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                             hasWaitAnim = false;
                                             opacityLogin = 0.0;
                                           });
-                                          await authControllerImp.signIn();
                                           ResponseContent responseContent =
                                               await authControllerImp.signIn();
                                           if (responseContent.isSuccess) {
