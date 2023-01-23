@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:monitor_episodes/controller/auth_controller.dart';
 import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/core/user/auth_model.dart';
 
