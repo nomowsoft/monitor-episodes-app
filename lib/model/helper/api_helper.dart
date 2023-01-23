@@ -49,10 +49,15 @@ class ApiHelper {
         try {
           var data = convert.jsonDecode(response.body);
           print(data);
-                    ResponseContent result =
-              ResponseContent.fromJsonv1(data, response.statusCode);
-          // ResponseContent result =
-          //     ResponseContent.fromJson(data, response.statusCode);
+          ResponseContent result;
+          if (data['error'] != null) {
+           result =ResponseContent.fromJsonv1(data, response.statusCode);
+          } else {
+              result =
+              ResponseContent.fromJsonv2(data, response.statusCode);
+          }
+
+         
           return result;
         } catch (e) {
           print(e);
