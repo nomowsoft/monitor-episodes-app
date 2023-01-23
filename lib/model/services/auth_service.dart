@@ -16,8 +16,8 @@ class AuthService {
       "jsonrpc": "2.0",
       "params": {
         "db": "halaqat_monitoring",
-        "login": username,
-        "password": password
+        "login": 'username',
+        "password": 'password'
       }
     };
     ResponseContent response = await _apiHelper.postV2(
@@ -27,6 +27,8 @@ class AuthService {
     if (response.success ?? false) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setInt('teacher_id', response.data['result']['data']['teacher_id']);
+    } else {
+      response.message = 'اسم المستخدم او كلمة المرور خطا';
     }
     return response;
   }
@@ -56,6 +58,9 @@ class AuthService {
         response.success = false;
         response.message = response.data['result']['error'];
       }
+    }else{
+      response.message = 'اسم المستخدم موجود بالفعل الرجاء تسجيل الدخول';
+
     }
     return response;
   }

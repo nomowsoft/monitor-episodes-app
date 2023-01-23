@@ -23,11 +23,13 @@ class TeacherController extends GetxController {
     super.onInit();
     initFields();
     AuthControllerImp authController = Get.put(AuthControllerImp());
-    var res = await authController.signUp();
+    var res = await authController.signIn();
     print(res.data);
     print(res.success);
     print(res.statusCode);
     print(res.isSuccess);
+    print(res.isSuccess);
+
     // await getUser();
   }
 
