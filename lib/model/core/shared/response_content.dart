@@ -13,6 +13,13 @@ class ResponseContent<T> {
     this.statusCode = statusCode.toString();
     }
 
+    ResponseContent.fromJsonv1(Map<String, dynamic> jsonMap,int statusCode) {
+    data = jsonMap as T?;
+    success = jsonMap['result']==null? false:((statusCode <= 200 &&  statusCode < 299)? true : false);
+   // message = data !=null ? jsonMap['success']?.toString() ?? jsonMap['error'] :null;
+    this.statusCode = success!? statusCode.toString():'400';
+    }
+
   ResponseContent.fromJsonList(T value,int statusCode) {
     data = value;
     success = ((statusCode <= 200 &&  statusCode < 299)? true : false);
