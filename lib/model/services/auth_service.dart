@@ -16,8 +16,8 @@ class AuthService {
       "jsonrpc": "2.0",
       "params": {
         "db": "halaqat_monitoring",
-        "login": 'username',
-        "password": 'password'
+        "login": username,
+        "password": password
       }
     };
     ResponseContent response = await _apiHelper.postV2(
@@ -36,15 +36,15 @@ class AuthService {
   Future<ResponseContent> postSignUp(
       {required TeacherModel teacherModel}) async {
     Map<String, dynamic> data = teacherModel.toJson();
-    Map<String, dynamic> d = {
-      "name": "test",
-      "login": "test10",
-      "password": "123",
-      "mobile": "555555555",
-      "country_id": 1
-    };
+    // Map<String, dynamic> d = {
+    //   "name": "test",
+    //   "login": "test10",
+    //   "password": "123",
+    //   "mobile": "555555555",
+    //   "country_id": 1
+    // };
     ResponseContent response = await _apiHelper.postV2(
-        EndPoint.createTeacherAccount, jsonEncode(d),
+        EndPoint.createTeacherAccount, jsonEncode(data),
         linkApi: "http://rased-api.maknon.org.sa",
         contentType: ContentTypeHeaders.applicationJson);
     if (response.success ?? false) {
