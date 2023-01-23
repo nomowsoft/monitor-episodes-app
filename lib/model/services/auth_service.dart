@@ -27,8 +27,13 @@ class AuthService {
     if (response.success ?? false) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setInt('teacher_id', response.data['result']['data']['teacher_id']);
-    } else {
-      response.message = 'اسم المستخدم او كلمة المرور خطا';
+    } else if (response.isBadRequest) {
+      response.message = 'BadRequest';
+    }else if(response.isNotFound){
+      response.message = 'NotFound';
+    } else if(response.isNoContent){
+      response.message = 'NoContent';
+
     }
     return response;
   }
@@ -48,16 +53,16 @@ class AuthService {
         linkApi: "http://rased-api.maknon.org.sa",
         contentType: ContentTypeHeaders.applicationJson);
     if (response.success ?? false) {
-      if (response.data['result']['success']) {
-        print(response.data);
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setInt('teacher_id', response.data['result']['data']['user_id']);
-      } else {
-        print(response.data);
-        response.message = response.data['result']['error'];
-      }
-    } else if (response.isErrorConnection) {
-      return response;
+      print(response.data);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setInt('user_id', response.data['result']['data']['user_id']);
+    } else if (response.isBadRequest) {
+      response.message = 'BadRequest';
+    }else if(response.isNotFound){
+      response.message = 'NotFound';
+    } else if(response.isNoContent){
+      response.message = 'NoContent';
+
     }
     return response;
   }
