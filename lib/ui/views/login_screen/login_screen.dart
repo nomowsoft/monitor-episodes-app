@@ -6,6 +6,8 @@ import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/ui/shared/utils/validator.dart';
 
 import '../../../controller/auth_controller.dart';
+import '../../../model/core/shared/response_content.dart';
+import '../../shared/utils/custom_dailogs.dart';
 import '../home/home.dart';
 import '../sign_up/sign_up.dart';
 
@@ -114,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'email'.tr,
+                                      'username'.tr,
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14.sp,
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        hintText: 'enter_email'.tr,
+                                        hintText: 'enter_username'.tr,
                                       ),
                                       onChanged: (val) {},
                                     ),
@@ -213,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Get.to(() => const SignUp());
                                   },
                                   child: Text(
-                                    'you_already_have_an_account'.tr,
+                                    'create_new_account'.tr,
                                     style: TextStyle(
                                       color: Get.theme.secondaryHeaderColor,
                                       fontSize: 12.sp,
@@ -242,27 +244,57 @@ class _LoginScreenState extends State<LoginScreen> {
                                             opacityLogin = 0.0;
                                           });
                                           await authControllerImp.signIn();
-                                          await Future.delayed(
-                                              const Duration(seconds: 1));
-                                          setState(() {
-                                            hasWaitAnim = true;
-                                            loginErorr = false;
-                                          });
-                                          Future.delayed(
-                                              const Duration(milliseconds: 500),
-                                              () {
+                                          ResponseContent responseContent =
+                                              await authControllerImp.signIn();
+                                          if (responseContent.isSuccess) {
+                                            setState(() {
+                                              hasWaitAnim = true;
+                                              loginErorr = false;
+                                            });
+                                            Get.off(() => const Home(),
+                                                duration:
+                                                    const Duration(seconds: 1),
+                                                curve: Curves.easeInOut,
+                                                transition: Transition.fadeIn);
+                                          } else {
                                             setState(() {
                                               islogin = false;
                                               opacityLogin = 1.0;
                                               hasWaitAnim = false;
                                             });
-                                          });
-                                          Get.off(() => const Home(),
-                                              duration:
-                                                  const Duration(seconds: 1),
-                                              curve: Curves.easeInOut,
-                                              transition: Transition.fadeIn);
+                                            CostomDailogs.snackBar(
+                                                response: responseContent);
+                                          }
                                         }
+                                        // if (formKey.currentState!.validate()) {
+                                        //   setState(() {
+                                        //     islogin = true;
+                                        //     loginErorr = false;
+                                        //     hasWaitAnim = false;
+                                        //     opacityLogin = 0.0;
+                                        //   });
+                                        //   await authControllerImp.signIn();
+                                        //   await Future.delayed(
+                                        //       const Duration(seconds: 1));
+                                        //   setState(() {
+                                        //     hasWaitAnim = true;
+                                        //     loginErorr = false;
+                                        //   });
+                                        //   Future.delayed(
+                                        //       const Duration(milliseconds: 500),
+                                        //       () {
+                                        //     setState(() {
+                                        //       islogin = false;
+                                        //       opacityLogin = 1.0;
+                                        //       hasWaitAnim = false;
+                                        //     });
+                                        //   });
+                                        //   Get.off(() => const Home(),
+                                        //       duration:
+                                        //           const Duration(seconds: 1),
+                                        //       curve: Curves.easeInOut,
+                                        //       transition: Transition.fadeIn);
+                                        // }
                                       }),
                                       child: AnimatedContainer(
                                         width: islogin ? 45 : Get.size.width,
@@ -296,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 const Duration(seconds: 1),
                                             opacity: opacityLogin,
                                             child: Text(
-                                              'welcom'.tr,
+                                              'login'.tr,
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16.sp,
