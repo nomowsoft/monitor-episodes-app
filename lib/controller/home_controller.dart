@@ -76,7 +76,6 @@ class HomeController extends GetxController {
 
   Future<bool> deleteEdisode(Episode episode) async {
     try {
-     
       await PlanLinesService().deleteAllPlanLinesOfEpisode(episode.id);
       await EducationalPlanService()
           .deleteAllEducationalPlansOfEpisode(episode.id);
@@ -91,11 +90,10 @@ class HomeController extends GetxController {
           await StudentsOfEpisodeService()
               .deleteStudentStateOfEp(student.id ?? 0);
           await ListenLineService().deleteListenLineStudent(student.id ?? 0);
-         
         }
       }
       await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id);
-      await EdisodesService().deletedEpisode(episode.id); 
+      await EdisodesService().deletedEpisode(episode.id);
       loadEpisodes();
       return true;
     } catch (e) {
@@ -104,7 +102,8 @@ class HomeController extends GetxController {
   }
 
   Future deleteAllEdisodes() async {
-    List<Episode>? listEpisodes = await EdisodesService().getEdisodesLocal()??[];
+    List<Episode>? listEpisodes =
+        await EdisodesService().getEdisodesLocal() ?? [];
     for (var episode in listEpisodes) {
       await deleteEdisode(episode);
     }
@@ -184,11 +183,11 @@ class HomeController extends GetxController {
     List<StudentOfEpisode> listStudentOfEpisode =
         await StudentsOfEpisodeService().getStudentsOfEpisodeLocal(episodeId) ??
             [];
-    for(int i =0; i<listStudentOfEpisode.length ;i++){
-      listStudentOfEpisode[i].state =
-          listStudentOfEpisode[i].stateDate == DateFormat('yyyy-MM-dd').format(DateTime.now())
-              ? listStudentOfEpisode[i].state
-              : 'student_preparation'.tr;
+    for (int i = 0; i < listStudentOfEpisode.length; i++) {
+      listStudentOfEpisode[i].state = listStudentOfEpisode[i].stateDate ==
+              DateFormat('yyyy-MM-dd').format(DateTime.now())
+          ? listStudentOfEpisode[i].state
+          : 'student_preparation'.tr;
     }
     // listStudentOfEpisode.forEach((element) async {
     //   element.state =
@@ -413,14 +412,13 @@ class HomeController extends GetxController {
                     .last
                     .originalSurahOrder ==
                 planLines!.listen!.toAya
-            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
-                .listSurah.first.name
-            :
-             Constants
-                .listSurah[Constants.listSurah.indexWhere(
-                        (element) => element.name == planLine.toSuraName) +
-                    1]
-                .name
+            ? Constants.listSurah.last.name == planLine.toSuraName
+                ? Constants.listSurah.first.name
+                : Constants
+                    .listSurah[Constants.listSurah.indexWhere(
+                            (element) => element.name == planLine.toSuraName) +
+                        1]
+                    .name
             : planLines!.listen!.toSuraName;
 
         planLines!.listen!.fromAya = Constants.listVerse
@@ -462,13 +460,13 @@ class HomeController extends GetxController {
                     .last
                     .originalSurahOrder ==
                 planLines!.reviewsmall!.toAya
-            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
-                .listSurah.first.name
-            : Constants
-                .listSurah[Constants.listSurah.indexWhere(
-                        (element) => element.name == planLine.toSuraName) +
-                    1]
-                .name
+            ? Constants.listSurah.last.name == planLine.toSuraName
+                ? Constants.listSurah.first.name
+                : Constants
+                    .listSurah[Constants.listSurah.indexWhere(
+                            (element) => element.name == planLine.toSuraName) +
+                        1]
+                    .name
             : planLines!.reviewsmall!.toSuraName;
         planLines!.reviewsmall!.fromAya = Constants.listVerse
                     .where((element) =>
@@ -509,13 +507,13 @@ class HomeController extends GetxController {
                     .last
                     .originalSurahOrder ==
                 planLines!.reviewbig!.toAya
-            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
-                .listSurah.first.name
-            : Constants
-                .listSurah[Constants.listSurah.indexWhere(
-                        (element) => element.name == planLine.toSuraName) +
-                    1]
-                .name
+            ? Constants.listSurah.last.name == planLine.toSuraName
+                ? Constants.listSurah.first.name
+                : Constants
+                    .listSurah[Constants.listSurah.indexWhere(
+                            (element) => element.name == planLine.toSuraName) +
+                        1]
+                    .name
             : planLines!.reviewbig!.toSuraName;
         planLines!.reviewbig!.fromAya = Constants.listVerse
                     .where((element) =>
@@ -556,13 +554,13 @@ class HomeController extends GetxController {
                     .last
                     .originalSurahOrder ==
                 planLines!.tlawa!.toAya
-            ? Constants.listSurah.last.name == planLine.toSuraName ?  Constants
-                .listSurah.first.name
-            : Constants
-                .listSurah[(Constants.listSurah.indexWhere(
-                        (element) => element.name == planLine.toSuraName) +
-                    1)]
-                .name
+            ? Constants.listSurah.last.name == planLine.toSuraName
+                ? Constants.listSurah.first.name
+                : Constants
+                    .listSurah[(Constants.listSurah.indexWhere(
+                            (element) => element.name == planLine.toSuraName) +
+                        1)]
+                    .name
             : planLines!.tlawa!.toSuraName;
         planLines!.tlawa!.fromAya = Constants.listVerse
                     .where((element) =>

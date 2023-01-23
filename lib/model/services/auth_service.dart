@@ -50,17 +50,14 @@ class AuthService {
     if (response.success ?? false) {
       if (response.data['result']['success']) {
         print(response.data);
-        response.success = true;
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setInt('teacher_id', response.data['result']['data']['user_id']);
       } else {
         print(response.data);
-        response.success = false;
         response.message = response.data['result']['error'];
       }
-    }else{
-      response.message = 'اسم المستخدم موجود بالفعل الرجاء تسجيل الدخول';
-
+    } else if (response.isErrorConnection) {
+      return response;
     }
     return response;
   }
