@@ -271,7 +271,6 @@ Map<String, String> translateArabic = {
   "create_new_account": "إنشاء حساب جديد",
   "welcom": " مرحباً",
   "username": "اسم المستخدم",
-  "enter_username":"أدخل اسم المستخدم ",
-  "":"",
-
+  "enter_username": "أدخل اسم المستخدم ",
+  "login": "تسجيل دخول",
 };
