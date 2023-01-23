@@ -30,8 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    TeacherController teacherController = Get.put(TeacherController());
-    teacherController.initFields();
+    AuthControllerImp authControllerImp = Get.put(AuthControllerImp());
+    authControllerImp.initFilds();
     Future.delayed(const Duration(milliseconds: 800), () {
       setState(() {
         isopen = false;
