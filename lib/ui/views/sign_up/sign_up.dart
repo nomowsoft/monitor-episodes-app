@@ -137,7 +137,7 @@ class _SignUpState extends State<SignUp> {
                                       validator: Validator.nameValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
-                                      controller: authControllerImp.username,
+                                      controller: authControllerImp.name,
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 14.sp,
