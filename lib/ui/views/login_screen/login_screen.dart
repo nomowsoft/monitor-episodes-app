@@ -5,6 +5,8 @@ import 'package:monitor_episodes/controller/teacher_controller.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/ui/shared/utils/validator.dart';
 
+import '../../../controller/auth_controller.dart';
+import '../home/home.dart';
 import '../sign_up/sign_up.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -38,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      builder: (TeacherController teacherController) => Scaffold(
+      builder: (AuthControllerImp authControllerImp) => Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Stack(
@@ -130,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       validator: Validator.nameValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
-                                      controller: teacherController.name,
+                                      controller: authControllerImp.username,
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 14.sp,
@@ -149,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 10.h,
                                 ),
 
-                                ///phone
+                                ///password
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       textInputAction: TextInputAction.done,
                                       keyboardType: TextInputType.name,
                                       keyboardAppearance: Brightness.light,
-                                      controller: teacherController.phone,
+                                      controller: authControllerImp.password,
                                       validator: Validator.passwordValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
@@ -213,9 +215,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Text(
                                     'you_already_have_an_account'.tr,
                                     style: TextStyle(
-                                        color: Get.theme.secondaryHeaderColor,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w800),
+                                      color: Get.theme.secondaryHeaderColor,
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w800,
+                                      decoration: TextDecoration.underline,
+                                      decorationStyle:
+                                          TextDecorationStyle.dashed,
+                                      decorationColor: Colors.black,
+                                      decorationThickness: 3,
+                                    ),
                                     textScaleFactor: SizeConfig.textScaleFactor,
                                   ),
                                 ),
@@ -225,7 +233,37 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Stack(
                                   children: [
                                     InkWell(
-                                      onTap: (() async {}),
+                                      onTap: (() async {
+                                        if (formKey.currentState!.validate()) {
+                                          setState(() {
+                                            islogin = true;
+                                            loginErorr = false;
+                                            hasWaitAnim = false;
+                                            opacityLogin = 0.0;
+                                          });
+                                          await authControllerImp.signIn();
+                                          await Future.delayed(
+                                              const Duration(seconds: 1));
+                                          setState(() {
+                                            hasWaitAnim = true;
+                                            loginErorr = false;
+                                          });
+                                          Future.delayed(
+                                              const Duration(milliseconds: 500),
+                                              () {
+                                            setState(() {
+                                              islogin = false;
+                                              opacityLogin = 1.0;
+                                              hasWaitAnim = false;
+                                            });
+                                          });
+                                          Get.off(() => const Home(),
+                                              duration:
+                                                  const Duration(seconds: 1),
+                                              curve: Curves.easeInOut,
+                                              transition: Transition.fadeIn);
+                                        }
+                                      }),
                                       child: AnimatedContainer(
                                         width: islogin ? 45 : Get.size.width,
                                         height: 45,
@@ -258,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 const Duration(seconds: 1),
                                             opacity: opacityLogin,
                                             child: Text(
-                                              'register'.tr,
+                                              'welcom'.tr,
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16.sp,
