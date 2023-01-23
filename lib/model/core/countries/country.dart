@@ -1,5 +1,5 @@
 class Country {
-  int id;
+  String id;
   late String code, name;
   Country({required this.code, required this.name, required this.id});
   Country.fromJson(Map<String, dynamic> map)

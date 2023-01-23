@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:monitor_episodes/controller/auth_controller.dart';
 import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/core/user/auth_model.dart';
-import '../model/services/teacher_service.dart';
 
 class TeacherController extends GetxController {
   late TextEditingController name, phone, country;
@@ -22,6 +22,12 @@ class TeacherController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     initFields();
+    AuthControllerImp authController = Get.put(AuthControllerImp());
+    var res = await authController.signUp();
+    print(res.data);
+    print(res.success);
+    print(res.statusCode);
+    print(res.isSuccess);
     // await getUser();
   }
 
@@ -59,7 +65,8 @@ class TeacherController extends GetxController {
   }
 
   setCountryID(int countryID) {
-    country.text =
-        Constants.listCountries.firstWhere((element) => element.id == countryID).name;
+    country.text = Constants.listCountries
+        .firstWhere((element) => element.id == countryID)
+        .name;
   }
 }

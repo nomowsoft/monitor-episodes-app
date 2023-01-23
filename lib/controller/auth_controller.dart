@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:monitor_episodes/model/core/shared/response_content.dart';
+import 'package:monitor_episodes/model/core/user/auth_model.dart';
 
 import '../model/core/shared/constants.dart';
 import '../model/services/auth_service.dart';
@@ -9,13 +10,13 @@ abstract class AuthController {
   late TextEditingController name;
   late TextEditingController username;
   late TextEditingController password;
-  late TextEditingController phone;
+  late TextEditingController mobile;
   late TextEditingController country;
   late int countryID;
   late String gender;
 
   initFilds() {}
-  setCountryID(int countryID);
+  setCountryID(String countryID);
   signIn() async {}
   signUp() async {}
 }
@@ -37,7 +38,7 @@ class AuthControllerImp extends GetxController implements AuthController {
   late String gender;
 
   @override
-  late TextEditingController phone;
+  late TextEditingController mobile;
 
   List genders = ['male'.tr, 'female'.tr];
 
@@ -59,7 +60,7 @@ class AuthControllerImp extends GetxController implements AuthController {
     name = TextEditingController();
     password = TextEditingController();
     username = TextEditingController();
-    phone = TextEditingController();
+    mobile = TextEditingController();
     country = TextEditingController();
     countryID = 192;
     country.text = Constants.listCountries
@@ -79,13 +80,25 @@ class AuthControllerImp extends GetxController implements AuthController {
   }
 
   @override
-  signUp() {}
+  Future<ResponseContent> signUp() async {
+    TeacherModel teacherModel = TeacherModel(
+        name: name.text,
+        password: password.text,
+        gender: gender,
+        mobile: mobile.text,
+        country: country.text,
+        countryID: countryID);
+    ResponseContent response =
+        await AuthService().postSignUp(teacherModel: teacherModel);
+
+    return response;
+  }
 
   @override
-  setCountryID(int id) {
+  setCountryID(String id) {
     country.text =
         Constants.listCountries.firstWhere((element) => element.id == id).name;
-    countryID = id;
+    countryID = int.parse(id);
     update();
   }
 }

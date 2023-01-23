@@ -53,6 +53,7 @@ class ApiHelper {
               ResponseContent.fromJson(data, response.statusCode);
           return result;
         } catch (e) {
+          print(e);
           return ResponseContent(
               statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
         }

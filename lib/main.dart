@@ -5,9 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:monitor_episodes/model/core/user/auth_model.dart';
 import 'package:monitor_episodes/model/localization/translation.dart';
-import 'package:monitor_episodes/model/services/teacher_service.dart';
 import 'package:monitor_episodes/model/theme/theme_dark.dart';
 import 'package:monitor_episodes/model/theme/theme_light.dart';
 import 'package:monitor_episodes/ui/views/home/home.dart';
@@ -71,10 +69,10 @@ class _SplashScreenState extends State<SplashScreen>
     SizeConfig('initialSize').init(originalWidth: 428, originalHeight: 926);
     Constants().getConstants();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      TeacherModel? teacherModel = await TeacherService().getUserLocal;
-      if (teacherModel != null) {
-        isHome = true;
-      }
+      // TeacherModel? teacherModel = await TeacherService().getUserLocal;
+      // if (teacherModel != null) {
+      //   isHome = true;
+      // }
     });
 
     Timer(const Duration(seconds: 2), () {
