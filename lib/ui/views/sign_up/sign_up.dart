@@ -8,6 +8,10 @@ import 'package:monitor_episodes/ui/shared/utils/validator.dart';
 import 'package:monitor_episodes/ui/views/home/home.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/episode_details/widgets/select_country.dart';
 
+import '../../../controller/auth_controller.dart';
+import '../../../model/core/shared/response_content.dart';
+import '../../shared/utils/custom_dailogs.dart';
+
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
 
@@ -41,7 +45,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      builder: (TeacherController teacherController) => Scaffold(
+      builder: (AuthControllerImp authControllerImp) => Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Stack(
@@ -133,7 +137,7 @@ class _SignUpState extends State<SignUp> {
                                       validator: Validator.nameValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
-                                      controller: teacherController.name,
+                                      controller: authControllerImp.username,
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 14.sp,
@@ -173,7 +177,7 @@ class _SignUpState extends State<SignUp> {
                                       textInputAction: TextInputAction.done,
                                       keyboardType: TextInputType.name,
                                       keyboardAppearance: Brightness.light,
-                                      // controller: authControllerImp.password,
+                                      controller: authControllerImp.password,
                                       validator: Validator.passwordValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
@@ -231,7 +235,7 @@ class _SignUpState extends State<SignUp> {
                                       textInputAction: TextInputAction.done,
                                       keyboardType: TextInputType.phone,
                                       keyboardAppearance: Brightness.light,
-                                      controller: teacherController.phone,
+                                      controller: authControllerImp.mobile,
                                       validator: Validator.phoneValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
@@ -321,8 +325,7 @@ class _SignUpState extends State<SignUp> {
                                                   content: SelectCountry()),
                                         );
                                         if (country != null) {
-                                          teacherController.setCountry =
-                                              country.name;
+                                          authControllerImp.setCountryID(country.id);
                                         }
                                       },
                                       child: AbsorbPointer(
@@ -331,7 +334,7 @@ class _SignUpState extends State<SignUp> {
                                           textInputAction: TextInputAction.next,
                                           keyboardType: TextInputType.name,
                                           keyboardAppearance: Brightness.light,
-                                          controller: teacherController.country,
+                                          controller: authControllerImp.country,
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14.sp,
@@ -391,7 +394,7 @@ class _SignUpState extends State<SignUp> {
                                                 children: [
                                                   Expanded(
                                                     child: Text(
-                                                      teacherController.gender,
+                                                      authControllerImp.gender,
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 14.sp,
@@ -417,7 +420,7 @@ class _SignUpState extends State<SignUp> {
                                     ],
                                   ),
                                   itemBuilder: (context) => [
-                                    ...teacherController.genders.map(
+                                    ...authControllerImp.genders.map(
                                       (e) => PopupMenuItem(
                                         padding: EdgeInsets.zero,
                                         value: e,
@@ -444,7 +447,7 @@ class _SignUpState extends State<SignUp> {
                                     )
                                   ],
                                   onSelected: (String value) async {
-                                    teacherController.setGender = value;
+                                    authControllerImp.setGender = value;
                                   },
                                 ),
 
@@ -462,27 +465,27 @@ class _SignUpState extends State<SignUp> {
                                             hasWaitAnim = false;
                                             opacityLogin = 0.0;
                                           });
-                                          await teacherController.signUp();
-                                          await Future.delayed(
-                                              const Duration(seconds: 1));
-                                          setState(() {
-                                            hasWaitAnim = true;
-                                            loginErorr = false;
-                                          });
-                                          Future.delayed(
-                                              const Duration(milliseconds: 500),
-                                              () {
+                                          ResponseContent responseContent =
+                                              await authControllerImp.signUp();
+                                          if (responseContent.isSuccess) {
+                                            setState(() {
+                                              hasWaitAnim = true;
+                                              loginErorr = false;
+                                            });
+                                            Get.off(() => const Home(),
+                                                duration:
+                                                    const Duration(seconds: 1),
+                                                curve: Curves.easeInOut,
+                                                transition: Transition.fadeIn);
+                                          } else {
                                             setState(() {
                                               islogin = false;
                                               opacityLogin = 1.0;
                                               hasWaitAnim = false;
                                             });
-                                          });
-                                          Get.off(() => const Home(),
-                                              duration:
-                                                  const Duration(seconds: 1),
-                                              curve: Curves.easeInOut,
-                                              transition: Transition.fadeIn);
+                                            CostomDailogs.snackBar(
+                                                response: responseContent);
+                                          }
                                         }
                                       }),
                                       child: AnimatedContainer(
