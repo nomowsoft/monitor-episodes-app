@@ -58,10 +58,12 @@ class EdisodesService {
   Future<bool> updateEdisode(Episode episode) async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      var json = episode.toJson();
-      await dbHelper.update(DatabaseHelper.tableEpisode, json);
-      json.addAll({EpisodeColumns.operation.value: 'update'});
-      await dbHelper.insert(DatabaseHelper.logTableEpisode, json);
+      var jsonLocal = episode.toJson();
+      var jsonServer = episode.toJsonServer();
+
+      await dbHelper.update(DatabaseHelper.tableEpisode, jsonLocal);
+      jsonServer.addAll({EpisodeColumns.operation.value: 'update'});
+      await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
       episodeCrudOperationsRemoately(dbHelper);
       return true;
     } catch (e) {
@@ -106,43 +108,25 @@ episodeCrudOperationsRemoately(DatabaseHelper dbHelper) async {
   var listOfEpisodeTypeCreate = [];
   var listOfEpisodeTypeUdate = [];
   var listOfEpisodeTypeDelete = [];
-  listOfEpisodes.forEach((episode) {
+  for (var episode in listOfEpisodes) {
     if (episode['operation'] == 'create') {
       episode.remove('operation');
+      episode.remove('IDs');
+
       listOfEpisodeTypeCreate.add(episode);
     } else if (episode['operation'] == 'update') {
-      listOfEpisodeTypeUdate.add(episode.remove('operation'));
+      episode.remove('operation');
+      episode.remove('IDs');
+      listOfEpisodeTypeUdate.add(episode);
     } else {
-      listOfEpisodeTypeDelete.add(episode.remove('operation'));
+      listOfEpisodeTypeDelete.add({'id': episode['id']});
     }
-    return;
-  });
+    continue;
+  }
 
   sendToServer(listOfEpisodeTypeCreate, 'create', dbHelper);
   sendToServer(listOfEpisodeTypeUdate, 'update', dbHelper);
-  sendToServer(listOfEpisodeTypeUdate, 'delete', dbHelper);
-
-  // listOfEpisodes.forEach((episode) async {
-  //   var data = jsonEncode(
-  //     {
-  //       'data': [episode]
-  //     },
-  //   );
-  //   String endPoint = episode['operation'] == 'create'
-  //       ? EndPoint.createHalaqat
-  //       : episode['operation'] == 'update'
-  //           ? EndPoint.updateHalaqat
-  //           : EndPoint.deleteHalaqat;
-  //   await ApiHelper()
-  //       .postV2(endPoint, data,
-  //           linkApi: "http://rased-api.maknon.org.sa",
-  //           contentType: ContentTypeHeaders.applicationJson)
-  //       .then((response) {
-  //     if (response.isSuccess) {
-  //       dbHelper.delete(DatabaseHelper.logTableEpisode, episode['id']);
-  //     }
-  //   });
-  // });
+  sendToServer(listOfEpisodeTypeDelete, 'delete', dbHelper);
 }
 
 void sendToServer(List list, String operation, DatabaseHelper dbHelper) {
