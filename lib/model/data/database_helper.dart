@@ -4,9 +4,11 @@ import 'package:path/path.dart' as p;
 
 class DatabaseHelper {
   static const databaseName = "maknoon.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 10;
 
   static const tableEpisode = 'table_episode';
+  static const logTableEpisode = 'log_table_episode';
+
   static const tableStudentOfEpisode = 'table_student_of_episode';
   static const tablePlanLines = 'table_planLines';
   static const tableListenLine = 'table_listenLine';
@@ -39,7 +41,10 @@ class DatabaseHelper {
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute(
-        'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
+        'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT,${EpisodeColumns.typeEpisode.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
+        ', ${EpisodeColumns.epsdWork.value} TEXT)');
+            await db.execute(
+        'CREATE TABLE $logTableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT, ${EpisodeColumns.typeEpisode.value} TEXT,${EpisodeColumns.operation.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
         ', ${EpisodeColumns.epsdWork.value} TEXT)');
     await db.execute(
         'CREATE TABLE $tableStudentOfEpisode ('

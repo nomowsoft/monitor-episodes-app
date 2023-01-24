@@ -6,6 +6,8 @@ enum EpisodeColumns {
   epsdType,
   epsdWork,
   name,
+  operation,
+  typeEpisode,
 }
 
 extension MyEnumEpisodeColumns on EpisodeColumns {
@@ -21,6 +23,10 @@ extension MyEnumEpisodeColumns on EpisodeColumns {
         return "epsd_work";
       case EpisodeColumns.name:
         return "name";
+              case EpisodeColumns.operation:
+        return "operation";
+                 case EpisodeColumns.typeEpisode:
+        return "type_episode";
       default:
         return "";
     }

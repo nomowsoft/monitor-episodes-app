@@ -19,6 +19,7 @@ class Episode {
         "id": id,
         "display_name": displayName,
         "epsd_type": epsdType,
+        "type_episode": epsdType,
         "name": name,
       };
 }
