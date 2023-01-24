@@ -42,7 +42,8 @@ class _ItemEpisodeState extends State<ItemEpisode> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Row(
@@ -84,7 +85,7 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                             child: Center(
                               child: Text(
                                 'edit'.tr,
-                                style:  TextStyle(
+                                style: TextStyle(
                                   decoration: TextDecoration.none,
                                   color: Get.theme.secondaryHeaderColor,
                                 ),
@@ -108,22 +109,35 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                             ),
                           ),
                         ],
-                        onSelected: (int value) async{
-                          if(value == 1){
+                        onSelected: (int value) async {
+                          if (value == 1) {
                             //edit
-                            bool? result = await Get.dialog(AddEpisode(episode: widget.episode),
-                                  transitionDuration: const Duration(seconds: 1),
-                                      transitionCurve: Curves.easeInOut, 
-                                  );
-                                if(result !=null){
-                                  CostomDailogs.snackBar(response: ResponseContent(statusCode: '200', success: true,message: 'ok_edit'.tr));
-                                }  
-                          }else{
+                            bool? result = await Get.dialog(
+                              AddEpisode(episode: widget.episode),
+                              transitionDuration: const Duration(seconds: 1),
+                              transitionCurve: Curves.easeInOut,
+                            );
+                            if (result != null) {
+                              CostomDailogs.snackBar(
+                                  response: ResponseContent(
+                                      statusCode: '200',
+                                      success: true,
+                                      message: 'ok_edit'.tr));
+                            }
+                          } else {
                             // delete
-                            if(await CostomDailogs.yesNoDialogWithText(text:'${'do_you_want_delete'.tr} ${widget.episode.name }')){
-                              HomeController homeController = Get.find<HomeController>();
-                               await homeController.deleteEdisode(widget.episode);
-                               CostomDailogs.snackBar(response: ResponseContent(statusCode: '200', success: true,message: 'ok_delete'.tr));
+                            if (await CostomDailogs.yesNoDialogWithText(
+                                text:
+                                    '${'do_you_want_delete'.tr} ${widget.episode.name}')) {
+                              HomeController homeController =
+                                  Get.find<HomeController>();
+                              await homeController
+                                  .deleteEdisode(widget.episode);
+                              CostomDailogs.snackBar(
+                                  response: ResponseContent(
+                                      statusCode: '200',
+                                      success: true,
+                                      message: 'ok_delete'.tr));
                             }
                           }
                         },
@@ -164,7 +178,6 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                           ),
                         ],
                       )),
-                     
                     ],
                   ),
                 ],

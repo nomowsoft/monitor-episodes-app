@@ -9,7 +9,7 @@ import '../../../../../../model/core/shared/globals/size_config.dart';
 
 class AddEpisode extends StatefulWidget {
   final Episode? episode;
-  const AddEpisode({super.key,this.episode});
+  const AddEpisode({super.key, this.episode});
 
   @override
   State<AddEpisode> createState() => _AddEpisodeState();
@@ -18,20 +18,28 @@ class AddEpisode extends StatefulWidget {
 class _AddEpisodeState extends State<AddEpisode> {
   TextEditingController name = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  bool get isEdit => widget.episode != null ;
-  List<String> typeEpisodes = ['حلقة حفظ','حلقة حفظ ومراجعه','حلقة تصحيح تلاوة','حلقة إتقان','حلقة جاليات','حلقة التميز','حلقة مراجعة'];
+  bool get isEdit => widget.episode != null;
+  List<String> typeEpisodes = [
+    'learn',
+    'learn_review',
+    'correction',
+    'master',
+    'community',
+    'excellence',
+    'review'
+  ];
   String episodeType = '';
-@override
+  @override
   void initState() {
     // ignore: todo
     // TODO: implement initState
-    if(isEdit){
-     name.text = widget.episode!.name;
-     episodeType = widget.episode!.epsdType;
-    }else{
+    if (isEdit) {
+      name.text = widget.episode!.name;
+      episodeType = widget.episode!.epsdType;
+    } else {
       episodeType = typeEpisodes[0];
     }
-     super.initState();
+    super.initState();
   }
 
   @override
@@ -44,15 +52,14 @@ class _AddEpisodeState extends State<AddEpisode> {
           children: [
             Card(
               shape: const RoundedRectangleBorder(
-                                borderRadius:  BorderRadius.all(Radius.circular(15)),
-                                side: BorderSide(
-                                    color:Colors.white)),
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  side: BorderSide(color: Colors.white)),
               margin: EdgeInsets.symmetric(horizontal: 16.w),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(children: [
                   Text(
-                   isEdit? 'edit_episode'.tr : 'add_episode'.tr,
+                    isEdit ? 'edit_episode'.tr : 'add_episode'.tr,
                     style: TextStyle(
                         color: Get.theme.primaryColor,
                         fontSize: 18.sp,
@@ -106,99 +113,100 @@ class _AddEpisodeState extends State<AddEpisode> {
 
                   /// episode_type
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: PopupMenuButton<String>(
-                          padding: EdgeInsets.zero,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'episode_type'.tr,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w500),
-                                textScaleFactor: SizeConfig.textScaleFactor,
-                              ),
-                              SizedBox(
-                                height: 5.h,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      //width: 150.w,
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 10.h, horizontal: 10.w),
-                                      decoration: BoxDecoration(
-                                        color: Get.theme.secondaryHeaderColor
-                                            .withOpacity(0.8),
-                                        //  shape: BoxShape.circle,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              episodeType,
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w500),
-                                              maxLines: 1,
-                                              textScaleFactor:
-                                                  SizeConfig.textScaleFactor,
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.keyboard_arrow_down,
-                                            size: 25.sp,
-                                            color: Colors.white,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          itemBuilder: (context) => [
-                            ...typeEpisodes.map(
-                              (e) => PopupMenuItem(
-                                padding: EdgeInsets.zero,
-                                value: e,
-                                height: 50.h,
-                                child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: PopupMenuButton<String>(
+                            padding: EdgeInsets.zero,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'episode_type'.tr,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500),
+                                  textScaleFactor: SizeConfig.textScaleFactor,
+                                ),
+                                SizedBox(
+                                  height: 5.h,
+                                ),
+                                Row(
                                   children: [
-                                    Center(
-                                      child: Text(
-                                        e,
-                                        style: const TextStyle(
-                                            decoration: TextDecoration.none,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500),
-                                        textScaleFactor:
-                                            SizeConfig.textScaleFactor,
+                                    Expanded(
+                                      child: Container(
+                                        //width: 150.w,
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.h, horizontal: 10.w),
+                                        decoration: BoxDecoration(
+                                          color: Get.theme.secondaryHeaderColor
+                                              .withOpacity(0.8),
+                                          //  shape: BoxShape.circle,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                episodeType,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14.sp,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                                maxLines: 1,
+                                                textScaleFactor:
+                                                    SizeConfig.textScaleFactor,
+                                              ),
+                                            ),
+                                            Icon(
+                                              Icons.keyboard_arrow_down,
+                                              size: 25.sp,
+                                              color: Colors.white,
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                    // Divider(height: 20.h,thickness: 1.5,)
                                   ],
                                 ),
-                              ),
-                            )
-                          ],
-                          onSelected: (String value) async {
-                            setEpisodeType = value;
-                          },
+                              ],
+                            ),
+                            itemBuilder: (context) => [
+                              ...typeEpisodes.map(
+                                (e) => PopupMenuItem(
+                                  padding: EdgeInsets.zero,
+                                  value: e,
+                                  height: 50.h,
+                                  child: Column(
+                                    children: [
+                                      Center(
+                                        child: Text(
+                                          e.tr,
+                                          style: const TextStyle(
+                                              decoration: TextDecoration.none,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500),
+                                          textScaleFactor:
+                                              SizeConfig.textScaleFactor,
+                                        ),
+                                      ),
+                                      // Divider(height: 20.h,thickness: 1.5,)
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                            onSelected: (String value) async {
+                              setEpisodeType = value;
+                            },
+                          ),
                         ),
-                      ),
-                    ]),
-                 
+                      ]),
 
                   SizedBox(
                     height: 20.h,
@@ -206,26 +214,26 @@ class _AddEpisodeState extends State<AddEpisode> {
                   InkWell(
                     onTap: (() async {
                       if (formKey.currentState?.validate() ?? false) {
-                        Episode episode ;
-                        bool result ;
-                        if(isEdit){
-                           episode = Episode(
-                            displayName: name.text,
-                            id: widget.episode!.id,
-                            name: name.text,
-                            epsdType: episodeType);
-                         result = await homeController.editEdisode(episode);      
-                        }else{
-                        int count =
-                            await EdisodesService().getCountEdisodesLocal();
-                         episode = Episode(
-                            displayName: name.text,
-                            id: count + 1,
-                            name: name.text,
-                            epsdType: episodeType);
-                        result = await homeController.addEdisode(episode);   
+                        Episode episode;
+                        bool result;
+                        if (isEdit) {
+                          episode = Episode(
+                              displayName: name.text,
+                              id: widget.episode!.id,
+                              name: name.text,
+                              epsdType: episodeType);
+                          result = await homeController.editEdisode(episode);
+                        } else {
+                          int count =
+                              await EdisodesService().getCountEdisodesLocal();
+                          episode = Episode(
+                              displayName: name.text,
+                              id: count + 1,
+                              name: name.text,
+                              epsdType: episodeType);
+                          result = await homeController.addEdisode(episode);
                         }
-                         
+
                         Get.back(result: result);
                       }
                     }),
@@ -251,7 +259,7 @@ class _AddEpisodeState extends State<AddEpisode> {
                       ),
                       child: Center(
                         child: Text(
-                         isEdit? 'save_changed'.tr : 'add'.tr,
+                          isEdit ? 'save_changed'.tr : 'add'.tr,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.sp,
@@ -271,7 +279,7 @@ class _AddEpisodeState extends State<AddEpisode> {
     );
   }
 
-    set setEpisodeType(String type) {
+  set setEpisodeType(String type) {
     setState(() {
       episodeType = type;
     });

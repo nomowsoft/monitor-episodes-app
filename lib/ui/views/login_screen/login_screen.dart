@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:monitor_episodes/controller/teacher_controller.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/ui/shared/utils/validator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../controller/auth_controller.dart';
 import '../../../model/core/shared/response_content.dart';
@@ -250,6 +250,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                               hasWaitAnim = true;
                                               loginErorr = false;
                                             });
+                                            final prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            prefs.setBool('isLogin', true);
                                             Get.off(() => const Home(),
                                                 duration:
                                                     const Duration(seconds: 1),
@@ -265,35 +269,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 response: responseContent);
                                           }
                                         }
-                                        // if (formKey.currentState!.validate()) {
-                                        //   setState(() {
-                                        //     islogin = true;
-                                        //     loginErorr = false;
-                                        //     hasWaitAnim = false;
-                                        //     opacityLogin = 0.0;
-                                        //   });
-                                        //   await authControllerImp.signIn();
-                                        //   await Future.delayed(
-                                        //       const Duration(seconds: 1));
-                                        //   setState(() {
-                                        //     hasWaitAnim = true;
-                                        //     loginErorr = false;
-                                        //   });
-                                        //   Future.delayed(
-                                        //       const Duration(milliseconds: 500),
-                                        //       () {
-                                        //     setState(() {
-                                        //       islogin = false;
-                                        //       opacityLogin = 1.0;
-                                        //       hasWaitAnim = false;
-                                        //     });
-                                        //   });
-                                        //   Get.off(() => const Home(),
-                                        //       duration:
-                                        //           const Duration(seconds: 1),
-                                        //       curve: Curves.easeInOut,
-                                        //       transition: Transition.fadeIn);
-                                        // }
                                       }),
                                       child: AnimatedContainer(
                                         width: islogin ? 45 : Get.size.width,
@@ -346,7 +321,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       curve: Curves.fastOutSlowIn,
                                       duration:
                                           const Duration(milliseconds: 700),
-                                      // padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           colors: [
@@ -362,7 +336,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       child: Center(
                                         child: Opacity(
-                                          // duration: const Duration(milliseconds: 700),
                                           opacity:
                                               opacityLogin == 0.0 ? 1.0 : 0.0,
                                           child: Padding(
