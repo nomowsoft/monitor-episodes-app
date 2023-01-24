@@ -22,4 +22,10 @@ class Episode {
         "type_episode": epsdType,
         "name": name,
       };
+        Map<String, dynamic> toJsonServer() => {
+        "name": name,
+        "id": id,
+        "type_episode": epsdType,
+
+      };
 }

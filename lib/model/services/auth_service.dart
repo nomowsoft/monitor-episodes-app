@@ -29,11 +29,10 @@ class AuthService {
       prefs.setInt('teacher_id', response.data['result']['data']['teacher_id']);
     } else if (response.isBadRequest) {
       response.message = 'BadRequest';
-    }else if(response.isNotFound){
+    } else if (response.isNotFound) {
       response.message = 'NotFound';
-    } else if(response.isNoContent){
+    } else if (response.isNoContent) {
       response.message = 'NoContent';
-
     }
     return response;
   }
@@ -58,11 +57,10 @@ class AuthService {
       prefs.setInt('user_id', response.data['result']['data']['user_id']);
     } else if (response.isBadRequest) {
       response.message = 'BadRequest';
-    }else if(response.isNotFound){
+    } else if (response.isNotFound) {
       response.message = 'NotFound';
-    } else if(response.isNoContent){
+    } else if (response.isNoContent) {
       response.message = 'NoContent';
-
     }
     return response;
   }

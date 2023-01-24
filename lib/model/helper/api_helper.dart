@@ -2,6 +2,7 @@ import 'dart:convert' as convert;
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/shared/response_content.dart';
 import '../core/shared/status_and_types.dart';
@@ -33,6 +34,7 @@ class ApiHelper {
       String? contentType,
       bool withToken = false,
       Map<String, String>? headers}) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
     final client = http.Client();
     try {
       Uri uri = Uri.parse(
@@ -40,16 +42,19 @@ class ApiHelper {
       final response = await client.post(uri, body: value, headers: {
         "Accept": "application/json",
         "Content-Type": contentType ?? ContentTypeHeaders.formUrlEncoded,
+        'cookie': pref.getString('cookie') ?? '',
         // 'Access-Token':
         //     withToken ? Get.find<UserController>().userLogin?.token ?? '' : '',
         ...?headers
       });
 
       if (response.statusCode >= 200 && response.statusCode < 299) {
+        updateCookie(response, pref);
         try {
           var data = convert.jsonDecode(response.body);
           print(data);
-          ResponseContent result = ResponseContent.fromJson(data, response.statusCode);
+          ResponseContent result =
+              ResponseContent.fromJson(data, response.statusCode);
           return result;
         } catch (e) {
           print(e);
@@ -70,6 +75,15 @@ class ApiHelper {
       print(e);
       return ResponseContent(
           statusCode: '0', message: 'error_connect_to_netwotk'.tr);
+    }
+  }
+
+  void updateCookie(http.Response response, SharedPreferences pref) {
+    String? rawCookie = response.headers['set-cookie'];
+    if (rawCookie != null) {
+      int index = rawCookie.indexOf(';');
+      pref.setString(
+          'cookie', index == -1 ? rawCookie : rawCookie.substring(0, index));
     }
   }
 }

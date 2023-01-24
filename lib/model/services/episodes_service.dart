@@ -43,12 +43,12 @@ class EdisodesService {
   Future<bool> setEdisodeLocal(Episode episode) async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      var json = episode.toJson();
-      await dbHelper.insert(DatabaseHelper.tableEpisode, json);
-      json.addAll({EpisodeColumns.operation.value: 'create'});
-      await dbHelper.insert(DatabaseHelper.logTableEpisode, json);
-      episodeCrudOperationsRemoately(
-          dbHelper);
+      var jsonLocal = episode.toJson();
+      var jsonServer = episode.toJsonServer();
+      await dbHelper.insert(DatabaseHelper.tableEpisode, jsonLocal);
+      jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
+      await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
+      episodeCrudOperationsRemoately(dbHelper);
       return true;
     } catch (e) {
       return false;
@@ -62,8 +62,7 @@ class EdisodesService {
       await dbHelper.update(DatabaseHelper.tableEpisode, json);
       json.addAll({EpisodeColumns.operation.value: 'update'});
       await dbHelper.insert(DatabaseHelper.logTableEpisode, json);
-      episodeCrudOperationsRemoately(
-          dbHelper);
+      episodeCrudOperationsRemoately(dbHelper);
       return true;
     } catch (e) {
       return false;
@@ -86,8 +85,7 @@ class EdisodesService {
       await dbHelper.delete(DatabaseHelper.tableEpisode, episodeId);
       await dbHelper.insert(DatabaseHelper.logTableEpisode,
           {'id': episodeId, EpisodeColumns.operation.value: 'delete'});
-      episodeCrudOperationsRemoately(
-          dbHelper);
+      episodeCrudOperationsRemoately(dbHelper);
       return true;
     } catch (e) {
       return false;
@@ -99,31 +97,75 @@ episodeCrudOperationsRemoately(DatabaseHelper dbHelper) async {
   // var result = await dbHelper.queryAllRowsWhere(DatabaseHelper.logTableEpisode,
   //     EpisodeColumns.operation.value, operation);
   var result = await dbHelper.queryAllRows(DatabaseHelper.logTableEpisode);
-  var listOfEpisodes = result!.map((e) => e).toList();
+  var listOfEpisodes = result!.map((e) => Map.of(e)).toList();
   // var data = jsonEncode(
   //   {
   //     'data': [listOfEpisodes]
   //   },
   // );
-  listOfEpisodes.map((episode) {
+  var listOfEpisodeTypeCreate = [];
+  var listOfEpisodeTypeUdate = [];
+  var listOfEpisodeTypeDelete = [];
+  listOfEpisodes.forEach((episode) {
+    if (episode['operation'] == 'create') {
+      episode.remove('operation');
+      listOfEpisodeTypeCreate.add(episode);
+    } else if (episode['operation'] == 'update') {
+      listOfEpisodeTypeUdate.add(episode.remove('operation'));
+    } else {
+      listOfEpisodeTypeDelete.add(episode.remove('operation'));
+    }
+    return;
+  });
+
+  sendToServer(listOfEpisodeTypeCreate, 'create', dbHelper);
+  sendToServer(listOfEpisodeTypeUdate, 'update', dbHelper);
+  sendToServer(listOfEpisodeTypeUdate, 'delete', dbHelper);
+
+  // listOfEpisodes.forEach((episode) async {
+  //   var data = jsonEncode(
+  //     {
+  //       'data': [episode]
+  //     },
+  //   );
+  //   String endPoint = episode['operation'] == 'create'
+  //       ? EndPoint.createHalaqat
+  //       : episode['operation'] == 'update'
+  //           ? EndPoint.updateHalaqat
+  //           : EndPoint.deleteHalaqat;
+  //   await ApiHelper()
+  //       .postV2(endPoint, data,
+  //           linkApi: "http://rased-api.maknon.org.sa",
+  //           contentType: ContentTypeHeaders.applicationJson)
+  //       .then((response) {
+  //     if (response.isSuccess) {
+  //       dbHelper.delete(DatabaseHelper.logTableEpisode, episode['id']);
+  //     }
+  //   });
+  // });
+}
+
+void sendToServer(List list, String operation, DatabaseHelper dbHelper) {
+  if (list.isNotEmpty) {
     var data = jsonEncode(
-      {
-        'data': [episode]
-      },
+      {'data': list},
     );
-    String endPoint = episode['operation'] == 'create'
+
+    String endPoint = operation == 'create'
         ? EndPoint.createHalaqat
-        : episode['operation'] == 'update'
+        : operation == 'update'
             ? EndPoint.updateHalaqat
             : EndPoint.deleteHalaqat;
+
     ApiHelper()
         .postV2(endPoint, data,
             linkApi: "http://rased-api.maknon.org.sa",
             contentType: ContentTypeHeaders.applicationJson)
         .then((response) {
       if (response.isSuccess) {
-        dbHelper.delete(DatabaseHelper.logTableEpisode, episode['id']);
+        dbHelper.deleteAllWhere(DatabaseHelper.logTableEpisode,
+            EpisodeColumns.operation.value, operation);
       }
     });
-  });
+  }
 }
