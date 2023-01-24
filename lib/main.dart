@@ -9,6 +9,7 @@ import 'package:monitor_episodes/model/localization/translation.dart';
 import 'package:monitor_episodes/model/theme/theme_dark.dart';
 import 'package:monitor_episodes/model/theme/theme_light.dart';
 import 'package:monitor_episodes/ui/views/home/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'model/core/shared/constants.dart';
 import 'ui/views/login_screen/login_screen.dart';
 
@@ -75,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen>
       // }
     });
 
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 2), () async {
       setState(() {
         isclose = true;
       });
@@ -84,8 +85,10 @@ class _SplashScreenState extends State<SplashScreen>
           isStartOpcity = true;
         });
       });
+       final prefs = await SharedPreferences.getInstance();
+                      final isLogin = prefs.getBool('isLogin') ?? false;
 
-      Get.off(() => isHome ? const Home() : const LoginScreen(),
+      Get.off(() => isLogin ? const Home() : const LoginScreen(),
           duration: const Duration(seconds: 1),
           curve: Curves.easeInOut,
           transition: isHome ? Transition.fadeIn : Transition.downToUp);

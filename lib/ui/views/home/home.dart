@@ -9,6 +9,7 @@ import 'package:monitor_episodes/ui/shared/utils/custom_dailogs.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/monitor_episodes.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/add_episode.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/episode_details/widgets/add_student.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../model/core/shared/response_content.dart';
 import 'widgets/about_us/about_us.dart';
@@ -102,6 +103,7 @@ class _HomeState extends State<Home> {
                             SizedBox(
                               height: 20.h,
                             ),
+                            // monitor_episodes
                             ListTile(
                               leading: const Icon(
                                 Icons.menu_open,
@@ -122,6 +124,7 @@ class _HomeState extends State<Home> {
                               },
                             ),
 
+                            //add_episode
                             ListTile(
                               leading: const Icon(
                                 Icons.add,
@@ -135,24 +138,26 @@ class _HomeState extends State<Home> {
                                     fontWeight: FontWeight.w500),
                                 textScaleFactor: SizeConfig.textScaleFactor,
                               ),
-                              onTap: () async{
-                                 Get.back();
-                                  bool? result = await Get.dialog(
-                                          const AddEpisode(),
-                                          transitionDuration:
-                                              const Duration(seconds: 1),
-                                          transitionCurve: Curves.easeInOut,
-                                        );
-                                        if (result != null) {
-                                          Get.put(StatisticsController()).getStatisics(); 
-                                          CostomDailogs.snackBar(
-                                              response: ResponseContent(
-                                                  statusCode: '200',
-                                                  success: true,
-                                                  message: 'ok_add'.tr));
-                                        }
+                              onTap: () async {
+                                Get.back();
+                                bool? result = await Get.dialog(
+                                  const AddEpisode(),
+                                  transitionDuration:
+                                      const Duration(seconds: 1),
+                                  transitionCurve: Curves.easeInOut,
+                                );
+                                if (result != null) {
+                                  Get.put(StatisticsController())
+                                      .getStatisics();
+                                  CostomDailogs.snackBar(
+                                      response: ResponseContent(
+                                          statusCode: '200',
+                                          success: true,
+                                          message: 'ok_add'.tr));
+                                }
                               },
                             ),
+                            //add_student
                             ListTile(
                               leading: const Icon(
                                 Icons.add,
@@ -166,24 +171,26 @@ class _HomeState extends State<Home> {
                                     fontWeight: FontWeight.w500),
                                 textScaleFactor: SizeConfig.textScaleFactor,
                               ),
-                              onTap: () async{
+                              onTap: () async {
                                 Get.back();
                                 bool? result = await Get.dialog(
-                                    const AddStudent(),
-                                    transitionDuration:
-                                        const Duration(seconds: 1),
-                                    transitionCurve: Curves.easeInOut,
-                                  );
-                                  if (result != null) {
-                                    Get.put(StatisticsController()).getStatisics();
-                                    CostomDailogs.snackBar(
-                                        response: ResponseContent(
-                                            statusCode: '200',
-                                            success: true,
-                                            message: 'ok_add'.tr));       
-                                  }
+                                  const AddStudent(),
+                                  transitionDuration:
+                                      const Duration(seconds: 1),
+                                  transitionCurve: Curves.easeInOut,
+                                );
+                                if (result != null) {
+                                  Get.put(StatisticsController())
+                                      .getStatisics();
+                                  CostomDailogs.snackBar(
+                                      response: ResponseContent(
+                                          statusCode: '200',
+                                          success: true,
+                                          message: 'ok_add'.tr));
+                                }
                               },
                             ),
+                            // about_as
                             ListTile(
                               leading: const Icon(
                                 Icons.notifications,
@@ -202,6 +209,7 @@ class _HomeState extends State<Home> {
                                 Get.back();
                               },
                             ),
+                            //logout
                             ListTile(
                               leading: const Icon(
                                 Icons.logout,
@@ -219,10 +227,15 @@ class _HomeState extends State<Home> {
                                 Get.back();
                                 bool result =
                                     await CostomDailogs.yesNoDialogWithText(
-                                        text: 'do_you_want_to_logout_and_delete_all_data'.tr);
+                                        text:
+                                            'do_you_want_to_logout_and_delete_all_data'
+                                                .tr);
                                 if (result) {
                                   await homeController.deleteAllEdisodes();
                                   await homeController.removeTeacherLocal();
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  prefs.setBool('isLogin', false);
                                   Get.offAll(() => const SplashScreen(),
                                       duration: const Duration(seconds: 2),
                                       curve: Curves.easeInOut,

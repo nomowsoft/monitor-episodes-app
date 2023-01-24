@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:monitor_episodes/controller/teacher_controller.dart';
 import 'package:monitor_episodes/model/core/countries/country.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/ui/shared/utils/validator.dart';
-import 'package:monitor_episodes/ui/views/home/home.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/episode_details/widgets/select_country.dart';
 
 import '../../../controller/auth_controller.dart';
 import '../../../model/core/shared/response_content.dart';
 import '../../shared/utils/custom_dailogs.dart';
+import '../login_screen/login_screen.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -33,8 +32,8 @@ class _SignUpState extends State<SignUp> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
-    TeacherController teacherController = Get.put(TeacherController());
-    teacherController.initFields();
+    AuthControllerImp authControllerImp = Get.put(AuthControllerImp());
+    authControllerImp.initFilds();
     Future.delayed(const Duration(milliseconds: 800), () {
       setState(() {
         isopen = false;
@@ -325,7 +324,8 @@ class _SignUpState extends State<SignUp> {
                                                   content: SelectCountry()),
                                         );
                                         if (country != null) {
-                                          authControllerImp.setCountryID(country.id);
+                                          authControllerImp
+                                              .setCountryID(country.id);
                                         }
                                       },
                                       child: AbsorbPointer(
@@ -386,7 +386,6 @@ class _SignUpState extends State<SignUp> {
                                                 color: Get
                                                     .theme.secondaryHeaderColor
                                                     .withOpacity(0.8),
-                                                //  shape: BoxShape.circle,
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                               ),
@@ -440,7 +439,6 @@ class _SignUpState extends State<SignUp> {
                                                     SizeConfig.textScaleFactor,
                                               ),
                                             ),
-                                            // Divider(height: 20.h,thickness: 1.5,)
                                           ],
                                         ),
                                       ),
@@ -472,7 +470,7 @@ class _SignUpState extends State<SignUp> {
                                               hasWaitAnim = true;
                                               loginErorr = false;
                                             });
-                                            Get.off(() => const Home(),
+                                            Get.off(() => const LoginScreen(),
                                                 duration:
                                                     const Duration(seconds: 1),
                                                 curve: Curves.easeInOut,
@@ -539,7 +537,6 @@ class _SignUpState extends State<SignUp> {
                                       curve: Curves.fastOutSlowIn,
                                       duration:
                                           const Duration(milliseconds: 700),
-                                      // padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           colors: [
@@ -555,7 +552,6 @@ class _SignUpState extends State<SignUp> {
                                       ),
                                       child: Center(
                                         child: Opacity(
-                                          // duration: const Duration(milliseconds: 700),
                                           opacity:
                                               opacityLogin == 0.0 ? 1.0 : 0.0,
                                           child: Padding(
