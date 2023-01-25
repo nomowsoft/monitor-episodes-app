@@ -167,7 +167,7 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                             height: 5.h,
                           ),
                           Text(
-                            widget.episode.epsdType,
+                            widget.episode.epsdType.tr,
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,

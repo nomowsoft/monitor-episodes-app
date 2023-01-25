@@ -85,13 +85,13 @@ class _SplashScreenState extends State<SplashScreen>
           isStartOpcity = true;
         });
       });
-       final prefs = await SharedPreferences.getInstance();
-                      final isLogin = prefs.getBool('isLogin') ?? false;
+      final prefs = await SharedPreferences.getInstance();
+      final isLogin = prefs.getBool('isLogin') ?? false;
 
       Get.off(() => isLogin ? const Home() : const LoginScreen(),
-          duration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 2),
           curve: Curves.easeInOut,
-          transition: isHome ? Transition.fadeIn : Transition.downToUp);
+          transition: isHome ? Transition.zoom : Transition.downToUp);
     });
   }
 
@@ -110,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
             bottom: isclose ? 150.h : 0,
             child: AnimatedOpacity(
               opacity: isStartOpcity ? 0.0 : 1.0,
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 50),
               child: SvgPicture.asset(
                 'images/maknoon_icon.svg',
                 height: !isclose ? 72.h : 150.h,
