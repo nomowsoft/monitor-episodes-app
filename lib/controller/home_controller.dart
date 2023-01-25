@@ -111,8 +111,8 @@ class HomeController extends GetxController {
 
   Future<bool> addStudent(StudentOfEpisode studentOfEpisode,
       PlanLines planLines, int episodeId) async {
-    bool studentResult =
-        await StudentsOfEpisodeService().setStudentOfEpisode(studentOfEpisode);
+    bool studentResult = await StudentsOfEpisodeService()
+        .setStudentOfEpisode(studentOfEpisode, planLines);
     bool planLinesResult =
         await PlanLinesService().setPlanLinesLocal(planLines);
     loadStudentsOfEpisode(episodeId);
@@ -122,7 +122,7 @@ class HomeController extends GetxController {
   Future<bool> editStudent(StudentOfEpisode studentOfEpisode,
       PlanLines planLines, int episodeId) async {
     bool studentResult = await StudentsOfEpisodeService()
-        .updateStudentsOfEpisodeLocal(studentOfEpisode);
+        .updateStudentsOfEpisodeLocal(studentOfEpisode,planLines);
     bool planLinesResult =
         await PlanLinesService().updatePlanLinesLocal(planLines);
     if (studentResult && planLinesResult) {
@@ -265,7 +265,7 @@ class HomeController extends GetxController {
       _listStudentsOfEpisode[index].stateDate =
           DateFormat('yyyy-MM-dd').format(DateTime.now());
       await StudentsOfEpisodeService()
-          .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index]);
+          .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
     }
     studentStateResponse = ResponseContent(statusCode: '200', success: true);
 
@@ -601,7 +601,7 @@ class HomeController extends GetxController {
           _listStudentsOfEpisode[index].stateDate =
               DateFormat('yyyy-MM-dd').format(DateTime.now());
           await StudentsOfEpisodeService()
-              .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index]);
+              .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
           await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
               date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
               episodeId: _listStudentsOfEpisode[index].episodeId!,

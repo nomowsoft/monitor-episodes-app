@@ -6,4 +6,7 @@
   static String createHalaqat = 'cud/create_halaqat';
   static String updateHalaqat = 'cud/update_halaqat';
   static String deleteHalaqat = 'cud/delete_halaqat';
+   static String createStudent = 'cud/create_students';
+  static String updateStudent = 'cud/update_students';
+  static String deleteStudent = 'cud/delete_students';
  }

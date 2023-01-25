@@ -8,6 +8,7 @@ class DatabaseHelper {
 
   static const tableEpisode = 'table_episode';
   static const logTableEpisode = 'log_table_episode';
+  static const logTableStudentOfEpisode = 'log_table_student_of_episode';
 
   static const tableStudentOfEpisode = 'table_student_of_episode';
   static const tablePlanLines = 'table_planLines';
@@ -43,8 +44,6 @@ class DatabaseHelper {
     await db.execute(
         'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT,${EpisodeColumns.typeEpisode.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
         ', ${EpisodeColumns.epsdWork.value} TEXT)');
-    await db.execute(
-        'CREATE TABLE $logTableEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.typeEpisode.value} TEXT,${EpisodeColumns.operation.value} TEXT )');
     await db.execute('CREATE TABLE $tableStudentOfEpisode ('
         '${StudentOfEpisodeColumns.id.value} INTEGER PRIMARY KEY,'
         '${StudentOfEpisodeColumns.age.value} INTEGER,'
@@ -92,6 +91,12 @@ class DatabaseHelper {
         '${EducationalPlanColumns.studentId.value} INTEGER,'
         '${EducationalPlanColumns.episodeId.value} INTEGER'
         ')');
+
+    // log tables
+    await db.execute(
+        'CREATE TABLE $logTableEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.typeEpisode.value} TEXT,${EpisodeColumns.operation.value} TEXT )');
+    await db.execute(
+        'CREATE TABLE $logTableStudentOfEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, halaqa_id TEXT,mobile TEXT,country_id INTEGER,gender TEXT,is_hifz BOOLEAN,is_tilawa BOOLEAN,is_big_review BOOLEAN,is_small_review BOOLEAN,${EpisodeColumns.operation.value} TEXT )');
   }
 
   // Helper methods
