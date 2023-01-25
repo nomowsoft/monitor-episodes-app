@@ -628,11 +628,10 @@ class _AddStudentState extends State<AddStudent> {
                         StudentOfEpisode studentOfEpisode;
                         PlanLines planLines ;
                         if(!isEdit) {   
-                        int count =
-                            await StudentsOfEpisodeService().getCountStudent();
+                      
                          studentOfEpisode = StudentOfEpisode(
                           episodeId: (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!),
-                          id: count + 1,
+              
                           name: name.text,
                           phone: phone.text,
                           country: country.text,
@@ -658,7 +657,7 @@ class _AddStudentState extends State<AddStudent> {
                           planLines.tlawa = PlanLine.fromDefault();
                         }
                         result =  await homeController.addStudent(
-                            studentOfEpisode, planLines, (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!));
+                            studentOfEpisode, planLines, (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!)!);
                         }else{
                           studentOfEpisode = StudentOfEpisode(
                           episodeId: (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!),
@@ -684,7 +683,7 @@ class _AddStudentState extends State<AddStudent> {
                           planLines.tlawa = PlanLine.fromDefault();
                         }
                         result =  await homeController.editStudent(
-                            studentOfEpisode, planLines,(widget.episodeId == null ? selectEpisode!.id : widget.episodeId!));
+                            studentOfEpisode, planLines,(widget.episodeId == null ? selectEpisode!.id : widget.episodeId!)!);
                         }
                        
                         Get.back(result: result);

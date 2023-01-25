@@ -41,7 +41,7 @@ class _FollowUpState extends State<FollowUp> {
     HomeController homeController = Get.find<HomeController>();
     if (homeController.planLines == null) {
       homeController.loadPlanLines(
-          widget.episode.id, widget.id,
+          widget.episode.id!, widget.id,
           isInit: true); 
     }
   }
@@ -4238,7 +4238,7 @@ class _FollowUpState extends State<FollowUp> {
     ResponseContent responseContent = await homeController.addListenLine(
       type,
       id,
-      widget.episode.id,
+      widget.episode.id!,
     );
     Get.back(result: responseContent);
   }

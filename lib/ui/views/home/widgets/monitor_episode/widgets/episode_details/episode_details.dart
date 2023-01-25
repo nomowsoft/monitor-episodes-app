@@ -45,7 +45,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
     super.initState();
     HomeController homeController = Get.find<HomeController>();
     homeController.initStudntData();
-    homeController.loadStudentsOfEpisode(widget.episode.id, isInit: true);
+    homeController.loadStudentsOfEpisode(widget.episode.id!, isInit: true);
   }
 
   @override
@@ -206,14 +206,14 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                             homeController.initStudntData();
                                             if (indextab == 0) {
                                               homeController.loadPlanLines(
-                                                  widget.episode.id,
+                                                  widget.episode.id!,
                                                   homeController
                                                       .listStudentsOfEpisode[
                                                           index]
                                                       .id!);
                                             } else {
                                               homeController.loadEducationalPlan(
-                                                  widget.episode.id,
+                                                  widget.episode.id!,
                                                   homeController
                                                       .listStudentsOfEpisode[
                                                           index]
@@ -639,7 +639,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                 Get.find<HomeController>();
                                             bool result = await homeController
                                                 .deleteStudent(
-                                                    widget.episode.id,
+                                                    widget.episode.id!,
                                                     homeController
                                                         .listStudentsOfEpisode[
                                                             selectIndex]
@@ -654,7 +654,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                 homeController.initStudntData();
                                                 if (indextab == 0) {
                                                   homeController.loadPlanLines(
-                                                      widget.episode.id,
+                                                      widget.episode.id!,
                                                       homeController
                                                           .listStudentsOfEpisode[
                                                               selectIndex]
@@ -662,7 +662,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                 } else {
                                                   homeController
                                                       .loadEducationalPlan(
-                                                          widget.episode.id,
+                                                          widget.episode.id!,
                                                           homeController
                                                               .listStudentsOfEpisode[
                                                                   selectIndex]
@@ -683,7 +683,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                  homeController.initStudntData();
                                                 if (indextab == 0) {
                                                   homeController.loadPlanLines(
-                                                      widget.episode.id,
+                                                      widget.episode.id!,
                                                       homeController
                                                           .listStudentsOfEpisode[
                                                               selectIndex]
@@ -691,7 +691,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                 } else {
                                                   homeController
                                                       .loadEducationalPlan(
-                                                          widget.episode.id,
+                                                          widget.episode.id!,
                                                           homeController
                                                               .listStudentsOfEpisode[
                                                                   selectIndex]

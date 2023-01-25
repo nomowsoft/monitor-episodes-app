@@ -29,7 +29,7 @@ class _EducationalPlanState extends State<EducationalPlan> {
     super.initState();
     HomeController homeController = Get.find<HomeController>();
     if (homeController.educationalPlan == null) {
-      homeController.loadEducationalPlan(widget.episode.id, widget.id,
+      homeController.loadEducationalPlan(widget.episode.id!, widget.id,
           isInit: true);
     }
   }

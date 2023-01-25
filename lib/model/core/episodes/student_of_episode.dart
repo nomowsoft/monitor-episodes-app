@@ -5,7 +5,7 @@ class StudentOfEpisode {
   String name, state, stateDate, phone, address, gender, country;
   StudentOfEpisode(
       {this.age,
-      required this.id,
+       this.id,
       required this.episodeId,
       this.name = '',
       this.state = '',

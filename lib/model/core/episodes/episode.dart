@@ -1,11 +1,11 @@
 class Episode {
   String displayName;
-  int id;
+  int ?id;
   String name, epsdType;
 
   Episode(
       {required this.displayName,
-      required this.id,
+       this.id,
       required this.name,
       required this.epsdType});
 

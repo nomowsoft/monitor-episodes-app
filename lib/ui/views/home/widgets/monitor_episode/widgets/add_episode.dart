@@ -224,11 +224,10 @@ class _AddEpisodeState extends State<AddEpisode> {
                               epsdType: episodeType);
                           result = await homeController.editEdisode(episode);
                         } else {
-                          int count =
-                              await EdisodesService().getCountEdisodesLocal();
+                          // int count =
+                          //     await EdisodesService().getCountEdisodesLocal();
                           episode = Episode(
                               displayName: name.text,
-                              id: count + 1,
                               name: name.text,
                               epsdType: episodeType);
                           result = await homeController.addEdisode(episode);

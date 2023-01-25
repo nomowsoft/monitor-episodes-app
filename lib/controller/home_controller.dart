@@ -76,13 +76,13 @@ class HomeController extends GetxController {
 
   Future<bool> deleteEdisode(Episode episode) async {
     try {
-      await PlanLinesService().deleteAllPlanLinesOfEpisode(episode.id);
+      await PlanLinesService().deleteAllPlanLinesOfEpisode(episode.id!);
       await EducationalPlanService()
-          .deleteAllEducationalPlansOfEpisode(episode.id);
+          .deleteAllEducationalPlansOfEpisode(episode.id!);
 
       List<StudentOfEpisode> listStudentOfEpisode =
           await StudentsOfEpisodeService()
-                  .getStudentsOfEpisodeLocal(episode.id) ??
+                  .getStudentsOfEpisodeLocal(episode.id!) ??
               [];
       if (listStudentOfEpisode.isNotEmpty) {
         for (var student in listStudentOfEpisode) {
@@ -92,8 +92,8 @@ class HomeController extends GetxController {
           await ListenLineService().deleteListenLineStudent(student.id ?? 0);
         }
       }
-      await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id);
-      await EdisodesService().deletedEpisode(episode.id);
+      await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id!);
+      await EdisodesService().deletedEpisode(episode.id!);
       loadEpisodes();
       return true;
     } catch (e) {
