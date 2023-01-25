@@ -280,8 +280,8 @@ Map<String, String> translateArabic = {
   "community": "حلقة جاليات",
   "excellence": "حلقة التميز",
   "review": "حلقة مراجعة",
-  "": "",
-  "": "",
-  "": "",
-  "": "",
+  "hifz": "الحفظ",
+  "mourajaa_s": "المراجعة الصغرى",
+  "mourajaa_g": "المراجعة الكبرى",
+  "tilawa": "التلاوة",
 };

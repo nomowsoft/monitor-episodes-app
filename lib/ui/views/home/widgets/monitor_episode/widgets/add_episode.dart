@@ -152,7 +152,7 @@ class _AddEpisodeState extends State<AddEpisode> {
                                           children: [
                                             Expanded(
                                               child: Text(
-                                                episodeType,
+                                                episodeType.tr,
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14.sp,
@@ -233,7 +233,6 @@ class _AddEpisodeState extends State<AddEpisode> {
                               epsdType: episodeType);
                           result = await homeController.addEdisode(episode);
                         }
-
                         Get.back(result: result);
                       }
                     }),

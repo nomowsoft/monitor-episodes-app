@@ -31,8 +31,8 @@ class AddStudent extends StatefulWidget {
 class _AddStudentState extends State<AddStudent> {
   TextEditingController name = TextEditingController();
   TextEditingController phone = TextEditingController();
-  TextEditingController country = TextEditingController(); 
-  TextEditingController episode = TextEditingController(); 
+  TextEditingController country = TextEditingController();
+  TextEditingController episode = TextEditingController();
   late bool listen, reviewsmall, reviewbig, tlawa;
   late String gender;
   late PlanLines planLinesLocal;
@@ -43,16 +43,16 @@ class _AddStudentState extends State<AddStudent> {
   bool get isEdit => widget.student != null;
   List<Episode> listEpisodes = [];
   Episode? selectEpisode;
-  
+
   @override
   void initState() {
     // ignore: todo
     // TODO: implement initState
-    if(widget.episodeId == null){
+    if (widget.episodeId == null) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-        listEpisodes = await EdisodesService().getEdisodesLocal()??[];
+        listEpisodes = await EdisodesService().getEdisodesLocal() ?? [];
         episode.text = listEpisodes.isEmpty ? '' : listEpisodes[0].name;
-        selectEpisode = listEpisodes.isEmpty ? null :listEpisodes[0];
+        selectEpisode = listEpisodes.isEmpty ? null : listEpisodes[0];
       });
     }
 
@@ -68,7 +68,7 @@ class _AddStudentState extends State<AddStudent> {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         PlanLines? planLines = await PlanLinesService()
             .getPlanLinesLocal(widget.student!.episodeId!, widget.student!.id!);
-        planLinesLocal = planLines!   ;
+        planLinesLocal = planLines!;
         listen = planLines.listen != null;
         reviewsmall = planLines.reviewsmall != null;
         reviewbig = planLines.reviewbig != null;
@@ -166,72 +166,77 @@ class _AddStudentState extends State<AddStudent> {
                       ),
                     ],
                   ),
-                 widget.episodeId == null? Column(
-                    children: [
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                       // Episode
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'episode'.tr,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500),
-                        textScaleFactor: SizeConfig.textScaleFactor,
-                      ),
-                      SizedBox(
-                        height: 5.h,
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          Episode? episode = await showDialog(
-                            context: context,
-                            builder: (contextDialog) =>  AlertDialog(
-                                shape:const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(15.0))),
-                                contentPadding:const EdgeInsets.all(15),
-                                content: SelectEpisode(listEpisode: listEpisodes,)),
-                          );
-                          if (episode != null) {
-                            setEpisode = episode;
-                          }
-                        },
-                        child: AbsorbPointer(
-                          absorbing: true,
-                          child: TextFormField(
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.name,
-                            keyboardAppearance: Brightness.light,
-                            validator: Validator.episodeValidator,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            controller: episode,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
+                  widget.episodeId == null
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: 10.h,
                             ),
-                            decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                suffixIcon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Get.theme.primaryColor,
-                                )),
-                            onChanged: (val) {},
-                          ),
-                        ),
-                      ),
-                    ],
-                  ), 
-                   
-                    ],
-                  ):const SizedBox(),
+                            // Episode
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'episode'.tr,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500),
+                                  textScaleFactor: SizeConfig.textScaleFactor,
+                                ),
+                                SizedBox(
+                                  height: 5.h,
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    Episode? episode = await showDialog(
+                                      context: context,
+                                      builder: (contextDialog) => AlertDialog(
+                                          shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(15.0))),
+                                          contentPadding:
+                                              const EdgeInsets.all(15),
+                                          content: SelectEpisode(
+                                            listEpisode: listEpisodes,
+                                          )),
+                                    );
+                                    if (episode != null) {
+                                      setEpisode = episode;
+                                    }
+                                  },
+                                  child: AbsorbPointer(
+                                    absorbing: true,
+                                    child: TextFormField(
+                                      textInputAction: TextInputAction.next,
+                                      keyboardType: TextInputType.name,
+                                      keyboardAppearance: Brightness.light,
+                                      validator: Validator.episodeValidator,
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
+                                      controller: episode,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          suffixIcon: Icon(
+                                            Icons.keyboard_arrow_down,
+                                            color: Get.theme.primaryColor,
+                                          )),
+                                      onChanged: (val) {},
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
                   SizedBox(
                     height: 10.h,
                   ),
@@ -328,11 +333,12 @@ class _AddStudentState extends State<AddStudent> {
                         ),
                       ),
                     ],
-                  ), 
-                   
+                  ),
+
                   SizedBox(
                     height: 10.h,
                   ),
+                  //gender
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,49 +434,48 @@ class _AddStudentState extends State<AddStudent> {
                       SizedBox(
                         width: 20.w,
                       ),
-                      const Expanded(
-                        child:SizedBox()
+                      const Expanded(child: SizedBox()
 
-                        //     ///age
-                        //     Column(
-                        //   mainAxisAlignment: MainAxisAlignment.start,
-                        //   crossAxisAlignment: CrossAxisAlignment.start,
-                        //   children: [
-                        //     Text(
-                        //       'age'.tr,
-                        //       style: TextStyle(
-                        //           color: Colors.black,
-                        //           fontSize: 14.sp,
-                        //           fontWeight: FontWeight.w500),
-                        //       textScaleFactor: SizeConfig.textScaleFactor,
-                        //     ),
-                        //     SizedBox(
-                        //       height: 5.h,
-                        //     ),
-                        //     TextFormField(
-                        //       textInputAction: TextInputAction.next,
-                        //       keyboardType: TextInputType.number,
-                        //       keyboardAppearance: Brightness.light,
-                        //       inputFormatters: [
-                        //         FilteringTextInputFormatter.digitsOnly
-                        //       ],
-                        //       controller: age,
-                        //       validator: Validator.ageValidator,
-                        //       autovalidateMode:
-                        //           AutovalidateMode.onUserInteraction,
-                        //       style: TextStyle(
-                        //           color: Colors.black,
-                        //           fontSize: 14.sp,
-                        //           fontWeight: FontWeight.w500),
-                        //       decoration: InputDecoration(
-                        //         filled: true,
-                        //         fillColor: Colors.white,
-                        //         hintText: 'enter_age'.tr,
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
-                      )
+                          //     ///age
+                          //     Column(
+                          //   mainAxisAlignment: MainAxisAlignment.start,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     Text(
+                          //       'age'.tr,
+                          //       style: TextStyle(
+                          //           color: Colors.black,
+                          //           fontSize: 14.sp,
+                          //           fontWeight: FontWeight.w500),
+                          //       textScaleFactor: SizeConfig.textScaleFactor,
+                          //     ),
+                          //     SizedBox(
+                          //       height: 5.h,
+                          //     ),
+                          //     TextFormField(
+                          //       textInputAction: TextInputAction.next,
+                          //       keyboardType: TextInputType.number,
+                          //       keyboardAppearance: Brightness.light,
+                          //       inputFormatters: [
+                          //         FilteringTextInputFormatter.digitsOnly
+                          //       ],
+                          //       controller: age,
+                          //       validator: Validator.ageValidator,
+                          //       autovalidateMode:
+                          //           AutovalidateMode.onUserInteraction,
+                          //       style: TextStyle(
+                          //           color: Colors.black,
+                          //           fontSize: 14.sp,
+                          //           fontWeight: FontWeight.w500),
+                          //       decoration: InputDecoration(
+                          //         filled: true,
+                          //         fillColor: Colors.white,
+                          //         hintText: 'enter_age'.tr,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          )
                     ],
                   ),
 
@@ -522,7 +527,7 @@ class _AddStudentState extends State<AddStudent> {
                                       onChanged: onChangedListen),
                                 ),
                                 Text(
-                                  'listen'.tr,
+                                  'hifz'.tr,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14.sp,
@@ -547,7 +552,7 @@ class _AddStudentState extends State<AddStudent> {
                                       onChanged: onChangedReviewbig),
                                 ),
                                 Text(
-                                  'reviewbig'.tr,
+                                  'mourajaa_g'.tr,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14.sp,
@@ -578,7 +583,7 @@ class _AddStudentState extends State<AddStudent> {
                                       onChanged: onChangedReviewsmall),
                                 ),
                                 Text(
-                                  'reviewsmall'.tr,
+                                  'mourajaa_s'.tr,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14.sp,
@@ -602,7 +607,7 @@ class _AddStudentState extends State<AddStudent> {
                                       onChanged: onChangedTlawa),
                                 ),
                                 Text(
-                                  'tlawa'.tr,
+                                  'tilawa'.tr,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14.sp,
@@ -624,69 +629,91 @@ class _AddStudentState extends State<AddStudent> {
                     onTap: (() async {
                       if ((formKey.currentState?.validate() ?? false) &&
                           getSelectCourses) {
-                        bool result ;
+                        bool result;
                         StudentOfEpisode studentOfEpisode;
-                        PlanLines planLines ;
-                        if(!isEdit) {   
-                        int count =
-                            await StudentsOfEpisodeService().getCountStudent();
-                         studentOfEpisode = StudentOfEpisode(
-                          episodeId: (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!),
-                          id: count + 1,
-                          name: name.text,
-                          phone: phone.text,
-                          country: country.text,
-                          gender: gender,
-                          state: "تحضير الطالب",
-                          stateDate:
-                              DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                        );
-                        
-                        planLines = PlanLines(
-                            episodeId: (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!),
-                            studentId: studentOfEpisode.id);
-                        if (listen) {
-                          planLines.listen = PlanLine.fromDefault();
-                        }
-                        if (reviewbig) {
-                          planLines.reviewbig = PlanLine.fromDefault();
-                        }
-                        if (reviewsmall) {
-                          planLines.reviewsmall = PlanLine.fromDefault();
-                        }
-                        if (tlawa) {
-                          planLines.tlawa = PlanLine.fromDefault();
-                        }
-                        result =  await homeController.addStudent(
-                            studentOfEpisode, planLines, (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!));
-                        }else{
+                        PlanLines planLines;
+                        if (!isEdit) {
+                          int count = await StudentsOfEpisodeService()
+                              .getCountStudent();
                           studentOfEpisode = StudentOfEpisode(
-                          episodeId: (widget.episodeId == null ? selectEpisode!.id : widget.episodeId!),
-                          id: widget.student!.id,
-                          name: name.text,
-                          phone: phone.text,
-                          country: country.text,
-                          gender: gender,
-                          state: widget.student!.state,
-                          stateDate:widget.student!.stateDate,
-                        );
-                        planLines =  planLinesLocal;
-                        if (!listReadOnly.any((element) => element == PlanLinesType.listen) && listen) {
-                          planLines.listen = PlanLine.fromDefault();
+                            episodeId: (widget.episodeId == null
+                                ? selectEpisode!.id
+                                : widget.episodeId!),
+                            id: count + 1,
+                            name: name.text,
+                            phone: phone.text,
+                            country: country.text,
+                            gender: gender,
+                            state: "تحضير الطالب",
+                            stateDate:
+                                DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                          );
+
+                          planLines = PlanLines(
+                              episodeId: (widget.episodeId == null
+                                  ? selectEpisode!.id
+                                  : widget.episodeId!),
+                              studentId: studentOfEpisode.id);
+                          if (listen) {
+                            planLines.listen = PlanLine.fromDefault();
+                          }
+                          if (reviewbig) {
+                            planLines.reviewbig = PlanLine.fromDefault();
+                          }
+                          if (reviewsmall) {
+                            planLines.reviewsmall = PlanLine.fromDefault();
+                          }
+                          if (tlawa) {
+                            planLines.tlawa = PlanLine.fromDefault();
+                          }
+                          result = await homeController.addStudent(
+                              studentOfEpisode,
+                              planLines,
+                              (widget.episodeId == null
+                                  ? selectEpisode!.id
+                                  : widget.episodeId!));
+                        } else {
+                          studentOfEpisode = StudentOfEpisode(
+                            episodeId: (widget.episodeId == null
+                                ? selectEpisode!.id
+                                : widget.episodeId!),
+                            id: widget.student!.id,
+                            name: name.text,
+                            phone: phone.text,
+                            country: country.text,
+                            gender: gender,
+                            state: widget.student!.state,
+                            stateDate: widget.student!.stateDate,
+                          );
+                          planLines = planLinesLocal;
+                          if (!listReadOnly.any((element) =>
+                                  element == PlanLinesType.listen) &&
+                              listen) {
+                            planLines.listen = PlanLine.fromDefault();
+                          }
+                          if (!listReadOnly.any((element) =>
+                                  element == PlanLinesType.reviewbig) &&
+                              reviewbig) {
+                            planLines.reviewbig = PlanLine.fromDefault();
+                          }
+                          if (!listReadOnly.any((element) =>
+                                  element == PlanLinesType.reviewsmall) &&
+                              reviewsmall) {
+                            planLines.reviewsmall = PlanLine.fromDefault();
+                          }
+                          if (!listReadOnly.any((element) =>
+                                  element == PlanLinesType.tlawa) &&
+                              tlawa) {
+                            planLines.tlawa = PlanLine.fromDefault();
+                          }
+                          result = await homeController.editStudent(
+                              studentOfEpisode,
+                              planLines,
+                              (widget.episodeId == null
+                                  ? selectEpisode!.id
+                                  : widget.episodeId!));
                         }
-                        if (!listReadOnly.any((element) => element == PlanLinesType.reviewbig) && reviewbig) {
-                          planLines.reviewbig = PlanLine.fromDefault();
-                        }
-                        if (!listReadOnly.any((element) => element == PlanLinesType.reviewsmall) && reviewsmall) {
-                          planLines.reviewsmall = PlanLine.fromDefault();
-                        }
-                        if (!listReadOnly.any((element) => element == PlanLinesType.tlawa) && tlawa) {
-                          planLines.tlawa = PlanLine.fromDefault();
-                        }
-                        result =  await homeController.editStudent(
-                            studentOfEpisode, planLines,(widget.episodeId == null ? selectEpisode!.id : widget.episodeId!));
-                        }
-                       
+
                         Get.back(result: result);
                       }
                     }),
@@ -743,6 +770,7 @@ class _AddStudentState extends State<AddStudent> {
       country.text = setCountry;
     });
   }
+
   set setEpisode(Episode newEpisode) {
     setState(() {
       episode.text = newEpisode.name;
