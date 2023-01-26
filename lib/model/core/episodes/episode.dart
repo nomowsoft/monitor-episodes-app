@@ -1,11 +1,13 @@
+import 'package:monitor_episodes/model/services/episodes_service.dart';
+
 class Episode {
   String displayName;
-  int ?id;
+  int? id;
   String name, epsdType;
 
   Episode(
       {required this.displayName,
-       this.id,
+      this.id,
       required this.name,
       required this.epsdType});
 
@@ -22,10 +24,16 @@ class Episode {
         "type_episode": epsdType,
         "name": name,
       };
-        Map<String, dynamic> toJsonServer() => {
+  Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
+    return {
         "name": name,
-        "id": id,
+        "id":isCreate? await getEpisodeId():id,
         "type_episode": epsdType,
-
       };
+  }
+
+  Future<int?> getEpisodeId() async {
+    var result = await EdisodesService().getLastEdisodesLocal();
+   return result!.id;
+  }
 }

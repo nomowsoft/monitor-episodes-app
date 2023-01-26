@@ -18,6 +18,16 @@ class EdisodesService {
       return null;
     }
   }
+    Future<Episode?> getLastEdisodesLocal() async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allProducts =
+          await dbHelper.queryAllRows(DatabaseHelper.tableEpisode);
+      return allProducts?.map((val) => Episode.fromJson(val)).toList().last;
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<Episode?> getEpisode(int edisodeId) async {
     try {
@@ -44,8 +54,8 @@ class EdisodesService {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = episode.toJson();
-      var jsonServer = episode.toJsonServer();
       await dbHelper.insert(DatabaseHelper.tableEpisode, jsonLocal);
+      var jsonServer = await episode.toJsonServer(isCreate: true);
       jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
       await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
       episodeCrudOperationsRemoately(dbHelper);
@@ -59,9 +69,10 @@ class EdisodesService {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = episode.toJson();
-      var jsonServer = episode.toJsonServer();
 
       await dbHelper.update(DatabaseHelper.tableEpisode, jsonLocal);
+      var jsonServer = await episode.toJsonServer();
+
       jsonServer.addAll({EpisodeColumns.operation.value: 'update'});
       await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
       episodeCrudOperationsRemoately(dbHelper);

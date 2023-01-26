@@ -1,11 +1,12 @@
 import 'package:monitor_episodes/model/core/shared/constants.dart';
+import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 
 class StudentOfEpisode {
   int? age, id, episodeId;
   String name, state, stateDate, phone, address, gender, country;
   StudentOfEpisode(
       {this.age,
-       this.id,
+      this.id,
       required this.episodeId,
       this.name = '',
       this.state = '',
@@ -40,19 +41,26 @@ class StudentOfEpisode {
         "state_date": stateDate,
       };
 
-  Map<String, dynamic> toJsonServer() => {
+  Future<Map<String, dynamic>> toJsonServer({bool isCreate = false})async {
+    return {
         'name': name,
-        'id': id.toString(),
+        'id': isCreate? await getStudentId():id,
         'halaqa_id': episodeId.toString(),
         'mobile': phone,
         'gender': gender,
         'country_id': getCountry()
       };
+  }
 
   int getCountry() {
     var result = Constants.listCountries
         .firstWhere((element) => element.name == country);
 
     return int.parse(result.id);
+  }
+
+  Future<String> getStudentId() async {
+    var result = await StudentsOfEpisodeService().getLastStudentsLocal();
+    return result!.id.toString();
   }
 }

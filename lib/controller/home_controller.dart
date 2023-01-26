@@ -113,6 +113,8 @@ class HomeController extends GetxController {
       PlanLines planLines, int episodeId) async {
     bool studentResult = await StudentsOfEpisodeService()
         .setStudentOfEpisode(studentOfEpisode, planLines);
+    var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
+    planLines.studentId = stuId!.id;
     bool planLinesResult =
         await PlanLinesService().setPlanLinesLocal(planLines);
     loadStudentsOfEpisode(episodeId);
@@ -122,7 +124,7 @@ class HomeController extends GetxController {
   Future<bool> editStudent(StudentOfEpisode studentOfEpisode,
       PlanLines planLines, int episodeId) async {
     bool studentResult = await StudentsOfEpisodeService()
-        .updateStudentsOfEpisodeLocal(studentOfEpisode,planLines);
+        .updateStudentsOfEpisodeLocal(studentOfEpisode, planLines);
     bool planLinesResult =
         await PlanLinesService().updatePlanLinesLocal(planLines);
     if (studentResult && planLinesResult) {
@@ -250,11 +252,11 @@ class HomeController extends GetxController {
   }
 
   Future<ResponseContent> setAttendance(
-      int planId, String filter, int id) async {
+      int episodeId, String filter, int id) async {
     ResponseContent studentStateResponse = ResponseContent();
     await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
         date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        episodeId: planId,
+        episodeId: episodeId,
         studentId: id,
         state: filter));
 
@@ -265,7 +267,7 @@ class HomeController extends GetxController {
       _listStudentsOfEpisode[index].stateDate =
           DateFormat('yyyy-MM-dd').format(DateTime.now());
       await StudentsOfEpisodeService()
-          .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
+          .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index], null);
     }
     studentStateResponse = ResponseContent(statusCode: '200', success: true);
 
@@ -597,16 +599,18 @@ class HomeController extends GetxController {
 
       if (index >= 0) {
         if (_listStudentsOfEpisode[index].state == 'student_preparation'.tr) {
-          _listStudentsOfEpisode[index].state = 'present'.tr;
-          _listStudentsOfEpisode[index].stateDate =
-              DateFormat('yyyy-MM-dd').format(DateTime.now());
-          await StudentsOfEpisodeService()
-              .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
-          await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
-              date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-              episodeId: _listStudentsOfEpisode[index].episodeId!,
-              studentId: id,
-              state: 'present'));
+          setAttendance(_listStudentsOfEpisode[index].episodeId!, 'present',
+              _listStudentsOfEpisode[index].id!);
+          // _listStudentsOfEpisode[index].state = 'present'.tr;
+          // _listStudentsOfEpisode[index].stateDate =
+          //     DateFormat('yyyy-MM-dd').format(DateTime.now());
+          // await StudentsOfEpisodeService()
+          //     .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
+          // await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
+          //     date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          //     episodeId: _listStudentsOfEpisode[index].episodeId!,
+          //     studentId: id,
+          //     state: 'present'));
         }
       }
     }

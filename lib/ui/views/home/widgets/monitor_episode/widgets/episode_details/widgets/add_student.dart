@@ -632,13 +632,11 @@ class _AddStudentState extends State<AddStudent> {
                         StudentOfEpisode studentOfEpisode;
                         PlanLines planLines;
                         if (!isEdit) {
-                          int count = await StudentsOfEpisodeService()
-                              .getCountStudent();
+                          
                           studentOfEpisode = StudentOfEpisode(
                             episodeId: (widget.episodeId == null
                                 ? selectEpisode!.id
                                 : widget.episodeId!),
-                            id: count + 1,
                             name: name.text,
                             phone: phone.text,
                             country: country.text,
