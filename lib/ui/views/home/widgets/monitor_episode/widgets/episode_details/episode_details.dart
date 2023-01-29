@@ -631,85 +631,185 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                           }
                                         } else {
                                           // delete
+
                                           if (await CostomDailogs
                                               .yesNoDialogWithText(
                                                   text:
                                                       '${'do_you_want_delete'.tr} ${homeController.listStudentsOfEpisode[selectIndex].name}')) {
                                             HomeController homeController =
                                                 Get.find<HomeController>();
-                                            bool result = await homeController
-                                                .deleteStudent(
-                                                    widget.episode.id!,
+                                            if (homeController.educationalPlan
+                                                    ?.planListen ==
+                                                null) {
+                                              bool result = await homeController
+                                                  .deleteStudent(
+                                                      widget.episode.id!,
+                                                      homeController
+                                                          .listStudentsOfEpisode[
+                                                              selectIndex]
+                                                          .id!);
+
+                                              if (result) {
+                                                int indexDelete = selectIndex;
+
+                                                if (selectIndex > 0) {
+                                                  setState(() {
+                                                    selectIndex =
+                                                        selectIndex - 1;
+                                                  });
+
+                                                  homeController
+                                                      .initStudntData();
+                                                  if (indextab == 0) {
+                                                    homeController.loadPlanLines(
+                                                        widget.episode.id!,
+                                                        homeController
+                                                            .listStudentsOfEpisode[
+                                                                selectIndex]
+                                                            .id!);
+                                                  } else {
                                                     homeController
-                                                        .listStudentsOfEpisode[
-                                                            selectIndex]
-                                                        .id!);
-                                            if (result) {
-                                              int indexDelete = selectIndex;
-                                              if (selectIndex > 0) {
-                                                setState(() {
-                                                  selectIndex = selectIndex - 1;
-                                                });
+                                                        .loadEducationalPlan(
+                                                            widget.episode.id!,
+                                                            homeController
+                                                                .listStudentsOfEpisode[
+                                                                    selectIndex]
+                                                                .id!);
+                                                  }
 
-                                                homeController.initStudntData();
-                                                if (indextab == 0) {
-                                                  homeController.loadPlanLines(
-                                                      widget.episode.id!,
-                                                      homeController
-                                                          .listStudentsOfEpisode[
-                                                              selectIndex]
-                                                          .id!);
-                                                } else {
-                                                  homeController
-                                                      .loadEducationalPlan(
-                                                          widget.episode.id!,
-                                                          homeController
-                                                              .listStudentsOfEpisode[
-                                                                  selectIndex]
-                                                              .id!);
-                                                }
-
-                                                await homeController
-                                                    .deleteStudentFromList(
-                                                        indexDelete);
-                                              } else {
-                                                if (homeController
-                                                        .listStudentsOfEpisode
-                                                        .length >
-                                                    1) {
-                                                await homeController
-                                                    .deleteStudentFromList(
-                                                        indexDelete);
-                                                 homeController.initStudntData();
-                                                if (indextab == 0) {
-                                                  homeController.loadPlanLines(
-                                                      widget.episode.id!,
-                                                      homeController
-                                                          .listStudentsOfEpisode[
-                                                              selectIndex]
-                                                          .id!);
-                                                } else {
-                                                  homeController
-                                                      .loadEducationalPlan(
-                                                          widget.episode.id!,
-                                                          homeController
-                                                              .listStudentsOfEpisode[
-                                                                  selectIndex]
-                                                              .id!);
-                                                }        
-                                                }else{
                                                   await homeController
-                                                    .deleteStudentFromList(
-                                                        indexDelete);
+                                                      .deleteStudentFromList(
+                                                          indexDelete);
+                                                } else {
+                                                  if (homeController
+                                                          .listStudentsOfEpisode
+                                                          .length >
+                                                      1) {
+                                                    await homeController
+                                                        .deleteStudentFromList(
+                                                            indexDelete);
+                                                    homeController
+                                                        .initStudntData();
+                                                    if (indextab == 0) {
+                                                      homeController.loadPlanLines(
+                                                          widget.episode.id!,
+                                                          homeController
+                                                              .listStudentsOfEpisode[
+                                                                  selectIndex]
+                                                              .id!);
+                                                    } else {
+                                                      homeController
+                                                          .loadEducationalPlan(
+                                                              widget
+                                                                  .episode.id!,
+                                                              homeController
+                                                                  .listStudentsOfEpisode[
+                                                                      selectIndex]
+                                                                  .id!);
+                                                    }
+                                                  } else {
+                                                    await homeController
+                                                        .deleteStudentFromList(
+                                                            indexDelete);
+                                                  }
                                                 }
                                               }
-                                            }
+                                              CostomDailogs.snackBar(
+                                                  response: ResponseContent(
+                                                      statusCode: '200',
+                                                      success: true,
+                                                      message: 'ok_delete'.tr));
+                                            } else if (homeController
+                                                .educationalPlan!
+                                                .planListen
+                                                .isNotEmpty) {
+                                              CostomDailogs.snackBar(
+                                                  response: ResponseContent(
+                                                      statusCode: '0',
+                                                      success: false,
+                                                      message:
+                                                          'لايمكن حذف الطالب لانه مربوط بخطة حفظ'
+                                                              .tr));
+                                            } else {
+                                              bool result = await homeController
+                                                  .deleteStudent(
+                                                      widget.episode.id!,
+                                                      homeController
+                                                          .listStudentsOfEpisode[
+                                                              selectIndex]
+                                                          .id!);
 
-                                            CostomDailogs.snackBar(
-                                                response: ResponseContent(
-                                                    statusCode: '200',
-                                                    success: true,
-                                                    message: 'ok_delete'.tr));
+                                              if (result) {
+                                                int indexDelete = selectIndex;
+
+                                                if (selectIndex > 0) {
+                                                  setState(() {
+                                                    selectIndex =
+                                                        selectIndex - 1;
+                                                  });
+
+                                                  homeController
+                                                      .initStudntData();
+                                                  if (indextab == 0) {
+                                                    homeController.loadPlanLines(
+                                                        widget.episode.id!,
+                                                        homeController
+                                                            .listStudentsOfEpisode[
+                                                                selectIndex]
+                                                            .id!);
+                                                  } else {
+                                                    homeController
+                                                        .loadEducationalPlan(
+                                                            widget.episode.id!,
+                                                            homeController
+                                                                .listStudentsOfEpisode[
+                                                                    selectIndex]
+                                                                .id!);
+                                                  }
+
+                                                  await homeController
+                                                      .deleteStudentFromList(
+                                                          indexDelete);
+                                                } else {
+                                                  if (homeController
+                                                          .listStudentsOfEpisode
+                                                          .length >
+                                                      1) {
+                                                    await homeController
+                                                        .deleteStudentFromList(
+                                                            indexDelete);
+                                                    homeController
+                                                        .initStudntData();
+                                                    if (indextab == 0) {
+                                                      homeController.loadPlanLines(
+                                                          widget.episode.id!,
+                                                          homeController
+                                                              .listStudentsOfEpisode[
+                                                                  selectIndex]
+                                                              .id!);
+                                                    } else {
+                                                      homeController
+                                                          .loadEducationalPlan(
+                                                              widget
+                                                                  .episode.id!,
+                                                              homeController
+                                                                  .listStudentsOfEpisode[
+                                                                      selectIndex]
+                                                                  .id!);
+                                                    }
+                                                  } else {
+                                                    await homeController
+                                                        .deleteStudentFromList(
+                                                            indexDelete);
+                                                  }
+                                                }
+                                              }
+                                              CostomDailogs.snackBar(
+                                                  response: ResponseContent(
+                                                      statusCode: '200',
+                                                      success: true,
+                                                      message: 'ok_delete'.tr));
+                                            }
                                           }
                                         }
                                       },

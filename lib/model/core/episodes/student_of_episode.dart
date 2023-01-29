@@ -41,15 +41,15 @@ class StudentOfEpisode {
         "state_date": stateDate,
       };
 
-  Future<Map<String, dynamic>> toJsonServer({bool isCreate = false})async {
+  Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
     return {
-        'name': name,
-        'id': isCreate? await getStudentId():id,
-        'halaqa_id': episodeId.toString(),
-        'mobile': phone,
-        'gender': gender,
-        'country_id': getCountry()
-      };
+      'name': name,
+      'id': isCreate ? await getStudentId() : id,
+      'halaqa_id': episodeId.toString(),
+      'mobile': phone,
+      'gender': gender,
+      'country_id': getCountry()
+    };
   }
 
   int getCountry() {

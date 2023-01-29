@@ -131,13 +131,24 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                                     '${'do_you_want_delete'.tr} ${widget.episode.name}')) {
                               HomeController homeController =
                                   Get.find<HomeController>();
-                              await homeController
-                                  .deleteEdisode(widget.episode);
-                              CostomDailogs.snackBar(
-                                  response: ResponseContent(
-                                      statusCode: '200',
-                                      success: true,
-                                      message: 'ok_delete'.tr));
+                              if (homeController
+                                  .listStudentsOfEpisode.isNotEmpty) {
+                                CostomDailogs.snackBar(
+                                    response: ResponseContent(
+                                        statusCode: '0',
+                                        success: false,
+                                        message:
+                                            'the_episode_cannot_be_deleted_because_there_are_students_in_it'
+                                                .tr));
+                              } else {
+                                await homeController
+                                    .deleteEdisode(widget.episode);
+                                CostomDailogs.snackBar(
+                                    response: ResponseContent(
+                                        statusCode: '200',
+                                        success: true,
+                                        message: 'ok_delete'.tr));
+                              }
                             }
                           }
                         },
