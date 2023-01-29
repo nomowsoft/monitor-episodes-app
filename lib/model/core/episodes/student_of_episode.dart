@@ -5,7 +5,7 @@ class StudentOfEpisode {
   String name, state, stateDate, phone, address, gender, country;
   StudentOfEpisode(
       {this.age,
-       this.id,
+      this.id,
       required this.episodeId,
       this.name = '',
       this.state = '',
@@ -54,5 +54,9 @@ class StudentOfEpisode {
         .firstWhere((element) => element.name == country);
 
     return int.parse(result.id);
+  }
+
+  bool getState() {
+    return false;
   }
 }
