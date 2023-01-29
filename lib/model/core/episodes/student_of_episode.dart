@@ -63,8 +63,4 @@ class StudentOfEpisode {
     var result = await StudentsOfEpisodeService().getLastStudentsLocal();
     return result!.id.toString();
   }
-
-  bool getState() {
-    return false;
-  }
 }
