@@ -7,9 +7,11 @@ class DatabaseHelper {
   static const _databaseVersion = 1;
 
   static const tableEpisode = 'table_episode';
+  // log
   static const logTableEpisode = 'log_table_episode';
   static const logTableStudentOfEpisode = 'log_table_student_of_episode';
-
+  static const logTableStudentState = 'log_table_student_state';
+//================
   static const tableStudentOfEpisode = 'table_student_of_episode';
   static const tablePlanLines = 'table_planLines';
   static const tableListenLine = 'table_listenLine';
@@ -97,6 +99,9 @@ class DatabaseHelper {
         'CREATE TABLE $logTableEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.typeEpisode.value} TEXT,${EpisodeColumns.operation.value} TEXT )');
     await db.execute(
         'CREATE TABLE $logTableStudentOfEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, halaqa_id TEXT,mobile TEXT,country_id INTEGER,gender TEXT,is_hifz BOOLEAN,is_tilawa BOOLEAN,is_big_review BOOLEAN,is_small_review BOOLEAN,${EpisodeColumns.operation.value} TEXT )');
+
+        await db.execute(
+        'CREATE TABLE $logTableStudentState (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, status TEXT, date_presence TEXT )');
   }
 
   // Helper methods

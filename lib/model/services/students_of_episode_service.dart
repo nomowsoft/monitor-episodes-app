@@ -30,6 +30,21 @@ class StudentsOfEpisodeService {
     }
   }
 
+  Future<StudentOfEpisode?> getLastStudentsLocal() async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allStudents = await dbHelper.queryAllRows(
+        DatabaseHelper.tableStudentOfEpisode,
+      );
+      return allStudents
+          ?.map((val) => StudentOfEpisode.fromJsonLocal(val))
+          .toList()
+          .last;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<StudentOfEpisode?> getStudent(int studentId) async {
     try {
       final dbHelper = DatabaseHelper.instance;
@@ -65,13 +80,14 @@ class StudentsOfEpisodeService {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
-      var jsonServer = studentEpisode.toJsonServer();
       bool isHifz = planLines.listen != null;
       bool isTilawa = planLines.tlawa != null;
       bool isBigReview = planLines.reviewbig != null;
       bool isSmalleview = planLines.reviewsmall != null;
 
       await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      var jsonServer =await studentEpisode.toJsonServer(isCreate: true);
+
       jsonServer.addAll({
         'is_hifz': isHifz ? 1 : 0,
         'is_tilawa': isTilawa ? 1 : 0,
@@ -81,7 +97,8 @@ class StudentsOfEpisodeService {
       });
       await dbHelper.insert(
           DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-      studentCrudOperationsRemoately(dbHelper);
+      studentCrudOperationsRemoately(
+          dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       return true;
     } catch (e) {
       print(e);
@@ -96,8 +113,8 @@ class StudentsOfEpisodeService {
       var jsonLocal = studentEpisode.toJson();
       await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
 
-      var jsonServer = studentEpisode.toJsonServer();
       if (planLines != null) {
+        var jsonServer = await studentEpisode.toJsonServer();
         bool isHifz = planLines.listen != null;
         bool isTilawa = planLines.tlawa != null;
         bool isBigReview = planLines.reviewbig != null;
@@ -112,7 +129,8 @@ class StudentsOfEpisodeService {
         });
         await dbHelper.insert(
             DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-        studentCrudOperationsRemoately(dbHelper);
+        studentCrudOperationsRemoately(
+            dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       }
 
       return true;
@@ -250,7 +268,8 @@ class StudentsOfEpisodeService {
   Future setStudentStateLocal(StudentState studentsState) async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      var json = studentsState.toJson();
+      //local
+      var jsonLocal = studentsState.toJson();
       var count = await dbHelper.queryRowCountWhereAnd(
           DatabaseHelper.tableStudentState,
           StudentStateColumns.studentId.value,
@@ -265,7 +284,24 @@ class StudentsOfEpisodeService {
             studentsState.studentId,
             studentsState.date);
       }
-      await dbHelper.insert(DatabaseHelper.tableStudentState, json);
+
+      await dbHelper.insert(DatabaseHelper.tableStudentState, jsonLocal);
+      // server
+      var jsonServer = studentsState.toJsonServer();
+      var countLog = await dbHelper.queryRowCountWhereAnd(
+          DatabaseHelper.logTableStudentState,
+          'id',
+          'date_presence',
+          studentsState.studentId,
+          studentsState.date);
+      if (countLog != null && countLog > 0) {
+        dbHelper.updateWhereAnd(DatabaseHelper.logTableStudentState, jsonServer,
+            'id', 'date_presence', studentsState.studentId, studentsState.date);
+      } else {
+        await dbHelper.insert(DatabaseHelper.logTableStudentState, jsonServer);
+      }
+      studentCrudOperationsRemoately(
+          dbHelper, DatabaseHelper.logTableStudentState);
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -295,7 +331,8 @@ class StudentsOfEpisodeService {
 
       await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
           {'id': studentId, EpisodeColumns.operation.value: 'delete'});
-      studentCrudOperationsRemoately(dbHelper);
+      studentCrudOperationsRemoately(
+          dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       return true;
     } catch (e) {
       return false;
@@ -305,17 +342,20 @@ class StudentsOfEpisodeService {
 
 //==============================================================================================
 
-studentCrudOperationsRemoately(DatabaseHelper dbHelper) async {
+studentCrudOperationsRemoately(
+    DatabaseHelper dbHelper, String logTableName) async {
   // var result = await dbHelper.queryAllRowsWhere(DatabaseHelper.logTableEpisode,
   //     EpisodeColumns.operation.value, operation);
-  var result =
-      await dbHelper.queryAllRows(DatabaseHelper.logTableStudentOfEpisode);
+  var result = await dbHelper.queryAllRows(logTableName);
   var listOfStudents = result!.map((e) => Map.of(e)).toList();
   // var data = jsonEncode(
   //   {
   //     'data': [listOfEpisodes]
   //   },
   // );
+  if (logTableName == DatabaseHelper.logTableStudentState) {
+    sendToServer(listOfStudents, 'attendance', dbHelper, logTableName);
+  }else{
   var listOfStudentTypeCreate = [];
   var listOfStudentTypeUdate = [];
   var listOfStudentTypeDelete = [];
@@ -342,18 +382,24 @@ studentCrudOperationsRemoately(DatabaseHelper dbHelper) async {
       student.update('is_big_review', (value) => value == 1 ? true : false);
       student.update('is_small_review', (value) => value == 1 ? true : false);
       listOfStudentTypeUdate.add(student);
-    } else {
+    } else if(student['operation'] == 'delete') {
       listOfStudentTypeDelete.add({'id': student['id']});
     }
     continue;
   }
 
-  sendToServer(listOfStudentTypeCreate, 'create', dbHelper);
-  sendToServer(listOfStudentTypeUdate, 'update', dbHelper);
-  sendToServer(listOfStudentTypeDelete, 'delete', dbHelper);
+  sendToServer(listOfStudentTypeCreate, 'create', dbHelper,
+      DatabaseHelper.logTableStudentOfEpisode);
+  sendToServer(listOfStudentTypeUdate, 'update', dbHelper,
+      DatabaseHelper.logTableStudentOfEpisode);
+  sendToServer(listOfStudentTypeDelete, 'delete', dbHelper,
+      DatabaseHelper.logTableStudentOfEpisode);
+  }
+
 }
 
-void sendToServer(List list, String operation, DatabaseHelper dbHelper) {
+void sendToServer(
+    List list, String operation, DatabaseHelper dbHelper, String logTableName) {
   if (list.isNotEmpty) {
     var data = jsonEncode(
       {'data': list},
@@ -363,7 +409,9 @@ void sendToServer(List list, String operation, DatabaseHelper dbHelper) {
         ? EndPoint.createStudent
         : operation == 'update'
             ? EndPoint.updateStudent
-            : EndPoint.deleteStudent;
+            : operation == 'delete'
+                ? EndPoint.deleteStudent
+                : EndPoint.createStudentAttendance;
 
     ApiHelper()
         .postV2(endPoint, data,
@@ -371,8 +419,10 @@ void sendToServer(List list, String operation, DatabaseHelper dbHelper) {
             contentType: ContentTypeHeaders.applicationJson)
         .then((response) {
       if (response.isSuccess) {
-        dbHelper.deleteAllWhere(DatabaseHelper.logTableStudentOfEpisode,
-            EpisodeColumns.operation.value, operation);
+        operation != 'attendance'
+            ? dbHelper.deleteAllWhere(
+                logTableName, EpisodeColumns.operation.value, operation)
+            : dbHelper.deleteAll(logTableName);
       }
     });
   }

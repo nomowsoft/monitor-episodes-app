@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 
 class StudentState {
   int studentId, episodeId;
@@ -21,5 +22,11 @@ class StudentState {
         "episode_id": episodeId,
         "date": date,
         "state": state
+      };
+
+  Map<String, dynamic> toJsonServer() => {
+        'id': studentId,
+        'status': state,
+        'date_presence':  DateFormat('yyyy-MM-dd').format(DateTime.now()),
       };
 }
