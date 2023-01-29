@@ -135,7 +135,7 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                                   .listStudentsOfEpisode.isNotEmpty) {
                                 CostomDailogs.snackBar(
                                     response: ResponseContent(
-                                        statusCode: '400',
+                                        statusCode: '0',
                                         success: false,
                                         message:
                                             'the_episode_cannot_be_deleted_because_there_are_students_in_it'
