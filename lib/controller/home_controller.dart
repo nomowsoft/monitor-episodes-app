@@ -382,7 +382,6 @@ class HomeController extends GetxController {
             .id,
         fromAya: planLine.fromAya,
         toAya: planLine.toAya,
-        totalMstkQlty: planLine.mistakes?.totalMstkQlty ?? 0,
         totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
         totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0);
 

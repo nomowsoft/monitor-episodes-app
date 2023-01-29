@@ -11,6 +11,8 @@ class DatabaseHelper {
   static const logTableEpisode = 'log_table_episode';
   static const logTableStudentOfEpisode = 'log_table_student_of_episode';
   static const logTableStudentState = 'log_table_student_state';
+  static const logTableStudentWork = 'log_table_student_work';
+
 //================
   static const tableStudentOfEpisode = 'table_student_of_episode';
   static const tablePlanLines = 'table_planLines';
@@ -102,6 +104,9 @@ class DatabaseHelper {
 
         await db.execute(
         'CREATE TABLE $logTableStudentState (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, status TEXT, date_presence TEXT )');
+
+        await db.execute(
+        'CREATE TABLE $logTableStudentWork (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, date_listen TEXT, type_work TEXT, from_sura INTEGER, to_sura INTEGER, from_aya INTEGER, to_aya INTEGER, nbr_error_hifz INTEGER, nbr_error_tajwed INTEGER)');
   }
 
   // Helper methods

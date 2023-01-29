@@ -148,7 +148,6 @@ class _AddNoteState extends State<AddNote> {
                                 onTap: () {
                                   Mistakes mistakes = Mistakes(
                                     totalMstkQty: int.parse(saveErrors.text),
-                                    totalMstkQlty: 0,
                                     totalMstkRead:
                                         int.parse(intonationErrors.text),
                                   );

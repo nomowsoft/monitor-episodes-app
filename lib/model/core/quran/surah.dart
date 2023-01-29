@@ -4,7 +4,7 @@ class Surah
   String name;
 
   Surah.fromJson(Map<String, dynamic> json):
-    id = json['id'] ?? 0,
+    id = int.parse(json['id']) ,
     name = json['name'] ?? '',
-    surahOrder =json['surah_order'] ?? 0;
+    surahOrder =json['order'] ?? 0;
 }

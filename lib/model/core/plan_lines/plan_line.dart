@@ -1,5 +1,7 @@
 
 import 'package:monitor_episodes/model/core/plan_lines/mistakes_plan_line.dart';
+import 'package:monitor_episodes/model/core/shared/constants.dart';
+import 'package:monitor_episodes/model/offline_quran/surahs.dart';
 
 class PlanLine {
   String fromSuraName,toSuraName;
