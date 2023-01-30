@@ -11,7 +11,9 @@
   static String deleteStudent = 'cud/delete_students';
   static String createStudentAttendance = 'cud/create_student_attendance';
   static String createStudentWorks = 'cud/create_student_works';
+  static String checkStudents = 'check_students';
+
 
 
  }
- //create_student_works
+ //check_students

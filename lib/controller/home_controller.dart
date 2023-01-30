@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:monitor_episodes/model/core/educational/educational.dart';
 import 'package:monitor_episodes/model/core/educational/educational_plan.dart';
+import 'package:monitor_episodes/model/core/episodes/check_students_responce.dart';
 import 'package:monitor_episodes/model/core/episodes/student_of_episode.dart';
 import 'package:monitor_episodes/model/core/episodes/student_state.dart';
 import 'package:monitor_episodes/model/core/listen_line/listen_line.dart';
@@ -12,6 +16,7 @@ import 'package:monitor_episodes/model/core/quran/surah.dart';
 import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/core/shared/status_and_types.dart';
 import 'package:monitor_episodes/model/core/user/auth_model.dart';
+import 'package:monitor_episodes/model/helper/end_point.dart';
 import 'package:monitor_episodes/model/services/educational_plan_service.dart';
 import 'package:monitor_episodes/model/services/listen_line_service.dart';
 import 'package:monitor_episodes/model/services/plan_lines_service.dart';
@@ -21,6 +26,8 @@ import 'package:monitor_episodes/model/services/teacher_service.dart';
 import '../model/core/episodes/episode.dart';
 import '../model/core/shared/response_content.dart';
 import '../model/services/episodes_service.dart';
+import '../ui/shared/utils/custom_dailogs.dart';
+import '../ui/shared/utils/waitting_dialog.dart';
 
 class HomeController extends GetxController {
   int _currentPageIndex = 1;
@@ -109,15 +116,21 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<bool> addStudent(StudentOfEpisode studentOfEpisode,
-      PlanLines planLines, int episodeId) async {
-    bool studentResult = await StudentsOfEpisodeService()
-        .setStudentOfEpisode(studentOfEpisode, planLines);
-    var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
-    planLines.studentId = stuId!.id;
+  Future<bool> addStudent(
+      StudentOfEpisode studentOfEpisode, PlanLines planLines, int episodeId,
+      {bool isFromCheck = false}) async {
+    bool studentResult = await StudentsOfEpisodeService().setStudentOfEpisode(
+        studentOfEpisode, planLines,
+        isFromCheck: isFromCheck);
+    if (!isFromCheck) {
+      var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
+      planLines.studentId = stuId!.id;
+    }
     bool planLinesResult =
         await PlanLinesService().setPlanLinesLocal(planLines);
-    loadStudentsOfEpisode(episodeId);
+    if (!isFromCheck) {
+      loadStudentsOfEpisode(episodeId);
+    }
     return studentResult && planLinesResult;
   }
 
@@ -138,7 +151,7 @@ class HomeController extends GetxController {
     return studentResult && planLinesResult;
   }
 
-  Future<bool> deleteStudent(int episodeId, int id) async {
+  Future<bool> deleteStudent(int episodeId, int id,{bool isFromCheck = false}) async {
     try {
       await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
       await PlanLinesService().deleteAllPlanLinesOfStudent(id);
@@ -205,6 +218,99 @@ class HomeController extends GetxController {
       gettingStudentsOfEpisode = false;
     }
     update();
+  }
+
+  // check student
+  void checkStudent(int episodeId) async {
+    List<StudentOfEpisode> listStudentOfEpisode =
+        await StudentsOfEpisodeService().getStudentsOfEpisodeLocal(episodeId) ??
+            [];
+    ResponseContent checkStudentsResponse =
+        await StudentsOfEpisodeService().checkStudents(
+      episodeId,
+      listStudentOfEpisode.isNotEmpty
+          ? listStudentOfEpisode.map((e) => e.id ?? 0).toList()
+          : [],
+    );
+    if (checkStudentsResponse.isSuccess || checkStudentsResponse.isNoContent) {
+      CheckStudentsResponce checkStudents = checkStudentsResponse.data;
+
+      if (checkStudents.update) {
+        if (await CostomDailogs.dialogWithText(
+            text: 'student_episode_data_is_being_updated'.tr)) {
+          bool isCompleted = await Get.dialog(cupertino.Builder(
+              builder: (cupertino.BuildContext dialogContext) {
+            changeStudents(checkStudents, dialogContext, episodeId);
+            return cupertino.WillPopScope(
+              onWillPop: () async {
+                return false;
+              },
+              child: const cupertino.CupertinoAlertDialog(
+                content: WaitingDialog(),
+              ),
+            );
+          }));
+          if (!isCompleted) {
+            CostomDailogs.warringDialogWithGet(
+                msg: 'error_get_PlanLine_students'.tr);
+          } else {
+            loadStudentsOfEpisode(episodeId);
+
+            // Get.offAll(() => const SplashScreen(),
+            //     duration: const Duration(seconds: 2),
+            //     curve: cupertino.Curves.easeInOut,
+            //     transition: Transition.fadeIn);
+          }
+        }
+      }
+    }
+  }
+
+  changeStudents(CheckStudentsResponce checkStudentsResponce,
+      cupertino.BuildContext buildContext, int episodeId) async {
+    final navigator = cupertino.Navigator.of(buildContext);
+    bool isCompleted = true;
+    if (checkStudentsResponce.deletedStudentsIds.isNotEmpty) {
+      try {
+        for (var id in checkStudentsResponce.deletedStudentsIds) {
+          await deleteStudent(episodeId, id,isFromCheck: true);
+          PlanLinesService().deleteAllPlanLinesOfStudent(id);
+        }
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+
+    if (checkStudentsResponce.newStudents.isNotEmpty) {
+      try {
+        for (var studetnt in checkStudentsResponce.newStudents) {
+          var studentOfEpisode = StudentOfEpisode(
+              episodeId: episodeId,
+              id: studetnt.id,
+              name: studetnt.name,
+              state: studetnt.state);
+          var planLines =
+              PlanLines(episodeId: episodeId, studentId: studetnt.id);
+          if (studetnt.isHifz) {
+            planLines.listen = PlanLine.fromDefault();
+          }
+          if (studetnt.isBigReview) {
+            planLines.reviewbig = PlanLine.fromDefault();
+          }
+          if (studetnt.isSmallReview) {
+            planLines.reviewsmall = PlanLine.fromDefault();
+          }
+          if (studetnt.isTilawa) {
+            planLines.tlawa = PlanLine.fromDefault();
+          }
+          isCompleted = await addStudent(studentOfEpisode, planLines, episodeId,
+              isFromCheck: true);
+        }
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+    navigator.pop(isCompleted);
   }
 
   Future loadPlanLines(int episodeId, int id, {bool isInit = false}) async {
@@ -371,7 +477,7 @@ class HomeController extends GetxController {
       planLine = planLines!.tlawa!;
     }
     ListenLine listenLine = ListenLine(
-        linkId: id,
+        studentId: id,
         actualDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
         typeFollow: getTypePlanLine(typePlanLine),
         fromSuraId: Constants.listSurah

@@ -632,7 +632,6 @@ class _AddStudentState extends State<AddStudent> {
                         StudentOfEpisode studentOfEpisode;
                         PlanLines planLines;
                         if (!isEdit) {
-                          
                           studentOfEpisode = StudentOfEpisode(
                             episodeId: (widget.episodeId == null
                                 ? selectEpisode!.id

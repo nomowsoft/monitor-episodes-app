@@ -70,13 +70,15 @@ class DatabaseHelper {
         '${PlanLinesColumns.episodeId.value} INTEGER'
         ')');
     await db.execute('CREATE TABLE $tableStudentState ('
+        'id INTEGER PRIMARY KEY,' 
         '${StudentStateColumns.studentId.value} INTEGER,'
         '${StudentStateColumns.state.value} TEXT,'
         '${StudentStateColumns.date.value} TEXT,'
         '${StudentStateColumns.episodeId.value} INTEGER'
         ')');
     await db.execute('CREATE TABLE $tableListenLine ('
-        '${ListenLineColumns.linkId.value} INTEGER,'
+        'id INTEGER PRIMARY KEY,'
+        'student_id INTEGER,'
         '${ListenLineColumns.typeFollow.value} TEXT,'
         '${ListenLineColumns.actualDate.value} TEXT,'
         '${ListenLineColumns.fromSuraId.value} INTEGER,'
@@ -103,10 +105,10 @@ class DatabaseHelper {
         'CREATE TABLE $logTableStudentOfEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, halaqa_id TEXT,mobile TEXT,country_id INTEGER,gender TEXT,is_hifz BOOLEAN,is_tilawa BOOLEAN,is_big_review BOOLEAN,is_small_review BOOLEAN,${EpisodeColumns.operation.value} TEXT )');
 
         await db.execute(
-        'CREATE TABLE $logTableStudentState (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, status TEXT, date_presence TEXT )');
+        'CREATE TABLE $logTableStudentState (id INTEGER PRIMARY KEY, student_id INTEGER, status TEXT, date_presence TEXT )');
 
         await db.execute(
-        'CREATE TABLE $logTableStudentWork (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, date_listen TEXT, type_work TEXT, from_sura INTEGER, to_sura INTEGER, from_aya INTEGER, to_aya INTEGER, nbr_error_hifz INTEGER, nbr_error_tajwed INTEGER)');
+        'CREATE TABLE $logTableStudentWork (id INTEGER PRIMARY KEY, student_id INTEGER, date_listen TEXT, type_work TEXT, from_sura INTEGER, to_sura INTEGER, from_aya INTEGER, to_aya INTEGER, nbr_error_hifz INTEGER, nbr_error_tajwed INTEGER)');
   }
 
   // Helper methods
