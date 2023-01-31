@@ -31,7 +31,7 @@ class PlanLines {
         studentId = newStudentId;
 
   PlanLines.fromJsonLocal(Map<String, dynamic> json)
-      : listen = json['listen']  != null
+      : listen = json['listen'] != null
             ? PlanLines().getPlanLineFromString(json['listen'].toString())
             : null,
         reviewbig = json['reviewbig'] != null
@@ -47,22 +47,22 @@ class PlanLines {
         studentId = json['studentId'];
 
   Map<String, dynamic> toJson() => {
-        "listen":listen !=null ? getPlanLineAsString(listen!):null,
-        "reviewbig":reviewbig !=null ? getPlanLineAsString(reviewbig!):null,  
-        "reviewsmall":reviewsmall !=null ? getPlanLineAsString(reviewsmall!):null, 
-        "tlawa": tlawa !=null ? getPlanLineAsString(tlawa!):null,
+        "listen": listen != null ? getPlanLineAsString(listen!) : null,
+        "reviewbig": reviewbig != null ? getPlanLineAsString(reviewbig!) : null,
+        "reviewsmall":
+            reviewsmall != null ? getPlanLineAsString(reviewsmall!) : null,
+        "tlawa": tlawa != null ? getPlanLineAsString(tlawa!) : null,
         "episodeId": episodeId,
         "studentId": studentId,
       };
 
-   PlanLine? getPlanLineFromString(String planLine) {
+  PlanLine? getPlanLineFromString(String planLine) {
     var data = planLine.isNotEmpty ? convert.jsonDecode(planLine) : null;
     return PlanLine.fromJson(data);
   }
 
-  String  getPlanLineAsString(PlanLine planLine) {
+  String getPlanLineAsString(PlanLine planLine) {
     final listJson = planLine.toJson();
     return convert.jsonEncode(listJson);
   }
-  
 }

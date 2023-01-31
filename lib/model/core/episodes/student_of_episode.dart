@@ -40,7 +40,8 @@ class StudentOfEpisode {
         "episode_id": episodeId,
         "state_date": stateDate,
       };
-
+  
+  
   Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
     return {
       'name': name,

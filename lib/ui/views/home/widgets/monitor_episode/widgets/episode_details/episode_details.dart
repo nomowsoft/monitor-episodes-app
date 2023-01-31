@@ -46,6 +46,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
     HomeController homeController = Get.find<HomeController>();
     homeController.initStudntData();
     homeController.loadStudentsOfEpisode(widget.episode.id!, isInit: true);
+    homeController.checkStudent(widget.episode.id!);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:monitor_episodes/model/core/episodes/check_students_responce.dart';
 import 'package:monitor_episodes/model/core/plan_lines/plan_lines.dart';
 import 'package:monitor_episodes/model/core/shared/enums.dart';
 import 'package:monitor_episodes/model/core/episodes/student_of_episode.dart';
@@ -8,6 +9,7 @@ import 'package:monitor_episodes/model/core/episodes/student_state.dart';
 import 'package:monitor_episodes/model/data/database_helper.dart';
 import 'package:intl/intl.dart';
 
+import '../core/shared/response_content.dart';
 import '../core/shared/status_and_types.dart';
 import '../helper/api_helper.dart';
 import '../helper/end_point.dart';
@@ -76,7 +78,8 @@ class StudentsOfEpisodeService {
   }
 
   Future setStudentOfEpisode(
-      StudentOfEpisode studentEpisode, PlanLines planLines) async {
+      StudentOfEpisode studentEpisode, PlanLines planLines,
+      {isFromCheck}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
@@ -85,20 +88,24 @@ class StudentsOfEpisodeService {
       bool isBigReview = planLines.reviewbig != null;
       bool isSmalleview = planLines.reviewsmall != null;
 
-      await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
-      var jsonServer =await studentEpisode.toJsonServer(isCreate: true);
+      if (isFromCheck) {
+        await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      } else {
+        await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+        var jsonServer = await studentEpisode.toJsonServer(isCreate: true);
+        jsonServer.addAll({
+          'is_hifz': isHifz ? 1 : 0,
+          'is_tilawa': isTilawa ? 1 : 0,
+          'is_big_review': isBigReview ? 1 : 0,
+          'is_small_review': isSmalleview ? 1 : 0,
+          EpisodeColumns.operation.value: 'create'
+        });
+        await dbHelper.insert(
+            DatabaseHelper.logTableStudentOfEpisode, jsonServer);
+        studentCrudOperationsRemoately(
+            dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+      }
 
-      jsonServer.addAll({
-        'is_hifz': isHifz ? 1 : 0,
-        'is_tilawa': isTilawa ? 1 : 0,
-        'is_big_review': isBigReview ? 1 : 0,
-        'is_small_review': isSmalleview ? 1 : 0,
-        EpisodeColumns.operation.value: 'create'
-      });
-      await dbHelper.insert(
-          DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-      studentCrudOperationsRemoately(
-          dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       return true;
     } catch (e) {
       print(e);
@@ -333,11 +340,63 @@ class StudentsOfEpisodeService {
           {'id': studentId, EpisodeColumns.operation.value: 'delete'});
       studentCrudOperationsRemoately(
           dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+
       return true;
     } catch (e) {
       return false;
     }
   }
+
+  Future<ResponseContent> checkStudents(
+      int episodeId, List<int> studentsIds) async {
+    var json = {
+      'data': {"halaqa_id": episodeId, "students": studentsIds}
+    };
+    var data = jsonEncode(json);
+    ResponseContent response = await ApiHelper().postV2(
+        EndPoint.checkStudents, data,
+        linkApi: "http://rased-api.maknon.org.sa",
+        contentType: ContentTypeHeaders.applicationJson);
+    if (response.success ?? false) {
+      try {
+        response.data = response.data != null
+            ? CheckStudentsResponce.fromJson(response.data['result']['result'])
+            : null;
+        return response;
+      } catch (e) {
+        return ResponseContent(
+            statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
+      }
+    } else {
+      return response;
+    }
+  }
+
+  // Future<bool> _studentsWillDeleted(List deletedStudentsIds) async {
+  //   try {
+  //     final dbHelper = DatabaseHelper.instance;
+
+  //     for (var id in deletedStudentsIds) {
+  //      await dbHelper.delete(DatabaseHelper.tableStudentOfEpisode, id);
+  //     }
+
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
+
+//  Future<bool> _newStudentsWillAdded(List newStudents, int episodeId) {
+//   for (var newStudent in newStudents) {
+//     if(newStudent !is int){
+//          Map<String,dynamic> data={
+//          'id':newStudent['id_mobile'],
+//          ''
+//   };
+//     }
+//   }
+
+//  }
 }
 
 //==============================================================================================
@@ -355,47 +414,46 @@ studentCrudOperationsRemoately(
   // );
   if (logTableName == DatabaseHelper.logTableStudentState) {
     sendToServer(listOfStudents, 'attendance', dbHelper, logTableName);
-  }else{
-  var listOfStudentTypeCreate = [];
-  var listOfStudentTypeUdate = [];
-  var listOfStudentTypeDelete = [];
-  for (var student in listOfStudents) {
-    if (student['operation'] == 'create') {
-      student.remove('operation');
-      student.remove('IDs');
-      student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
-      student.update('is_hifz', (value) => value == 1 ? true : false);
-      student.update('is_tilawa', (value) => value == 1 ? true : false);
-      student.update('is_big_review', (value) => value == 1 ? true : false);
-      student.update('is_small_review', (value) => value == 1 ? true : false);
+  } else {
+    var listOfStudentTypeCreate = [];
+    var listOfStudentTypeUdate = [];
+    var listOfStudentTypeDelete = [];
+    for (var student in listOfStudents) {
+      if (student['operation'] == 'create') {
+        student.remove('operation');
+        student.remove('IDs');
+        student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
+        student.update('is_hifz', (value) => value == 1 ? true : false);
+        student.update('is_tilawa', (value) => value == 1 ? true : false);
+        student.update('is_big_review', (value) => value == 1 ? true : false);
+        student.update('is_small_review', (value) => value == 1 ? true : false);
 
-      listOfStudentTypeCreate.add(student);
-    } else if (student['operation'] == 'update') {
-      student.remove('operation');
-      student.remove('IDs');
-      student.remove('halaqa_id');
-      student.remove('mobile');
-      student.remove('country_id');
-      student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
-      student.update('is_hifz', (value) => value == 1 ? true : false);
-      student.update('is_tilawa', (value) => value == 1 ? true : false);
-      student.update('is_big_review', (value) => value == 1 ? true : false);
-      student.update('is_small_review', (value) => value == 1 ? true : false);
-      listOfStudentTypeUdate.add(student);
-    } else if(student['operation'] == 'delete') {
-      listOfStudentTypeDelete.add({'id': student['id']});
+        listOfStudentTypeCreate.add(student);
+      } else if (student['operation'] == 'update') {
+        student.remove('operation');
+        student.remove('IDs');
+        student.remove('halaqa_id');
+        student.remove('mobile');
+        student.remove('country_id');
+        student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
+        student.update('is_hifz', (value) => value == 1 ? true : false);
+        student.update('is_tilawa', (value) => value == 1 ? true : false);
+        student.update('is_big_review', (value) => value == 1 ? true : false);
+        student.update('is_small_review', (value) => value == 1 ? true : false);
+        listOfStudentTypeUdate.add(student);
+      } else if (student['operation'] == 'delete') {
+        listOfStudentTypeDelete.add({'id': student['id']});
+      }
+      continue;
     }
-    continue;
-  }
 
-  sendToServer(listOfStudentTypeCreate, 'create', dbHelper,
-      DatabaseHelper.logTableStudentOfEpisode);
-  sendToServer(listOfStudentTypeUdate, 'update', dbHelper,
-      DatabaseHelper.logTableStudentOfEpisode);
-  sendToServer(listOfStudentTypeDelete, 'delete', dbHelper,
-      DatabaseHelper.logTableStudentOfEpisode);
+    sendToServer(listOfStudentTypeCreate, 'create', dbHelper,
+        DatabaseHelper.logTableStudentOfEpisode);
+    sendToServer(listOfStudentTypeUdate, 'update', dbHelper,
+        DatabaseHelper.logTableStudentOfEpisode);
+    sendToServer(listOfStudentTypeDelete, 'delete', dbHelper,
+        DatabaseHelper.logTableStudentOfEpisode);
   }
-
 }
 
 void sendToServer(
