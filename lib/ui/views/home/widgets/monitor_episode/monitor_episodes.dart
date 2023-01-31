@@ -19,8 +19,14 @@ class MonitorEpisodes extends StatefulWidget {
 
 class _MonitorEpisodesState extends State<MonitorEpisodes> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GetBuilder(
+      init: HomeController(),
       builder: (HomeController homeController) => Scaffold(body:
           SafeArea(child: OrientationBuilder(builder: (context, orientation) {
         SizeConfig('initialSize').init(originalWidth: 428, originalHeight: 926);
@@ -85,6 +91,7 @@ class _MonitorEpisodesState extends State<MonitorEpisodes> {
                               homeController.currentIndex = 2;
                             });
                             homeController.loadEpisodes();
+                            homeController.checkHalaqat();
                           },
                           child: Card(
                             elevation: 3,

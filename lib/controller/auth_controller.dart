@@ -90,7 +90,11 @@ class AuthControllerImp extends GetxController implements AuthController {
         countryID: countryID);
     ResponseContent response =
         await AuthService().postSignUp(teacherModel: teacherModel);
-
+    if (response.isSuccess || response.isNoContent) {
+      ResponseContent response = await AuthService()
+          .postSignIn(username: name.text, password: password.text);
+      return response;
+    }
     return response;
   }
 

@@ -53,6 +53,7 @@ class AuthService {
         contentType: ContentTypeHeaders.applicationJson);
     if (response.success ?? false) {
       print(response.data);
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setInt('user_id', response.data['result']['data']['user_id']);
     } else if (response.isBadRequest) {

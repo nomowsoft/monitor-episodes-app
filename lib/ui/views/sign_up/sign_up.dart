@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 import 'package:monitor_episodes/model/core/countries/country.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/ui/shared/utils/validator.dart';
+import 'package:monitor_episodes/ui/views/home/home.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/episode_details/widgets/select_country.dart';
 
 import '../../../controller/auth_controller.dart';
 import '../../../model/core/shared/response_content.dart';
 import '../../shared/utils/custom_dailogs.dart';
-import '../login_screen/login_screen.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -470,7 +470,7 @@ class _SignUpState extends State<SignUp> {
                                               hasWaitAnim = true;
                                               loginErorr = false;
                                             });
-                                            Get.off(() => const LoginScreen(),
+                                            Get.off(() => const Home(),
                                                 duration:
                                                     const Duration(seconds: 1),
                                                 curve: Curves.easeInOut,
