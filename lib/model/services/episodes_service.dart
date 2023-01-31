@@ -10,6 +10,32 @@ import 'package:monitor_episodes/model/helper/end_point.dart';
 import '../core/shared/response_content.dart';
 
 class EdisodesService {
+  
+  final ApiHelper _apiHelper = ApiHelper();
+   Future<ResponseContent> getEdisodes(
+    String teacherId,
+  ) async {
+    ResponseContent response = await _apiHelper.getV1(
+        '${EndPoint.upDataSync}?teacher_id=$teacherId',
+        linkApi: "https://api.e-maknoon.org");
+    if (response.success ?? false) {
+      try {
+        response.data = response.data != null
+            ? (response.data as List).map((e) => Episode.fromJson(e))
+            : null;
+        // if (response.data != null && isSaveLocal) {
+        //  // save locale
+        //  await setEdisodesLocal(response.data);
+        // }
+        return response;
+      } catch (e) {
+        return ResponseContent(
+            statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
+      }
+    } else {
+      return response;
+    }
+  }
   Future<List<Episode>?> getEdisodesLocal() async {
     try {
       final dbHelper = DatabaseHelper.instance;
