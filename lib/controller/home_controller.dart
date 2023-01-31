@@ -697,7 +697,8 @@ class HomeController extends GetxController {
               true) {
             plalinLines.reviewbig = PlanLine.fromDefault();
           }
-          addStudent(studentOfEpisode, plalinLines, idStedent);
+          addStudent(studentOfEpisode, plalinLines, idStedent,
+              isFromCheck: true);
         }
       }
       // !! delete data
