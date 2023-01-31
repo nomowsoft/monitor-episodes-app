@@ -12,5 +12,12 @@ class EndPoint {
   static String createStudentWorks = 'cud/create_student_works';
   static String checkStudents = 'check_students';
 
+<<<<<<< HEAD
   static String checkHalaqat = 'check_halaqat';
 }
+=======
+
+
+ }
+ //check_students
+>>>>>>> 54a4121944afabc6c112a6ce810ce1612d8498e1
