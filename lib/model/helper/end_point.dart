@@ -13,6 +13,7 @@
   static String createStudentWorks = 'cud/create_student_works';
   static String checkStudents = 'check_students';
   static String edisodes = 'get/teacher/halaqaa';
+  static String checkStudentWorks = 'check_student_works';
   static String checkHalaqat = 'check_halaqat';
  }
  //check_students

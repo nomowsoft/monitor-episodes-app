@@ -220,6 +220,13 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                           index]
                                                       .id!);
                                             }
+                                            homeController
+                                                .checkStudentListenLineAndAttendances(
+                                                    homeController
+                                                        .listStudentsOfEpisode[
+                                                            index]
+                                                        .id,
+                                                    widget.episode.id!);
                                             Get.back();
                                           },
                                           child: Container(

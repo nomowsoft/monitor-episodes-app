@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart' as cupertino;
@@ -16,15 +14,13 @@ import 'package:monitor_episodes/model/core/quran/surah.dart';
 import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/core/shared/status_and_types.dart';
 import 'package:monitor_episodes/model/core/user/auth_model.dart';
-import 'package:monitor_episodes/model/helper/end_point.dart';
 import 'package:monitor_episodes/model/services/educational_plan_service.dart';
 import 'package:monitor_episodes/model/services/listen_line_service.dart';
 import 'package:monitor_episodes/model/services/plan_lines_service.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 import 'package:monitor_episodes/model/services/teacher_service.dart';
-
+import '../model/core/episodes/check_student_work_responce.dart';
 import '../model/core/episodes/check_episode.dart';
-
 import '../model/core/episodes/episode.dart';
 import '../model/core/shared/response_content.dart';
 import '../model/services/check_episode_service.dart';
@@ -64,7 +60,6 @@ class HomeController extends GetxController {
   }
 
   Future loadData() async {
-    
     loadEpisodes();
   }
 
@@ -161,7 +156,8 @@ class HomeController extends GetxController {
     return studentResult && planLinesResult;
   }
 
-  Future<bool> deleteStudent(int episodeId, int id,{bool isFromCheck = false}) async {
+  Future<bool> deleteStudent(int episodeId, int id,
+      {bool isFromCheck = false}) async {
     try {
       await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
       await PlanLinesService().deleteAllPlanLinesOfStudent(id);
@@ -230,6 +226,53 @@ class HomeController extends GetxController {
     update();
   }
 
+  //check studentListen & attendances
+
+  void checkStudentListenLineAndAttendances(
+      int? studentId, int episodeId) async {
+    var worksIds =
+        await ListenLineService().getListenLinesLocalIdsForStudent(studentId!);
+    var attendancesIds =
+        await StudentsOfEpisodeService().getStateLocalForStudent(studentId);
+
+    ResponseContent checkStudentsWorksResponse =
+        await StudentsOfEpisodeService().checkStudentListenLineAndAttendances(
+            studentId, worksIds, attendancesIds, episodeId);
+    if (checkStudentsWorksResponse.isSuccess ||
+        checkStudentsWorksResponse.isNoContent) {
+      CheckStudentsWorkResponce checkWorks = checkStudentsWorksResponse.data;
+      if (checkWorks.update) {
+        if (await CostomDailogs.dialogWithText(
+            text: 'student_episode_data_is_being_updated'.tr)) {
+          bool isCompleted = await Get.dialog(cupertino.Builder(
+              builder: (cupertino.BuildContext dialogContext) {
+            changeStudentsWorksAndAttendances(
+                checkWorks, dialogContext, episodeId);
+            return cupertino.WillPopScope(
+              onWillPop: () async {
+                return false;
+              },
+              child: const cupertino.CupertinoAlertDialog(
+                content: WaitingDialog(),
+              ),
+            );
+          }));
+          if (!isCompleted) {
+            CostomDailogs.warringDialogWithGet(
+                msg: 'error_get_PlanLine_students'.tr);
+          } else {
+            loadStudentsOfEpisode(episodeId);
+
+            // Get.offAll(() => const SplashScreen(),
+            //     duration: const Duration(seconds: 2),
+            //     curve: cupertino.Curves.easeInOut,
+            //     transition: Transition.fadeIn);
+          }
+        }
+      }
+    }
+  }
+
   // check student
   void checkStudent(int episodeId) async {
     List<StudentOfEpisode> listStudentOfEpisode =
@@ -276,6 +319,39 @@ class HomeController extends GetxController {
     }
   }
 
+  //change work and attendances
+  void changeStudentsWorksAndAttendances(CheckStudentsWorkResponce checkWorks,
+      cupertino.BuildContext dialogContext, int episodeId) async {
+    final navigator = cupertino.Navigator.of(dialogContext);
+    bool isCompleted = true;
+    if (checkWorks.listenLine.isNotEmpty) {
+      try {
+        for (var listenLine in checkWorks.listenLine) {
+          await addListenLine(
+              listenLine.typeFollow, listenLine.studentId, episodeId,
+              newListenLine: listenLine);
+        }
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+    if (checkWorks.studentState.isNotEmpty) {
+      try {
+        for (var studentsState in checkWorks.studentState) {
+          setAttendance(episodeId, studentsState.state, studentsState.studentId,
+              studentState: studentsState);
+          StudentsOfEpisodeService()
+              .setStudentStateLocal(studentsState, isFromCheck: true);
+        }
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+
+    navigator.pop(isCompleted);
+  }
+
+  //change student
   changeStudents(CheckStudentsResponce checkStudentsResponce,
       cupertino.BuildContext buildContext, int episodeId) async {
     final navigator = cupertino.Navigator.of(buildContext);
@@ -283,7 +359,7 @@ class HomeController extends GetxController {
     if (checkStudentsResponce.deletedStudentsIds.isNotEmpty) {
       try {
         for (var id in checkStudentsResponce.deletedStudentsIds) {
-          await deleteStudent(episodeId, id,isFromCheck: true);
+          await deleteStudent(episodeId, id, isFromCheck: true);
           PlanLinesService().deleteAllPlanLinesOfStudent(id);
         }
       } catch (e) {
@@ -367,23 +443,38 @@ class HomeController extends GetxController {
     educationalPlan = null;
   }
 
-  Future<ResponseContent> setAttendance(
-      int episodeId, String filter, int id) async {
+  Future<ResponseContent> setAttendance(int episodeId, String filter, int id,
+      {StudentState? studentState}) async {
     ResponseContent studentStateResponse = ResponseContent();
-    await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
-        date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        episodeId: episodeId,
-        studentId: id,
-        state: filter));
+    await StudentsOfEpisodeService().setStudentStateLocal(studentState ??
+        StudentState(
+            date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            episodeId: episodeId,
+            studentId: id,
+            state: filter));
 
-    int index =
-        _listStudentsOfEpisode.indexWhere((element) => element.id == id);
-    if (index >= 0) {
-      _listStudentsOfEpisode[index].state = filter.tr;
-      _listStudentsOfEpisode[index].stateDate =
-          DateFormat('yyyy-MM-dd').format(DateTime.now());
-      await StudentsOfEpisodeService()
-          .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index], null);
+    if (studentState == null) {
+      int index =
+          _listStudentsOfEpisode.indexWhere((element) => element.id == id);
+      if (index >= 0) {
+        _listStudentsOfEpisode[index].state = filter.tr;
+        _listStudentsOfEpisode[index].stateDate =
+            DateFormat('yyyy-MM-dd').format(DateTime.now());
+        await StudentsOfEpisodeService()
+            .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index], null);
+      }
+    } else {
+      if (studentState.date ==
+          DateFormat('yyyy-MM-dd').format(DateTime.now())) {
+        int index =
+            _listStudentsOfEpisode.indexWhere((element) => element.id == id);
+        if (index >= 0) {
+          _listStudentsOfEpisode[index].state = studentState.state.tr;
+          _listStudentsOfEpisode[index].stateDate = studentState.date;
+          await StudentsOfEpisodeService().updateStudentsOfEpisodeLocal(
+              _listStudentsOfEpisode[index], null);
+        }
+      }
     }
     studentStateResponse = ResponseContent(statusCode: '200', success: true);
 
@@ -475,32 +566,44 @@ class HomeController extends GetxController {
     update();
   }
 
-  addListenLine(String typePlanLine, int id, int episodeId) async {
+  addListenLine(String typePlanLine, int id, int episodeId,
+      {ListenLine? newListenLine}) async {
     late PlanLine planLine;
-    if (PlanLinesType.listen == typePlanLine) {
-      planLine = planLines!.listen!;
-    } else if (PlanLinesType.reviewsmall == typePlanLine) {
-      planLine = planLines!.reviewsmall!;
-    } else if (PlanLinesType.reviewbig == typePlanLine) {
-      planLine = planLines!.reviewbig!;
-    } else if (PlanLinesType.tlawa == typePlanLine) {
-      planLine = planLines!.tlawa!;
-    }
-    ListenLine listenLine = ListenLine(
-        studentId: id,
-        actualDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        typeFollow: getTypePlanLine(typePlanLine),
-        fromSuraId: Constants.listSurah
-            .firstWhere((element) => element.name == planLine.fromSuraName)
-            .id,
-        toSuraId: Constants.listSurah
-            .firstWhere((element) => element.name == planLine.toSuraName)
-            .id,
-        fromAya: planLine.fromAya,
-        toAya: planLine.toAya,
-        totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
-        totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0);
+    late ListenLine listenLine;
+    if (newListenLine == null) {
+      if (PlanLinesType.listen == typePlanLine) {
+        planLine = planLines!.listen!;
+      } else if (PlanLinesType.reviewsmall == typePlanLine) {
+        planLine = planLines!.reviewsmall!;
+      } else if (PlanLinesType.reviewbig == typePlanLine) {
+        planLine = planLines!.reviewbig!;
+      } else if (PlanLinesType.tlawa == typePlanLine) {
+        planLine = planLines!.tlawa!;
+      }
 
+      listenLine = ListenLine(
+          studentId: id,
+          actualDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          typeFollow: getTypePlanLine(typePlanLine),
+          fromSuraId: Constants.listSurah
+              .firstWhere((element) => element.name == planLine.fromSuraName)
+              .id,
+          toSuraId: Constants.listSurah
+              .firstWhere((element) => element.name == planLine.toSuraName)
+              .id,
+          fromAya: planLine.fromAya,
+          toAya: planLine.toAya,
+          totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
+          totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0);
+    } else {
+      listenLine = newListenLine;
+      planLine = PlanLine(
+          fromSuraName: getSuraName(newListenLine.fromSuraId),
+          fromAya: getAyaFrom(newListenLine.fromAya),
+          toAya: getAyaTo(newListenLine.fromAya),
+          toSuraName: getSuraName(newListenLine.fromSuraId),
+          mistake: 0);
+    }
     ResponseContent responseContent = ResponseContent();
     await ListenLineService().setListenLineLocal(listenLine);
     responseContent = ResponseContent(success: true, statusCode: '200');
@@ -555,7 +658,7 @@ class HomeController extends GetxController {
         planLines!.listen!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planListen.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -708,24 +811,25 @@ class HomeController extends GetxController {
               .setEducationalPlanLocal(newEducationalPlan);
         }
       }
+      if (newListenLine == null) {
+        int index =
+            _listStudentsOfEpisode.indexWhere((element) => element.id == id);
 
-      int index =
-          _listStudentsOfEpisode.indexWhere((element) => element.id == id);
-
-      if (index >= 0) {
-        if (_listStudentsOfEpisode[index].state == 'student_preparation'.tr) {
-          setAttendance(_listStudentsOfEpisode[index].episodeId!, 'present',
-              _listStudentsOfEpisode[index].id!);
-          // _listStudentsOfEpisode[index].state = 'present'.tr;
-          // _listStudentsOfEpisode[index].stateDate =
-          //     DateFormat('yyyy-MM-dd').format(DateTime.now());
-          // await StudentsOfEpisodeService()
-          //     .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
-          // await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
-          //     date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-          //     episodeId: _listStudentsOfEpisode[index].episodeId!,
-          //     studentId: id,
-          //     state: 'present'));
+        if (index >= 0) {
+          if (_listStudentsOfEpisode[index].state == 'student_preparation'.tr) {
+            setAttendance(_listStudentsOfEpisode[index].episodeId!, 'present',
+                _listStudentsOfEpisode[index].id!);
+            // _listStudentsOfEpisode[index].state = 'present'.tr;
+            // _listStudentsOfEpisode[index].stateDate =
+            //     DateFormat('yyyy-MM-dd').format(DateTime.now());
+            // await StudentsOfEpisodeService()
+            //     .updateStudentsOfEpisodeLocal(_listStudentsOfEpisode[index],null);
+            // await StudentsOfEpisodeService().setStudentStateLocal(StudentState(
+            //     date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            //     episodeId: _listStudentsOfEpisode[index].episodeId!,
+            //     studentId: id,
+            //     state: 'present'));
+          }
         }
       }
     }
