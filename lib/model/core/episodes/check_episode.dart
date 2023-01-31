@@ -1,57 +1,57 @@
+// class CheckEpisode {
+//   String? jsonrpc;
+//   int? id;
+//   Result? result;
+
+//   CheckEpisode({this.jsonrpc, this.id, this.result});
+
+//   CheckEpisode.fromJson(Map<String, dynamic> json) {
+//     jsonrpc = json['jsonrpc'];
+//     id = json['id'] is int ? json['id'] : 0;
+//     result =
+//         json['result'] != null ? new Result.fromJson(json['result']) : null;
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = Map<String, dynamic>();
+//     data['jsonrpc'] = jsonrpc;
+//     data['id'] = id;
+//     if (result != null) {
+//       data['result'] = result!.toJson();
+//     }
+//     return data;
+//   }
+// }
+
+// class Result {
+//   bool? success;
+//   Results? results;
+
+//   Result({this.success, this.results});
+
+//   Result.fromJson(Map<String, dynamic> json) {
+//     success = json['success'];
+//     results = json['result'] != null ? Results.fromJson(json['result']) : null;
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = Map<String, dynamic>();
+//     data['success'] = success;
+//     if (results != null) {
+//       data['result'] = results!.toJson();
+//     }
+//     return data;
+//   }
+// }
+
 class CheckEpisode {
-  String? jsonrpc;
-  int? id;
-  Result? result;
-
-  CheckEpisode({this.jsonrpc, this.id, this.result});
-
-  CheckEpisode.fromJson(Map<String, dynamic> json) {
-    jsonrpc = json['jsonrpc'];
-    id = json['id'] is int ? json['id'] : 0;
-    result =
-        json['result'] != null ? new Result.fromJson(json['result']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['jsonrpc'] = jsonrpc;
-    data['id'] = id;
-    if (result != null) {
-      data['result'] = result!.toJson();
-    }
-    return data;
-  }
-}
-
-class Result {
-  bool? success;
-  Results? results;
-
-  Result({this.success, this.results});
-
-  Result.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
-    results = json['result'] != null ? Results.fromJson(json['result']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['success'] = success;
-    if (results != null) {
-      data['result'] = results!.toJson();
-    }
-    return data;
-  }
-}
-
-class Results {
   bool? update;
   List<int>? deletedHalaqat;
   List<NewHalaqat>? newHalaqat;
 
-  Results({this.update, this.deletedHalaqat, this.newHalaqat});
+  CheckEpisode({this.update, this.deletedHalaqat, this.newHalaqat});
 
-  Results.fromJson(Map<String, dynamic> json) {
+  CheckEpisode.fromJson(Map<String, dynamic> json) {
     update = json['update'];
     deletedHalaqat = json['deleted_halaqat'].cast<int>();
     if (json['new_halaqat'] != null) {

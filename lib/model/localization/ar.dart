@@ -285,5 +285,5 @@ Map<String, String> translateArabic = {
   "mourajaa_g": "المراجعة الكبرى",
   "tilawa": "التلاوة",
   "the_episode_cannot_be_deleted_because_there_are_students_in_it":
-      "لايمكن حذف الحلقة بسبب وجود طلاب فيها"
+      "لايمكن حذف الحلقة بسبب وجود طلاب فيها","the_data_has_been_updated_successfully":"تم تحديث البيانات بنجاح"
 };

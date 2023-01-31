@@ -18,30 +18,16 @@ class CheckEpisodeService {
         contentType: ContentTypeHeaders.applicationJson);
     if (response.success ?? false) {
       try {
-        response.data = CheckEpisode.fromJson(response.data);
+        response.data = response.data != null
+            ? CheckEpisode.fromJson(response.data['result']['result'])
+            : null;
         return response;
       } catch (e) {
         return ResponseContent(
             statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
       }
-    } else if (response.isBadRequest) {
-      response.message = 'BadRequest';
-    } else if (response.isNotFound) {
-      response.message = 'NotFound';
-    } else if (response.isNoContent) {
-      response.message = 'NoContent';
+    } else {
+      return response;
     }
-    return response;
-    // if (response.isSuccess) {
-    //   try {
-    //     response.data = CheckEpisode.fromJson(response.data);
-    //     return response;
-    //   } catch (e) {
-    //     return ResponseContent(
-    //         statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
-    //   }
-    // } else {
-    //   return response;
-    // }
   }
 }

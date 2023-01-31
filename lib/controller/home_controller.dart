@@ -160,7 +160,8 @@ class HomeController extends GetxController {
     return studentResult && planLinesResult;
   }
 
-  Future<bool> deleteStudent(int episodeId, int id,{bool isFromCheck = false}) async {
+  Future<bool> deleteStudent(int episodeId, int id,
+      {bool isFromCheck = false}) async {
     try {
       await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
       await PlanLinesService().deleteAllPlanLinesOfStudent(id);
@@ -282,7 +283,7 @@ class HomeController extends GetxController {
     if (checkStudentsResponce.deletedStudentsIds.isNotEmpty) {
       try {
         for (var id in checkStudentsResponce.deletedStudentsIds) {
-          await deleteStudent(episodeId, id,isFromCheck: true);
+          await deleteStudent(episodeId, id, isFromCheck: true);
           PlanLinesService().deleteAllPlanLinesOfStudent(id);
         }
       } catch (e) {
@@ -749,13 +750,13 @@ class HomeController extends GetxController {
   //Check halaqat
   Future<ResponseContent> checkHalaqat() async {
     List listId = _listEpisodes.map((e) => e.id).toList();
-    ResponseContent checkHalaqatResponse = ResponseContent();
-    await CheckEpisodeService().postCheckhalaqat(listId);
+    ResponseContent checkHalaqatResponse =
+        await CheckEpisodeService().postCheckhalaqat(listId);
     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
       checkEpisode = checkHalaqatResponse.data;
       // Add Edisode
-      final listAddEdisode = List<NewHalaqat>.from(
-          checkEpisode?.result?.results?.newHalaqat ?? []);
+      final listAddEdisode =
+          List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
       int numberEdisode;
       for (numberEdisode = 0;
           numberEdisode < listAddEdisode.length;
@@ -790,15 +791,19 @@ class HomeController extends GetxController {
           addStudent(studentOfEpisode, plalinLines, idStedent);
         }
       }
+      // !! delete data
+      final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
+      for (int i = 0; i < list.length; i++) {
+        deleteEdisode(
+            Episode(id: list[i], epsdType: '', name: '', displayName: ''));
+      }
     }
+    CostomDailogs.snackBar(
+        response: ResponseContent(
+            statusCode: '200',
+            success: true,
+            message: 'the_data_has_been_updated_successfully'.tr));
 
-    // !! delete data
-    final list =
-        List<int>.from(checkEpisode?.result?.results?.deletedHalaqat ?? []);
-    for (int i = 0; i < list.length; i++) {
-      deleteEdisode(
-          Episode(id: list[i], epsdType: '', name: '', displayName: ''));
-    }
     return checkHalaqatResponse;
   }
 
