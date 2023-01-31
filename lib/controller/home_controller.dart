@@ -18,8 +18,11 @@ import 'package:monitor_episodes/model/services/plan_lines_service.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 import 'package:monitor_episodes/model/services/teacher_service.dart';
 
+import '../model/core/episodes/check_episode.dart';
+
 import '../model/core/episodes/episode.dart';
 import '../model/core/shared/response_content.dart';
+import '../model/services/check_episode_service.dart';
 import '../model/services/episodes_service.dart';
 
 class HomeController extends GetxController {
@@ -34,6 +37,7 @@ class HomeController extends GetxController {
   List<StudentOfEpisode> _listStudentsOfEpisode = [];
   PlanLines? planLines;
   EducationalPlan? educationalPlan;
+  CheckEpisode? checkEpisode;
 
   @override
   void onInit() async {
@@ -41,6 +45,7 @@ class HomeController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     initFilds();
+    loadData();
     await getTeacherLocal();
   }
 
@@ -49,6 +54,10 @@ class HomeController extends GetxController {
     _gettingStudentsOfEpisode = false;
     _gettingPlanLines = false;
     _gettingEducationalPlan = false;
+  }
+
+  Future loadData() async {
+    loadEpisodes();
   }
 
   //methods
@@ -630,6 +639,62 @@ class HomeController extends GetxController {
       return 'tlawa';
     }
     return '';
+  }
+
+  //Check halaqat
+  Future<ResponseContent> checkHalaqat() async {
+    List listId = _listEpisodes.map((e) => e.id).toList();
+    ResponseContent checkHalaqatResponse = ResponseContent();
+    await CheckEpisodeService().postCheckhalaqat(listId);
+    if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
+      checkEpisode = checkHalaqatResponse.data;
+      // Add Edisode
+      final listAddEdisode = List<NewHalaqat>.from(
+          checkEpisode?.result?.results?.newHalaqat ?? []);
+      int numberEdisode;
+      for (numberEdisode = 0;
+          numberEdisode < listAddEdisode.length;
+          numberEdisode++) {
+        addEdisode(Episode(
+            displayName: listAddEdisode[numberEdisode].name.toString(),
+            name: listAddEdisode[numberEdisode].name.toString(),
+            epsdType: listAddEdisode[numberEdisode].typeEpisode.toString(),
+            id: listAddEdisode[numberEdisode].id));
+        for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
+          var studentOfEpisode = StudentOfEpisode(
+            episodeId: listAddEdisode[numberEdisode].id!.toInt(),
+            name: listAddEdisode[numberEdisode].students![i].name.toString(),
+            state: listAddEdisode[numberEdisode].students![i].state.toString(),
+          );
+          int idStedent = listAddEdisode[numberEdisode].id!.toInt();
+          var plalinLines = PlanLines(
+              episodeId: listAddEdisode[numberEdisode].id!.toInt(),
+              studentId: listAddEdisode[numberEdisode].students![i].id);
+          if (listAddEdisode[numberEdisode].students![i].isHifz == true) {
+            plalinLines.listen = PlanLine.fromDefault();
+          } else if (listAddEdisode[numberEdisode].students![i].isTilawa ==
+              true) {
+            plalinLines.tlawa = PlanLine.fromDefault();
+          } else if (listAddEdisode[numberEdisode].students![i].isSmallReview ==
+              true) {
+            plalinLines.reviewsmall = PlanLine.fromDefault();
+          } else if (listAddEdisode[numberEdisode].students![i].isBigReview ==
+              true) {
+            plalinLines.reviewbig = PlanLine.fromDefault();
+          }
+          addStudent(studentOfEpisode, plalinLines, idStedent);
+        }
+      }
+    }
+
+    // !! delete data
+    final list =
+        List<int>.from(checkEpisode?.result?.results?.deletedHalaqat ?? []);
+    for (int i = 0; i < list.length; i++) {
+      deleteEdisode(
+          Episode(id: list[i], epsdType: '', name: '', displayName: ''));
+    }
+    return checkHalaqatResponse;
   }
 
   // setter

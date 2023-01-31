@@ -10,5 +10,7 @@
   static String updateStudent = 'cud/update_students';
   static String deleteStudent = 'cud/delete_students';
   static String createStudentAttendance = 'cud/create_student_attendance';
+  static String checkHalaqat = 'check_halaqat';
+
 
  }
