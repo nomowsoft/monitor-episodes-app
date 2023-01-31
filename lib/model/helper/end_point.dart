@@ -11,6 +11,7 @@ class EndPoint {
   static String createStudentAttendance = 'cud/create_student_attendance';
   static String createStudentWorks = 'cud/create_student_works';
   static String checkStudents = 'check_students';
+  static String upDataSync = 'get/teacher/halaqaa';
 
   static String checkHalaqat = 'check_halaqat';
 }
