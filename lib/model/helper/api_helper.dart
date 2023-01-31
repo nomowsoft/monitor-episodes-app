@@ -78,6 +78,44 @@ class ApiHelper {
     }
   }
 
+    Future<ResponseContent> get<T>(String endPoint,
+      {String? linkApi, String? contentType, Map<String, String>? headers}) async {
+
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    final client = http.Client();
+    try {
+      Uri uri = Uri.parse(
+          linkApi != null ? '$linkApi/$endPoint' : (link + url + endPoint));
+      final response = await client.get(uri, headers: {
+        "Accept": "application/json",
+        "Content-Type": contentType ?? ContentTypeHeaders.applicationJson,
+        'cookie': pref.getString('cookie') ?? '',
+        ...?headers
+      });
+      if (response.statusCode >= 200 && response.statusCode < 299) {
+        try {
+          var data = convert.jsonDecode(response.body);
+          ResponseContent result = ResponseContent.fromJson(data,response.statusCode);
+          return result;
+        } catch (e) {
+          return ResponseContent(
+              statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
+        }
+      } else if (response.statusCode >= 400 && response.statusCode < 499) {
+        var data = convert.jsonDecode(response.body);
+        ResponseContent result = ResponseContent.fromJson(data,response.statusCode);
+        return result;
+      } else {
+        return ResponseContent(
+            statusCode: '-${response.statusCode.toString()}',
+            message: response.body);
+      }
+    } catch (e) {
+      return ResponseContent(
+          statusCode: '0', message: 'error_connect_to_netwotk'.tr);
+    }
+  }
+
   void updateCookie(http.Response response, SharedPreferences pref) {
     String? rawCookie = response.headers['set-cookie'];
     if (rawCookie != null) {

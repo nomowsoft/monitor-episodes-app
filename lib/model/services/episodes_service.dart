@@ -7,6 +7,8 @@ import 'package:monitor_episodes/model/data/database_helper.dart';
 import 'package:monitor_episodes/model/helper/api_helper.dart';
 import 'package:monitor_episodes/model/helper/end_point.dart';
 
+import '../core/shared/response_content.dart';
+
 class EdisodesService {
   Future<List<Episode>?> getEdisodesLocal() async {
     try {
@@ -18,7 +20,8 @@ class EdisodesService {
       return null;
     }
   }
-    Future<Episode?> getLastEdisodesLocal() async {
+
+  Future<Episode?> getLastEdisodesLocal() async {
     try {
       final dbHelper = DatabaseHelper.instance;
       final allProducts =
@@ -163,4 +166,27 @@ void sendToServer(List list, String operation, DatabaseHelper dbHelper) {
       }
     });
   }
+}
+
+void edisodesFromServer(int teacherId) {
+  ApiHelper()
+      .get(
+    '${EndPoint.edisodes}?teacher_id=$teacherId}',
+    linkApi: "http://rased-api.maknon.org.sa",
+  )
+      .then((response) {
+    if (response.isSuccess) {
+      try {
+        response.data = response.data != null
+            ? (response.data as List).map((e) => Episode.fromJson(e))
+            : null; 
+        return response;
+      } catch (e) {
+        return ResponseContent(
+            statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
+      }
+    }else {
+      return response;
+    }
+  });
 }
