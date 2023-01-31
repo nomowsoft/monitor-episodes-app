@@ -1,6 +1,7 @@
+import 'package:get/get.dart';
+import 'package:monitor_episodes/model/offline_quran/surahs.dart';
 import 'package:monitor_episodes/model/offline_quran/verses.dart';
 import 'package:monitor_episodes/model/services/listen_line_service.dart';
-import 'package:monitor_episodes/model/services/plan_lines_service.dart';
 
 class ListenLine {
   int? id;
@@ -36,6 +37,20 @@ class ListenLine {
         toAya = json['to_aya'] ?? 0,
         totalMstkQty = json['total_mstk_qty'] ?? 0,
         totalMstkRead = json['total_mstk_read'] ?? 0;
+
+  ListenLine.fromJsonServer(
+    Map<String, dynamic> json,
+    int stuId,
+  )   : id = json['id'],
+        studentId = stuId,
+        typeFollow = getTypeWorkserver(json['type_work']),
+        fromSuraId = json['from_sura_id'],
+        toSuraId = json['to_sura_id'],
+        fromAya = getAyaFrom(json['from_aya_id']),
+        toAya = getAyaTo(json['to_aya_id']),
+        actualDate = json['date_listen'],
+        totalMstkQty = json['nbr_error_hifz'],
+        totalMstkRead = json['nbr_error_tajwed'];
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -100,5 +115,45 @@ class ListenLine {
         return int.parse(element['id']);
       }
     }
+  }
+
+  getSuraName(int id) {}
+}
+
+getSuraName(int id) {
+  for (var element in surahs) {
+    if (element['id'] == id.toString()) {
+      return element['name'];
+    }
+  }
+}
+
+getAyaFrom(int ayaId) {
+  for (var element in verses) {
+    if (element['id'] == ayaId.toString()) {
+      return element['original_surah_order'];
+    }
+  }
+}
+
+getAyaTo(int ayaId) {
+  for (var element in verses) {
+    if (element['id'] == ayaId.toString()) {
+      return element['original_surah_order'];
+    }
+  }
+}
+
+getTypeWorkserver(String typeFollow) {
+  switch (typeFollow) {
+    case 'hifz':
+      return 'listen';
+    case 'mourajaa_g':
+      return 'reviewbig';
+    case 'reviewbig':
+      return 'reviewsmall';
+    case 'tilawa':
+      return 'tlawa';
+    default:
   }
 }

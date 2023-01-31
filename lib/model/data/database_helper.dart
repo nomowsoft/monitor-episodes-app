@@ -71,7 +71,7 @@ class DatabaseHelper {
         ')');
     await db.execute('CREATE TABLE $tableStudentState ('
         'id INTEGER PRIMARY KEY,' 
-        '${StudentStateColumns.studentId.value} INTEGER,'
+        'student_id INTEGER,'
         '${StudentStateColumns.state.value} TEXT,'
         '${StudentStateColumns.date.value} TEXT,'
         '${StudentStateColumns.episodeId.value} INTEGER'

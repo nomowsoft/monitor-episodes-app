@@ -20,6 +20,22 @@ class ListenLineService {
     }
   }
 
+  Future<List<int?>> getListenLinesLocalIdsForStudent(int studentId) async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allStudents = await dbHelper.queryAllRowsWhere(
+          DatabaseHelper.tableListenLine, 'student_id', studentId);
+      return allStudents
+              ?.map((val) => ListenLine.fromJson(val))
+              .toList()
+              .map((e) => e.id)
+              .toList() ??
+          [];
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<ListenLine?> getLastListenLinesLocal() async {
     try {
       final dbHelper = DatabaseHelper.instance;
@@ -68,14 +84,18 @@ class ListenLineService {
     }
   }
 
-  Future setListenLineLocal(ListenLine listenLine) async {
+  Future setListenLineLocal(ListenLine listenLine,{bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = listenLine.toJson();
       await dbHelper.insert(DatabaseHelper.tableListenLine, jsonLocal);
+      if(!isFromCheck){
       var jsonServer = await listenLine.toJsonServer();
       await dbHelper.insert(DatabaseHelper.logTableStudentWork, jsonServer);
       setStudentListenLineRemotely(dbHelper);
+
+      }
+
       return true;
     } catch (e) {
       return false;

@@ -14,13 +14,13 @@ class StudentState {
 
   StudentState.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-       studentId = json['student_id'] ?? 0,
+        studentId = json['student_id'] ?? 0,
         episodeId = json['episode_id'] ?? 0,
         date = json['date'] ?? '',
         state = json['state'] ?? '';
 
   Map<String, dynamic> toJson() => {
-         "id":id,
+        "id": id,
         "student_id": studentId,
         "episode_id": episodeId,
         "date": date,
@@ -28,9 +28,16 @@ class StudentState {
       };
 
   Map<String, dynamic> toJsonServer() => {
-        'id':id,
+        'id': id,
         'student_id': studentId,
         'status': state,
         'date_presence': DateFormat('yyyy-MM-dd').format(DateTime.now()),
       };
+
+  StudentState.fromJsonServer(json, {required int episId, required int stuId})
+      : id = json['id'],
+        studentId = stuId,
+        episodeId = episId,
+        date = json['date_presence'],
+        state = json['status'];
 }

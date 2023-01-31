@@ -20,9 +20,8 @@ class CheckStudentsResponce {
 List<NewStudent> _getNewStudent(List list) {
   List<NewStudent> newStudents = [];
   for (var element in list) {
-    if (element.runtimeType != int) {
+    
       newStudents.add(NewStudent.fromJson(element));
-    }
   }
   return newStudents;
 }

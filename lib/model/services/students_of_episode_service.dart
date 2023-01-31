@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:monitor_episodes/model/core/episodes/check_student_work_responce.dart';
 import 'package:monitor_episodes/model/core/episodes/check_students_responce.dart';
 import 'package:monitor_episodes/model/core/plan_lines/plan_lines.dart';
 import 'package:monitor_episodes/model/core/shared/enums.dart';
@@ -29,6 +30,23 @@ class StudentsOfEpisodeService {
           [];
     } catch (e) {
       return null;
+    }
+  }
+
+  //getStateLocalForStudent
+  Future<List<int?>> getStateLocalForStudent(int studentId) async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allStudents = await dbHelper.queryAllRowsWhere(
+          DatabaseHelper.tableStudentState, 'student_id', studentId);
+      return allStudents
+              ?.map((val) => StudentState.fromJson(val))
+              .toList()
+              .map((e) => e.id)
+              .toList() ??
+          [];
+    } catch (e) {
+      return [];
     }
   }
 
@@ -272,7 +290,8 @@ class StudentsOfEpisodeService {
     }
   }
 
-  Future setStudentStateLocal(StudentState studentsState) async {
+  Future setStudentStateLocal(StudentState studentsState,
+      {bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       //local
@@ -294,21 +313,30 @@ class StudentsOfEpisodeService {
 
       await dbHelper.insert(DatabaseHelper.tableStudentState, jsonLocal);
       // server
-      var jsonServer = studentsState.toJsonServer();
-      var countLog = await dbHelper.queryRowCountWhereAnd(
-          DatabaseHelper.logTableStudentState,
-          'id',
-          'date_presence',
-          studentsState.studentId,
-          studentsState.date);
-      if (countLog != null && countLog > 0) {
-        dbHelper.updateWhereAnd(DatabaseHelper.logTableStudentState, jsonServer,
-            'id', 'date_presence', studentsState.studentId, studentsState.date);
-      } else {
-        await dbHelper.insert(DatabaseHelper.logTableStudentState, jsonServer);
+      if (!isFromCheck) {
+        var jsonServer = studentsState.toJsonServer();
+        var countLog = await dbHelper.queryRowCountWhereAnd(
+            DatabaseHelper.logTableStudentState,
+            'id',
+            'date_presence',
+            studentsState.studentId,
+            studentsState.date);
+        if (countLog != null && countLog > 0) {
+          dbHelper.updateWhereAnd(
+              DatabaseHelper.logTableStudentState,
+              jsonServer,
+              'id',
+              'date_presence',
+              studentsState.studentId,
+              studentsState.date);
+        } else {
+          await dbHelper.insert(
+              DatabaseHelper.logTableStudentState, jsonServer);
+        }
+        studentCrudOperationsRemoately(
+            dbHelper, DatabaseHelper.logTableStudentState);
       }
-      studentCrudOperationsRemoately(
-          dbHelper, DatabaseHelper.logTableStudentState);
+
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -361,6 +389,39 @@ class StudentsOfEpisodeService {
       try {
         response.data = response.data != null
             ? CheckStudentsResponce.fromJson(response.data['result']['result'])
+            : null;
+        return response;
+      } catch (e) {
+        return ResponseContent(
+            statusCode: '1', message: '#Convert-Response#\n${e.toString()}');
+      }
+    } else {
+      return response;
+    }
+  }
+
+  Future<ResponseContent<dynamic>> checkStudentListenLineAndAttendances(
+      int studentId,
+      List<int?> worksIds,
+      List<int?> attendancesIds,
+      int episodeId) async {
+    var json = {
+      'data': {
+        "student_id": studentId,
+        "works": worksIds,
+        'attendances': attendancesIds
+      }
+    };
+    var data = jsonEncode(json);
+    ResponseContent response = await ApiHelper().postV2(
+        EndPoint.checkStudentWorks, data,
+        linkApi: "http://rased-api.maknon.org.sa",
+        contentType: ContentTypeHeaders.applicationJson);
+    if (response.success ?? false) {
+      try {
+        response.data = response.data != null
+            ? CheckStudentsWorkResponce.fromJson(
+                response.data['result']['result'], episodeId, studentId)
             : null;
         return response;
       } catch (e) {
