@@ -55,15 +55,16 @@ class EdisodesService {
     }
   }
 
-  Future<bool> setEdisodeLocal(Episode episode, {bool isCheck = true}) async {
+  Future<bool> setEdisodeLocal(Episode episode,
+      {bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = episode.toJson();
       await dbHelper.insert(DatabaseHelper.tableEpisode, jsonLocal);
-      var jsonServer = await episode.toJsonServer(isCreate: true);
-      jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
-      await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
-      if (isCheck) {
+      if (!isFromCheck) {
+        var jsonServer = await episode.toJsonServer(isCreate: true);
+        jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
+        await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
         episodeCrudOperationsRemoately(dbHelper);
       }
       return true;
@@ -99,13 +100,15 @@ class EdisodesService {
     }
   }
 
-  Future<bool> deletedEpisode(int episodeId) async {
+  Future<bool> deletedEpisode(int episodeId, {bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       await dbHelper.delete(DatabaseHelper.tableEpisode, episodeId);
-      await dbHelper.insert(DatabaseHelper.logTableEpisode,
-          {'id': episodeId, EpisodeColumns.operation.value: 'delete'});
-      episodeCrudOperationsRemoately(dbHelper);
+      if (!isFromCheck) {
+        await dbHelper.insert(DatabaseHelper.logTableEpisode,
+            {'id': episodeId, EpisodeColumns.operation.value: 'delete'});
+        episodeCrudOperationsRemoately(dbHelper);
+      }
       return true;
     } catch (e) {
       return false;
@@ -176,11 +179,12 @@ class EdisodesService {
       '${EndPoint.edisodes}?teacher_id=$teacherId',
       linkApi: "http://rased-api.maknon.org.sa",
     );
-   
+
     if (response.isSuccess) {
       try {
         response.data = response.data['result'] != null
-            ? (response.data['result'] as List).map((e) => EpisodeStudents.fromJson(e))
+            ? (response.data['result'] as List)
+                .map((e) => EpisodeStudents.fromJson(e))
             : null;
         return response;
       } catch (e) {

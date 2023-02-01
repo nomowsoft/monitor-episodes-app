@@ -81,8 +81,9 @@ class HomeController extends GetxController {
     update();
   }
 
-  Future<bool> addEdisode(Episode episode) async {
-    bool result = await EdisodesService().setEdisodeLocal(episode);
+  Future<bool> addEdisode(Episode episode, {bool isFromCheck = false}) async {
+    bool result = await EdisodesService()
+        .setEdisodeLocal(episode, isFromCheck: isFromCheck);
     loadEpisodes();
     return result;
   }
@@ -93,7 +94,8 @@ class HomeController extends GetxController {
     return result;
   }
 
-  Future<bool> deleteEdisode(Episode episode) async {
+  Future<bool> deleteEdisode(Episode episode,
+      {bool isFromCheck = false}) async {
     try {
       await PlanLinesService().deleteAllPlanLinesOfEpisode(episode.id!);
       await EducationalPlanService()
@@ -112,7 +114,8 @@ class HomeController extends GetxController {
         }
       }
       await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id!);
-      await EdisodesService().deletedEpisode(episode.id!);
+      await EdisodesService()
+          .deletedEpisode(episode.id!, isFromCheck: isFromCheck);
       loadEpisodes();
       return true;
     } catch (e) {
@@ -159,6 +162,7 @@ class HomeController extends GetxController {
       loadPlanLines(episodeId, studentOfEpisode.id!);
       //loadEducationalPlan(episodeId,studentOfEpisode.id!);
     }
+
     update();
     return studentResult && planLinesResult;
   }
@@ -171,7 +175,9 @@ class HomeController extends GetxController {
       // Student State
       await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
       await ListenLineService().deleteListenLineStudent(id);
-      await StudentsOfEpisodeService().deleteStudent(id);
+      await StudentsOfEpisodeService()
+          .deleteStudent(id, isFromCheck: isFromCheck);
+
       update();
       return true;
     } catch (e) {
@@ -332,12 +338,44 @@ class HomeController extends GetxController {
     final navigator = cupertino.Navigator.of(dialogContext);
     bool isCompleted = true;
     if (checkWorks.listenLine.isNotEmpty) {
+      late PlanLines? planLines;
       try {
+        planLines = await PlanLinesService()
+            .getPlanLinesLocal(episodeId, checkWorks.listenLine[0].studentId);
+
+        List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
         for (var listenLine in checkWorks.listenLine) {
-          await addListenLine(
-              listenLine.typeFollow, listenLine.studentId, episodeId,
-              newListenLine: listenLine);
+          await addListenLineFromCheck(listenLine.typeFollow,
+              listenLine.studentId, episodeId, listenLine);
+          switch (listenLine.typeFollow) {
+            case 'listen':
+              hifz.add(listenLine);
+              break;
+            case 'reviewsmall':
+              morajaS.add(listenLine);
+              break;
+            case 'reviewbig':
+              morajaB.add(listenLine);
+              break;
+            case 'tlawa':
+              tilawa.add(listenLine);
+              break;
+            default:
+          }
         }
+        if (hifz.isNotEmpty) {
+          planLines!.listen = getPlanLine(hifz.last);
+        }
+        if (morajaS.isNotEmpty) {
+          planLines!.reviewsmall = getPlanLine(morajaS.last);
+        }
+        if (morajaB.isNotEmpty) {
+          planLines!.reviewbig = getPlanLine(morajaB.last);
+        }
+        if (tilawa.isNotEmpty) {
+          planLines!.tlawa = getPlanLine(tilawa.last);
+        }
+        await PlanLinesService().updatePlanLinesLocal(planLines!);
       } catch (e) {
         isCompleted = false;
       }
@@ -345,10 +383,11 @@ class HomeController extends GetxController {
     if (checkWorks.studentState.isNotEmpty) {
       try {
         for (var studentsState in checkWorks.studentState) {
-          setAttendance(episodeId, studentsState.state, studentsState.studentId,
+          await setAttendance(
+              episodeId, studentsState.state, studentsState.studentId,
               studentState: studentsState);
-          StudentsOfEpisodeService()
-              .setStudentStateLocal(studentsState, isFromCheck: true);
+          // StudentsOfEpisodeService()
+          //     .setStudentStateLocal(studentsState, isFromCheck: true);
         }
       } catch (e) {
         isCompleted = false;
@@ -367,7 +406,7 @@ class HomeController extends GetxController {
       try {
         for (var id in checkStudentsResponce.deletedStudentsIds) {
           await deleteStudent(episodeId, id, isFromCheck: true);
-          PlanLinesService().deleteAllPlanLinesOfStudent(id);
+          // PlanLinesService().deleteAllPlanLinesOfStudent(id);
         }
       } catch (e) {
         isCompleted = false;
@@ -453,12 +492,14 @@ class HomeController extends GetxController {
   Future<ResponseContent> setAttendance(int episodeId, String filter, int id,
       {StudentState? studentState}) async {
     ResponseContent studentStateResponse = ResponseContent();
-    await StudentsOfEpisodeService().setStudentStateLocal(studentState ??
-        StudentState(
-            date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            episodeId: episodeId,
-            studentId: id,
-            state: filter));
+    await StudentsOfEpisodeService().setStudentStateLocal(
+        studentState ??
+            StudentState(
+                date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                episodeId: episodeId,
+                studentId: id,
+                state: filter),
+        isFromCheck: studentState != null);
 
     if (studentState == null) {
       int index =
@@ -606,13 +647,17 @@ class HomeController extends GetxController {
       listenLine = newListenLine;
       planLine = PlanLine(
           fromSuraName: getSuraName(newListenLine.fromSuraId),
-          fromAya: getAyaFrom(newListenLine.fromAya),
-          toAya: getAyaTo(newListenLine.fromAya),
-          toSuraName: getSuraName(newListenLine.fromSuraId),
-          mistake: 0);
+          fromAya: newListenLine.fromAya,
+          toAya: newListenLine.toAya,
+          toSuraName: getSuraName(newListenLine.toSuraId),
+          mistake: 0,
+          mistakes: Mistakes(
+              totalMstkQty: newListenLine.totalMstkQty,
+              totalMstkRead: newListenLine.totalMstkRead));
     }
     ResponseContent responseContent = ResponseContent();
-    await ListenLineService().setListenLineLocal(listenLine);
+    await ListenLineService()
+        .setListenLineLocal(listenLine, isFromCheck: newListenLine != null);
     responseContent = ResponseContent(success: true, statusCode: '200');
 
     if (responseContent.isSuccess) {
@@ -712,7 +757,7 @@ class HomeController extends GetxController {
         planLines!.reviewsmall!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planReviewSmall.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -759,7 +804,7 @@ class HomeController extends GetxController {
         planLines!.reviewbig!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planReviewbig.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -806,7 +851,7 @@ class HomeController extends GetxController {
         planLines!.tlawa!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planTlawa.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -860,9 +905,9 @@ class HomeController extends GetxController {
 
   //Check halaqat
   Future<ResponseContent> checkHalaqat() async {
-    List listId = _listEpisodes.map((e) => e.id).toList();
-    ResponseContent checkHalaqatResponse =
-        await CheckEpisodeService().postCheckhalaqat(listId);
+    var listId = await EdisodesService().getEdisodesLocal();
+    ResponseContent checkHalaqatResponse = await CheckEpisodeService()
+        .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
       checkEpisode = checkHalaqatResponse.data;
 
@@ -874,11 +919,13 @@ class HomeController extends GetxController {
       for (numberEdisode = 0;
           numberEdisode < listAddEdisode.length;
           numberEdisode++) {
-        addEdisode(Episode(
-            displayName: listAddEdisode[numberEdisode].name.toString(),
-            name: listAddEdisode[numberEdisode].name.toString(),
-            epsdType: listAddEdisode[numberEdisode].typeEpisode.toString(),
-            id: listAddEdisode[numberEdisode].id));
+        addEdisode(
+            Episode(
+                displayName: listAddEdisode[numberEdisode].name.toString(),
+                name: listAddEdisode[numberEdisode].name.toString(),
+                epsdType: listAddEdisode[numberEdisode].typeEpisode.toString(),
+                id: listAddEdisode[numberEdisode].id),
+            isFromCheck: true);
         for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
           var studentOfEpisode = StudentOfEpisode(
             episodeId: listAddEdisode[numberEdisode].id!.toInt(),
@@ -901,7 +948,8 @@ class HomeController extends GetxController {
               true) {
             plalinLines.reviewbig = PlanLine.fromDefault();
           }
-          addStudent(studentOfEpisode, plalinLines, idStedent);
+          addStudent(studentOfEpisode, plalinLines, idStedent,
+              isFromCheck: true);
         }
       }
 
@@ -909,7 +957,8 @@ class HomeController extends GetxController {
       final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
       for (int i = 0; i < list.length; i++) {
         deleteEdisode(
-            Episode(id: list[i], epsdType: '', name: '', displayName: ''));
+            Episode(id: list[i], epsdType: '', name: '', displayName: ''),
+            isFromCheck: true);
       }
     }
     //show masage
@@ -927,6 +976,90 @@ class HomeController extends GetxController {
       }
 
     return checkHalaqatResponse;
+  }
+
+  addListenLineFromCheck(String typePlanLine, int id, int episodeId,
+      ListenLine newListenLine) async {
+    late PlanLine planLine;
+    late ListenLine listenLine;
+    listenLine = newListenLine;
+    planLine = PlanLine(
+        fromSuraName: getSuraName(newListenLine.fromSuraId),
+        fromAya: newListenLine.fromAya,
+        toAya: newListenLine.toAya,
+        toSuraName: getSuraName(newListenLine.fromSuraId),
+        mistake: 0,mistakes: Mistakes(totalMstkQty: newListenLine.totalMstkQty, totalMstkRead: newListenLine.totalMstkRead));
+
+    ResponseContent responseContent = ResponseContent();
+    await ListenLineService().setListenLineLocal(listenLine, isFromCheck: true);
+    responseContent = ResponseContent(success: true, statusCode: '200');
+    if (responseContent.isSuccess) {
+      Educational educational = Educational(
+        actualDate: DateTime.tryParse(listenLine.actualDate),
+        fromAya: listenLine.fromAya,
+        toAya: listenLine.toAya,
+        fromSuraName: planLine.fromSuraName,
+        toSuraName: planLine.toSuraName,
+        totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
+        totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0,
+      );
+      EducationalPlan newEducationalPlan =
+          await EducationalPlanService().getEducationalPlanLocal(episodeId, id);
+      if (PlanLinesType.listen == typePlanLine) {
+        newEducationalPlan.planListen.add(educational);
+      } else if (PlanLinesType.reviewsmall == typePlanLine) {
+        newEducationalPlan.planReviewSmall.add(educational);
+      } else if (PlanLinesType.reviewbig == typePlanLine) {
+        newEducationalPlan.planReviewbig.add(educational);
+      } else if (PlanLinesType.tlawa == typePlanLine) {
+        newEducationalPlan.planTlawa.add(educational);
+      }
+      await EducationalPlanService()
+          .setEducationalPlanLocal(newEducationalPlan);
+    }
+    update();
+
+    return responseContent;
+  }
+
+  PlanLine getPlanLine(ListenLine listenLine) {
+    PlanLine planLine = PlanLine.fromDefault();
+    planLine.fromSuraName = Constants.listVerse
+                .where((element) =>
+                    element.surahId ==
+                    Constants.listSurah
+                        .firstWhere((element) =>
+                            element.name == getSuraName(listenLine.toSuraId))
+                        .id)
+                .last
+                .originalSurahOrder ==
+            listenLine.toAya
+        ? Constants.listSurah.last.name == getSuraName(listenLine.toSuraId)
+            ? Constants.listSurah.first.name
+            : Constants
+                .listSurah[Constants.listSurah.indexWhere((element) =>
+                        element.name == getSuraName(listenLine.toSuraId)) +
+                    1]
+                .name
+        : getSuraName(listenLine.toSuraId);
+
+    planLine.fromAya = Constants.listVerse
+                .where((element) =>
+                    element.surahId ==
+                    Constants.listSurah
+                        .firstWhere((element) =>
+                            element.name == getSuraName(listenLine.toSuraId))
+                        .id)
+                .last
+                .originalSurahOrder ==
+            listenLine.toAya
+        ? 1
+        : listenLine.toAya + 1;
+    planLine.toSuraName = '';
+    planLine.toAya = 0;
+    planLine.mistakes = null;
+
+    return planLine;
   }
 
   // setter

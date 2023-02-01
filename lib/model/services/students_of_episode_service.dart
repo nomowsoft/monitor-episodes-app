@@ -175,11 +175,17 @@ class StudentsOfEpisodeService {
     }
   }
 
-  Future<bool> deleteStudent(int id) async {
+  Future<bool> deleteStudent(int id,{bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
           StudentOfEpisodeColumns.id.value, id);
+     
+      await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
+          {'id': id, EpisodeColumns.operation.value: 'delete'});
+      studentCrudOperationsRemoately(
+          dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+     
       return true;
     } catch (e) {
       return false;
@@ -363,11 +369,6 @@ class StudentsOfEpisodeService {
       final dbHelper = DatabaseHelper.instance;
       await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentState,
           StudentStateColumns.studentId.value, studentId);
-
-      await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
-          {'id': studentId, EpisodeColumns.operation.value: 'delete'});
-      studentCrudOperationsRemoately(
-          dbHelper, DatabaseHelper.logTableStudentOfEpisode);
 
       return true;
     } catch (e) {

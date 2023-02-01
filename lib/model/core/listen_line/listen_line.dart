@@ -117,7 +117,6 @@ class ListenLine {
     }
   }
 
-  getSuraName(int id) {}
 }
 
 getSuraName(int id) {

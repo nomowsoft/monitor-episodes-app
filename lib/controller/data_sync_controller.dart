@@ -78,7 +78,7 @@ class DataSyncController extends GetxController {
       final listEpisodes = List<EpisodeStudents>.from(episodesResponse.data);
       if (listEpisodes.isNotEmpty) {
         for (var episode in listEpisodes) {
-          await EdisodesService().setEdisodeLocal(episode, isCheck: false);
+          await EdisodesService().setEdisodeLocal(episode, isFromCheck: true);
           for (StudentOfEpisodeFromServer student in episode.students ?? []) {
             PlanLines planLines = PlanLines();
 
