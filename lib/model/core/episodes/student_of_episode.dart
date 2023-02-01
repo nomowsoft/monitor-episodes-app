@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 
@@ -32,12 +33,12 @@ class StudentOfEpisode {
       : age = json['age'],
         id = json['id'],
         name = json['name'],
-        state = json['state'],
-        stateDate = json['state_date'],
+        state = json['state']?? "تحضير الطالب",
+        stateDate = json['state_date']??DateFormat('yyyy-MM-dd').format(DateTime.now()),
         gender = json['gender'],
-        phone = json['phone'],
-        address = json['address'],
-        country = json['country'],
+        phone = json['phone']??'',
+        address = json['address']??'',
+        country = json['country']??'',
         episodeId = json['episode_id'] is int ? json['episode_id'] : null;
 
   Map<String, dynamic> toJson() => {

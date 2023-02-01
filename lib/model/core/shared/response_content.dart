@@ -14,6 +14,12 @@ class ResponseContent<T> {
     message = success! ? null : jsonMap['result']['error'];
     this.statusCode = statusCode.toString();
   }
+  ResponseContent.fromGetJson(Map<String, dynamic> jsonMap, int statusCode) {
+    data = jsonMap as T?;
+    success = jsonMap['success'] ?? false;
+    message = success! ? null : jsonMap['error'];
+    this.statusCode = statusCode.toString();
+  }
 
   // ResponseContent.fromJson(Map<String, dynamic> jsonMap,int statusCode) {
   //   data = jsonMap as T?;

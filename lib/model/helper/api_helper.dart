@@ -114,7 +114,7 @@ class ApiHelper {
     final client = http.Client();
     try {
       Uri uri = Uri.parse(
-          linkApi != null ? '$linkApi/$endPoint' : (link + url + endPoint));
+          linkApi != null ? "$linkApi/$endPoint" : (link + url + endPoint));
       final response = await client.get(uri, headers: {
         "Accept": "application/json",
         "Content-Type": contentType ?? ContentTypeHeaders.applicationJson,
@@ -124,7 +124,7 @@ class ApiHelper {
       if (response.statusCode >= 200 && response.statusCode < 299) {
         try {
           var data = convert.jsonDecode(response.body);
-          ResponseContent result = ResponseContent.fromJson(data,response.statusCode);
+          ResponseContent result = ResponseContent.fromGetJson(data,response.statusCode);
           return result;
         } catch (e) {
           return ResponseContent(
