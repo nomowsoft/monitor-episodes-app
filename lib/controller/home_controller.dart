@@ -156,6 +156,7 @@ class HomeController extends GetxController {
       loadPlanLines(episodeId, studentOfEpisode.id!);
       //loadEducationalPlan(episodeId,studentOfEpisode.id!);
     }
+
     update();
     return studentResult && planLinesResult;
   }
@@ -168,7 +169,9 @@ class HomeController extends GetxController {
       // Student State
       await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
       await ListenLineService().deleteListenLineStudent(id);
-      await StudentsOfEpisodeService().deleteStudent(id);
+      await StudentsOfEpisodeService()
+          .deleteStudent(id, isFromCheck: isFromCheck);
+
       update();
       return true;
     } catch (e) {
@@ -329,12 +332,44 @@ class HomeController extends GetxController {
     final navigator = cupertino.Navigator.of(dialogContext);
     bool isCompleted = true;
     if (checkWorks.listenLine.isNotEmpty) {
+      late PlanLines? planLines;
       try {
+        planLines = await PlanLinesService()
+            .getPlanLinesLocal(episodeId, checkWorks.listenLine[0].studentId);
+
+        List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
         for (var listenLine in checkWorks.listenLine) {
-          await addListenLine(
-              listenLine.typeFollow, listenLine.studentId, episodeId,
-              newListenLine: listenLine);
+          await addListenLineFromCheck(listenLine.typeFollow,
+              listenLine.studentId, episodeId, listenLine);
+          switch (listenLine.typeFollow) {
+            case 'listen':
+              hifz.add(listenLine);
+              break;
+            case 'reviewsmall':
+              morajaS.add(listenLine);
+              break;
+            case 'reviewbig':
+              morajaB.add(listenLine);
+              break;
+            case 'tlawa':
+              tilawa.add(listenLine);
+              break;
+            default:
+          }
         }
+        if (hifz.isNotEmpty) {
+          planLines!.listen = getPlanLine(hifz.last);
+        }
+        if (morajaS.isNotEmpty) {
+          planLines!.reviewsmall = getPlanLine(morajaS.last);
+        }
+        if (morajaB.isNotEmpty) {
+          planLines!.reviewbig = getPlanLine(morajaB.last);
+        }
+        if (tilawa.isNotEmpty) {
+          planLines!.tlawa = getPlanLine(tilawa.last);
+        }
+        await PlanLinesService().updatePlanLinesLocal(planLines!);
       } catch (e) {
         isCompleted = false;
       }
@@ -365,7 +400,7 @@ class HomeController extends GetxController {
       try {
         for (var id in checkStudentsResponce.deletedStudentsIds) {
           await deleteStudent(episodeId, id, isFromCheck: true);
-          PlanLinesService().deleteAllPlanLinesOfStudent(id);
+          // PlanLinesService().deleteAllPlanLinesOfStudent(id);
         }
       } catch (e) {
         isCompleted = false;
@@ -924,6 +959,90 @@ class HomeController extends GetxController {
             message: 'the_data_has_been_updated_successfully'.tr));
 
     return checkHalaqatResponse;
+  }
+
+  addListenLineFromCheck(String typePlanLine, int id, int episodeId,
+      ListenLine newListenLine) async {
+    late PlanLine planLine;
+    late ListenLine listenLine;
+    listenLine = newListenLine;
+    planLine = PlanLine(
+        fromSuraName: getSuraName(newListenLine.fromSuraId),
+        fromAya: newListenLine.fromAya,
+        toAya: newListenLine.toAya,
+        toSuraName: getSuraName(newListenLine.fromSuraId),
+        mistake: 0,mistakes: Mistakes(totalMstkQty: newListenLine.totalMstkQty, totalMstkRead: newListenLine.totalMstkRead));
+
+    ResponseContent responseContent = ResponseContent();
+    await ListenLineService().setListenLineLocal(listenLine, isFromCheck: true);
+    responseContent = ResponseContent(success: true, statusCode: '200');
+    if (responseContent.isSuccess) {
+      Educational educational = Educational(
+        actualDate: DateTime.tryParse(listenLine.actualDate),
+        fromAya: listenLine.fromAya,
+        toAya: listenLine.toAya,
+        fromSuraName: planLine.fromSuraName,
+        toSuraName: planLine.toSuraName,
+        totalMstkQty: planLine.mistakes?.totalMstkQty ?? 0,
+        totalMstkRead: planLine.mistakes?.totalMstkRead ?? 0,
+      );
+      EducationalPlan newEducationalPlan =
+          await EducationalPlanService().getEducationalPlanLocal(episodeId, id);
+      if (PlanLinesType.listen == typePlanLine) {
+        newEducationalPlan.planListen.add(educational);
+      } else if (PlanLinesType.reviewsmall == typePlanLine) {
+        newEducationalPlan.planReviewSmall.add(educational);
+      } else if (PlanLinesType.reviewbig == typePlanLine) {
+        newEducationalPlan.planReviewbig.add(educational);
+      } else if (PlanLinesType.tlawa == typePlanLine) {
+        newEducationalPlan.planTlawa.add(educational);
+      }
+      await EducationalPlanService()
+          .setEducationalPlanLocal(newEducationalPlan);
+    }
+    update();
+
+    return responseContent;
+  }
+
+  PlanLine getPlanLine(ListenLine listenLine) {
+    PlanLine planLine = PlanLine.fromDefault();
+    planLine.fromSuraName = Constants.listVerse
+                .where((element) =>
+                    element.surahId ==
+                    Constants.listSurah
+                        .firstWhere((element) =>
+                            element.name == getSuraName(listenLine.toSuraId))
+                        .id)
+                .last
+                .originalSurahOrder ==
+            listenLine.toAya
+        ? Constants.listSurah.last.name == getSuraName(listenLine.toSuraId)
+            ? Constants.listSurah.first.name
+            : Constants
+                .listSurah[Constants.listSurah.indexWhere((element) =>
+                        element.name == getSuraName(listenLine.toSuraId)) +
+                    1]
+                .name
+        : getSuraName(listenLine.toSuraId);
+
+    planLine.fromAya = Constants.listVerse
+                .where((element) =>
+                    element.surahId ==
+                    Constants.listSurah
+                        .firstWhere((element) =>
+                            element.name == getSuraName(listenLine.toSuraId))
+                        .id)
+                .last
+                .originalSurahOrder ==
+            listenLine.toAya
+        ? 1
+        : listenLine.toAya + 1;
+    planLine.toSuraName = '';
+    planLine.toAya = 0;
+    planLine.mistakes = null;
+
+    return planLine;
   }
 
   // setter
