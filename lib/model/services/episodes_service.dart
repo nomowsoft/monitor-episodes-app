@@ -78,15 +78,17 @@ class EdisodesService {
     }
   }
 
-  Future<bool> setEdisodeLocal(Episode episode) async {
+  Future<bool> setEdisodeLocal(Episode episode,{bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = episode.toJson();
       await dbHelper.insert(DatabaseHelper.tableEpisode, jsonLocal);
+      if(!isFromCheck){
       var jsonServer = await episode.toJsonServer(isCreate: true);
       jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
       await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
       episodeCrudOperationsRemoately(dbHelper);
+      }
       return true;
     } catch (e) {
       return false;
@@ -120,13 +122,15 @@ class EdisodesService {
     }
   }
 
-  Future<bool> deletedEpisode(int episodeId) async {
+  Future<bool> deletedEpisode(int episodeId,{bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       await dbHelper.delete(DatabaseHelper.tableEpisode, episodeId);
+      if(!isFromCheck){
       await dbHelper.insert(DatabaseHelper.logTableEpisode,
           {'id': episodeId, EpisodeColumns.operation.value: 'delete'});
       episodeCrudOperationsRemoately(dbHelper);
+      }
       return true;
     } catch (e) {
       return false;

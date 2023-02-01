@@ -74,8 +74,9 @@ class HomeController extends GetxController {
     update();
   }
 
-  Future<bool> addEdisode(Episode episode) async {
-    bool result = await EdisodesService().setEdisodeLocal(episode);
+  Future<bool> addEdisode(Episode episode, {bool isFromCheck = false}) async {
+    bool result = await EdisodesService()
+        .setEdisodeLocal(episode, isFromCheck: isFromCheck);
     loadEpisodes();
     return result;
   }
@@ -86,7 +87,8 @@ class HomeController extends GetxController {
     return result;
   }
 
-  Future<bool> deleteEdisode(Episode episode) async {
+  Future<bool> deleteEdisode(Episode episode,
+      {bool isFromCheck = false}) async {
     try {
       await PlanLinesService().deleteAllPlanLinesOfEpisode(episode.id!);
       await EducationalPlanService()
@@ -105,7 +107,8 @@ class HomeController extends GetxController {
         }
       }
       await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id!);
-      await EdisodesService().deletedEpisode(episode.id!);
+      await EdisodesService()
+          .deletedEpisode(episode.id!, isFromCheck: isFromCheck);
       loadEpisodes();
       return true;
     } catch (e) {
@@ -338,10 +341,11 @@ class HomeController extends GetxController {
     if (checkWorks.studentState.isNotEmpty) {
       try {
         for (var studentsState in checkWorks.studentState) {
-          setAttendance(episodeId, studentsState.state, studentsState.studentId,
+          await setAttendance(
+              episodeId, studentsState.state, studentsState.studentId,
               studentState: studentsState);
-          StudentsOfEpisodeService()
-              .setStudentStateLocal(studentsState, isFromCheck: true);
+          // StudentsOfEpisodeService()
+          //     .setStudentStateLocal(studentsState, isFromCheck: true);
         }
       } catch (e) {
         isCompleted = false;
@@ -446,12 +450,14 @@ class HomeController extends GetxController {
   Future<ResponseContent> setAttendance(int episodeId, String filter, int id,
       {StudentState? studentState}) async {
     ResponseContent studentStateResponse = ResponseContent();
-    await StudentsOfEpisodeService().setStudentStateLocal(studentState ??
-        StudentState(
-            date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            episodeId: episodeId,
-            studentId: id,
-            state: filter));
+    await StudentsOfEpisodeService().setStudentStateLocal(
+        studentState ??
+            StudentState(
+                date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                episodeId: episodeId,
+                studentId: id,
+                state: filter),
+        isFromCheck: studentState != null);
 
     if (studentState == null) {
       int index =
@@ -599,13 +605,17 @@ class HomeController extends GetxController {
       listenLine = newListenLine;
       planLine = PlanLine(
           fromSuraName: getSuraName(newListenLine.fromSuraId),
-          fromAya: getAyaFrom(newListenLine.fromAya),
-          toAya: getAyaTo(newListenLine.fromAya),
-          toSuraName: getSuraName(newListenLine.fromSuraId),
-          mistake: 0);
+          fromAya: newListenLine.fromAya,
+          toAya: newListenLine.toAya,
+          toSuraName: getSuraName(newListenLine.toSuraId),
+          mistake: 0,
+          mistakes: Mistakes(
+              totalMstkQty: newListenLine.totalMstkQty,
+              totalMstkRead: newListenLine.totalMstkRead));
     }
     ResponseContent responseContent = ResponseContent();
-    await ListenLineService().setListenLineLocal(listenLine);
+    await ListenLineService()
+        .setListenLineLocal(listenLine, isFromCheck: newListenLine != null);
     responseContent = ResponseContent(success: true, statusCode: '200');
 
     if (responseContent.isSuccess) {
@@ -705,7 +715,7 @@ class HomeController extends GetxController {
         planLines!.reviewsmall!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planReviewSmall.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -752,7 +762,7 @@ class HomeController extends GetxController {
         planLines!.reviewbig!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planReviewbig.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -799,7 +809,7 @@ class HomeController extends GetxController {
         planLines!.tlawa!.mistakes = null;
         await PlanLinesService().updatePlanLinesLocal(planLines!);
         // educationlPlan
-        if (educationalPlan != null) {
+        if (newListenLine == null && educationalPlan != null) {
           educationalPlan!.planTlawa.add(educational);
           await EducationalPlanService()
               .setEducationalPlanLocal(educationalPlan!);
@@ -853,9 +863,9 @@ class HomeController extends GetxController {
 
   //Check halaqat
   Future<ResponseContent> checkHalaqat() async {
-    List listId = _listEpisodes.map((e) => e.id).toList();
-    ResponseContent checkHalaqatResponse =
-        await CheckEpisodeService().postCheckhalaqat(listId);
+    var listId = await EdisodesService().getEdisodesLocal();
+    ResponseContent checkHalaqatResponse = await CheckEpisodeService()
+        .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
       checkEpisode = checkHalaqatResponse.data;
       // Add Edisode
@@ -865,11 +875,13 @@ class HomeController extends GetxController {
       for (numberEdisode = 0;
           numberEdisode < listAddEdisode.length;
           numberEdisode++) {
-        addEdisode(Episode(
-            displayName: listAddEdisode[numberEdisode].name.toString(),
-            name: listAddEdisode[numberEdisode].name.toString(),
-            epsdType: listAddEdisode[numberEdisode].typeEpisode.toString(),
-            id: listAddEdisode[numberEdisode].id));
+        addEdisode(
+            Episode(
+                displayName: listAddEdisode[numberEdisode].name.toString(),
+                name: listAddEdisode[numberEdisode].name.toString(),
+                epsdType: listAddEdisode[numberEdisode].typeEpisode.toString(),
+                id: listAddEdisode[numberEdisode].id),
+            isFromCheck: true);
         for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
           var studentOfEpisode = StudentOfEpisode(
             episodeId: listAddEdisode[numberEdisode].id!.toInt(),
@@ -892,14 +904,16 @@ class HomeController extends GetxController {
               true) {
             plalinLines.reviewbig = PlanLine.fromDefault();
           }
-          addStudent(studentOfEpisode, plalinLines, idStedent);
+          addStudent(studentOfEpisode, plalinLines, idStedent,
+              isFromCheck: true);
         }
       }
       // !! delete data
       final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
       for (int i = 0; i < list.length; i++) {
         deleteEdisode(
-            Episode(id: list[i], epsdType: '', name: '', displayName: ''));
+            Episode(id: list[i], epsdType: '', name: '', displayName: ''),
+            isFromCheck: true);
       }
     }
     CostomDailogs.snackBar(
