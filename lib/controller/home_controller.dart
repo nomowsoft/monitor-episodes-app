@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart' as cupertino;
@@ -19,6 +22,7 @@ import 'package:monitor_episodes/model/services/listen_line_service.dart';
 import 'package:monitor_episodes/model/services/plan_lines_service.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 import 'package:monitor_episodes/model/services/teacher_service.dart';
+import '../main.dart';
 import '../model/core/episodes/check_student_work_responce.dart';
 import '../model/core/episodes/check_episode.dart';
 import '../model/core/episodes/episode.dart';
@@ -27,6 +31,8 @@ import '../model/services/check_episode_service.dart';
 import '../model/services/episodes_service.dart';
 import '../ui/shared/utils/custom_dailogs.dart';
 import '../ui/shared/utils/waitting_dialog.dart';
+import '../ui/views/data_initialization/data_initialization.dart';
+import '../ui/views/home/home.dart';
 import 'data_sync_controller.dart';
 
 class HomeController extends GetxController {
@@ -904,6 +910,8 @@ class HomeController extends GetxController {
         .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
       checkEpisode = checkHalaqatResponse.data;
+
+      
       // Add Edisode
       final listAddEdisode =
           List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
@@ -944,6 +952,7 @@ class HomeController extends GetxController {
               isFromCheck: true);
         }
       }
+
       // !! delete data
       final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
       for (int i = 0; i < list.length; i++) {
@@ -952,11 +961,19 @@ class HomeController extends GetxController {
             isFromCheck: true);
       }
     }
-    CostomDailogs.snackBar(
-        response: ResponseContent(
-            statusCode: '200',
-            success: true,
-            message: 'the_data_has_been_updated_successfully'.tr));
+    //show masage
+      if (checkEpisode?.update == true) {
+        bool result = await CostomDailogs.yesNoDialogWithText(
+            text: 'new_update_is_available'.tr);
+        if (result) {
+          Get.offAll(() => const DataInitialization(),
+              duration: const Duration(seconds: 2),
+              curve: Curves.easeInOut,
+              transition: Transition.fadeIn);
+        } else {
+          exit(0);
+        }
+      }
 
     return checkHalaqatResponse;
   }
