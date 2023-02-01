@@ -51,7 +51,6 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
-   Get.put(DataSyncController()); 
   }
 
   initFilds() {
