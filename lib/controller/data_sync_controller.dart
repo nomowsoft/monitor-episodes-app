@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:monitor_episodes/model/services/episodes_service.dart';
 import '../model/core/educational/educational.dart';
 import '../model/core/educational/educational_plan.dart';
 import '../model/core/episodes/episode_students.dart';
 import '../model/core/episodes/student_of_episode.dart';
+import '../model/core/episodes/student_state.dart';
 import '../model/core/listen_line/listen_line.dart';
 import '../model/core/plan_lines/plan_line.dart';
 import '../model/core/plan_lines/plan_lines.dart';
@@ -133,6 +136,25 @@ class DataSyncController extends GetxController {
             planLines.episodeId = episode.id!;
             planLines.studentId = student.id!;
 
+            ///
+            if(student.studentAttendances.isNotEmpty){
+            try {
+              for (var studentsState in student.studentAttendances) {
+                await setAttendance(studentsState.episodeId ,
+                 studentsState.state,
+                 studentsState.studentId,
+                 studentsState);
+              }
+              if (student.studentAttendances.last.date ==
+                  DateFormat('yyyy-MM-dd').format(DateTime.now())) {
+                student.state = student.studentAttendances.last.state.tr;
+              }
+            } catch (e) {
+              if (kDebugMode) {
+                print(e);
+              }
+            }}
+
             await addStudent(student, planLines, episode.id!);
           }
         }
@@ -234,5 +256,11 @@ class DataSyncController extends GetxController {
     planLine.mistakes = null;
 
     return planLine;
+  }
+
+  Future setAttendance(
+      int episodeId, String filter, int id, StudentState studentState) async {
+    await StudentsOfEpisodeService()
+        .setStudentStateLocal(studentState, isFromCheck: true);
   }
 }

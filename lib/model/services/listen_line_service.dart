@@ -25,6 +25,7 @@ class ListenLineService {
       final dbHelper = DatabaseHelper.instance;
       final allStudents = await dbHelper.queryAllRowsWhere(
           DatabaseHelper.tableListenLine, 'student_id', studentId);
+          print(allStudents);
       return allStudents
               ?.map((val) => ListenLine.fromJson(val))
               .toList()

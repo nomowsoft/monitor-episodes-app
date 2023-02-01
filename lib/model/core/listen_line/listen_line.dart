@@ -89,9 +89,9 @@ class ListenLine {
     switch (typeFollow) {
       case 'listen':
         return 'hifz';
-      case 'reviewbig':
+      case 'review_big':
         return 'mourajaa_g';
-      case 'reviewsmall':
+      case 'review_small':
         return 'mourajaa_s';
       case 'tlawa':
         return 'tilawa';

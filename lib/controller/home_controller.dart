@@ -338,9 +338,9 @@ class HomeController extends GetxController {
     final navigator = cupertino.Navigator.of(dialogContext);
     bool isCompleted = true;
     if (checkWorks.listenLine.isNotEmpty) {
-      late PlanLines? planLines;
+      late PlanLines? planLinesStudent;
       try {
-        planLines = await PlanLinesService()
+        planLinesStudent = await PlanLinesService()
             .getPlanLinesLocal(episodeId, checkWorks.listenLine[0].studentId);
 
         List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
@@ -364,21 +364,25 @@ class HomeController extends GetxController {
           }
         }
         if (hifz.isNotEmpty) {
-          planLines!.listen = getPlanLine(hifz.last);
+          planLinesStudent!.listen = getPlanLine(hifz.last);
         }
         if (morajaS.isNotEmpty) {
-          planLines!.reviewsmall = getPlanLine(morajaS.last);
+          planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
         }
         if (morajaB.isNotEmpty) {
-          planLines!.reviewbig = getPlanLine(morajaB.last);
+          planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
         }
         if (tilawa.isNotEmpty) {
-          planLines!.tlawa = getPlanLine(tilawa.last);
+          planLinesStudent!.tlawa = getPlanLine(tilawa.last);
         }
-        await PlanLinesService().updatePlanLinesLocal(planLines!);
+        await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
+        if(planLines?.studentId == planLinesStudent.studentId ){
+          planLines = planLinesStudent ;
+        }
       } catch (e) {
         isCompleted = false;
       }
+      
     }
     if (checkWorks.studentState.isNotEmpty) {
       try {
@@ -392,8 +396,8 @@ class HomeController extends GetxController {
       } catch (e) {
         isCompleted = false;
       }
-    }
-
+    } 
+    update();
     navigator.pop(isCompleted);
   }
 
