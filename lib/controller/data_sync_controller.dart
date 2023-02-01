@@ -130,6 +130,9 @@ class DataSyncController extends GetxController {
                 planLines.tlawa = PlanLine.fromDefault();
               }
             }
+            planLines.episodeId = episode.id!;
+            planLines.studentId = student.id!;
+
             await addStudent(student, planLines, episode.id!);
           }
         }
