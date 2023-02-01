@@ -19,6 +19,13 @@ class StudentState {
         date = json['date'] ?? '',
         state = json['state'] ?? '';
 
+  StudentState.fromServerJson(Map<String, dynamic> json,int newStudentId,int newEdisodeId)
+      : id = json['id'],
+        date = json['date_presence'] ?? '',
+        state = json['state'] ?? '',
+        studentId = newStudentId,
+        episodeId = newEdisodeId;
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "student_id": studentId,

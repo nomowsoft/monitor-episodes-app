@@ -30,6 +30,24 @@ class PlanLines {
         episodeId = newEpisodeId,
         studentId = newStudentId;
 
+ 
+  PlanLines.fromServerJson(
+      Map<String, dynamic> json, int newEpisodeId, int newStudentId)
+      : listen = (json['plan_listen'] as Map).isNotEmpty
+            ? PlanLine.fromJson(json['plan_listen'])
+            : null,
+        reviewbig = (json['plan_review_big'] as Map).isNotEmpty
+            ? PlanLine.fromJson(json['plan_review_big'])
+            : null,
+        reviewsmall = (json['plan_review_small'] as Map).isNotEmpty
+            ? PlanLine.fromJson(json['plan_review_small'])
+            : null,
+        tlawa = (json['plan_tlawa'] as Map).isNotEmpty
+            ? PlanLine.fromJson(json['plan_tlawa'])
+            : null,
+        episodeId = newEpisodeId,
+        studentId = newStudentId;
+
   PlanLines.fromJsonLocal(Map<String, dynamic> json)
       : listen = json['listen'] != null
             ? PlanLines().getPlanLineFromString(json['listen'].toString())

@@ -16,6 +16,11 @@ class Episode {
         epsdType = json['epsd_type'] ?? '',
         id = json['id'] ?? 0,
         name = json['name'] ?? '';
+  Episode.fromServerJson(Map<String, dynamic> json)
+      : displayName = json['name'] ?? '',
+        epsdType = json['episode_type'] ?? '',
+        id = json['id'] ?? 0,
+        name = json['name'] ?? '';
 
   Map<String, dynamic> toJson() => {
         "id": id,

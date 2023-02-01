@@ -27,6 +27,7 @@ import '../model/services/check_episode_service.dart';
 import '../model/services/episodes_service.dart';
 import '../ui/shared/utils/custom_dailogs.dart';
 import '../ui/shared/utils/waitting_dialog.dart';
+import 'data_sync_controller.dart';
 
 class HomeController extends GetxController {
   int _currentPageIndex = 1;
