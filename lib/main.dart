@@ -110,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
             bottom: isclose ? 150.h : 0,
             child: AnimatedOpacity(
               opacity: isStartOpcity ? 0.0 : 1.0,
-              duration: const Duration(milliseconds: 50),
+              duration: const Duration(milliseconds: 300),
               child: SvgPicture.asset(
                 'images/maknoon_icon.svg',
                 height: !isclose ? 72.h : 150.h,

@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../controller/auth_controller.dart';
 import '../../../model/core/shared/response_content.dart';
 import '../../shared/utils/custom_dailogs.dart';
+import '../data_initialization/data_initialization.dart';
 import '../home/home.dart';
 import '../sign_up/sign_up.dart';
 
@@ -254,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 await SharedPreferences
                                                     .getInstance();
                                             prefs.setBool('isLogin', true);
-                                            Get.off(() => const Home(),
+                                            Get.off(() => const DataInitialization(),
                                                 duration:
                                                     const Duration(seconds: 1),
                                                 curve: Curves.easeInOut,

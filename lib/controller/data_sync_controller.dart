@@ -81,52 +81,56 @@ class DataSyncController extends GetxController {
           await EdisodesService().setEdisodeLocal(episode, isCheck: false);
           for (StudentOfEpisodeFromServer student in episode.students ?? []) {
             PlanLines planLines = PlanLines();
-            
+
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planListen) {
-               await addListenLine(
-                    PlanLinesType.listen, student.id!, episode.id!, planListen); 
+                await addListenLine(
+                    PlanLinesType.listen, student.id!, episode.id!, planListen);
               }
-              if(student.studentWorks.planListen.isNotEmpty){
-               planLines.listen  = getPlanLine(student.studentWorks.planListen.last);
-              }else{
-               planLines.listen = PlanLine.fromDefault();
+              if (student.studentWorks.planListen.isNotEmpty) {
+                planLines.listen =
+                    getPlanLine(student.studentWorks.planListen.last);
+              } else {
+                planLines.listen = PlanLine.fromDefault();
               }
             }
             if (student.isSmallReview) {
               for (var planListen in student.studentWorks.planReviewSmall) {
-               await addListenLine(
-                    PlanLinesType.reviewsmall , student.id!, episode.id!, planListen);
+                await addListenLine(PlanLinesType.reviewsmall, student.id!,
+                    episode.id!, planListen);
               }
-              if(student.studentWorks.planReviewSmall.isNotEmpty){
-               planLines.reviewsmall  = getPlanLine(student.studentWorks.planReviewSmall.last);
-              }else{
-               planLines.reviewsmall = PlanLine.fromDefault();
+              if (student.studentWorks.planReviewSmall.isNotEmpty) {
+                planLines.reviewsmall =
+                    getPlanLine(student.studentWorks.planReviewSmall.last);
+              } else {
+                planLines.reviewsmall = PlanLine.fromDefault();
               }
             }
             if (student.isBigReview) {
               for (var planListen in student.studentWorks.planReviewBig) {
-               await addListenLine(
-                    PlanLinesType.reviewbig , student.id!, episode.id!, planListen);
+                await addListenLine(PlanLinesType.reviewbig, student.id!,
+                    episode.id!, planListen);
               }
-              if(student.studentWorks.planReviewBig.isNotEmpty){
-               planLines.reviewbig  = getPlanLine(student.studentWorks.planReviewBig.last);
-              }else{
-               planLines.reviewbig = PlanLine.fromDefault();
+              if (student.studentWorks.planReviewBig.isNotEmpty) {
+                planLines.reviewbig =
+                    getPlanLine(student.studentWorks.planReviewBig.last);
+              } else {
+                planLines.reviewbig = PlanLine.fromDefault();
               }
             }
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planTlawa) {
-               await addListenLine(
-                    PlanLinesType.tlawa , student.id!, episode.id!, planListen);
+                await addListenLine(
+                    PlanLinesType.tlawa, student.id!, episode.id!, planListen);
               }
-              if(student.studentWorks.planTlawa.isNotEmpty){
-               planLines.tlawa  = getPlanLine(student.studentWorks.planTlawa.last);
-              }else{
-               planLines.tlawa = PlanLine.fromDefault();
+              if (student.studentWorks.planTlawa.isNotEmpty) {
+                planLines.tlawa =
+                    getPlanLine(student.studentWorks.planTlawa.last);
+              } else {
+                planLines.tlawa = PlanLine.fromDefault();
               }
             }
-            await addStudent(student, planLines ,episode.id!);
+            await addStudent(student, planLines, episode.id!);
           }
         }
       }
@@ -137,7 +141,7 @@ class DataSyncController extends GetxController {
 
   Future<bool> addStudent(StudentOfEpisode studentOfEpisode,
       PlanLines planLines, int episodeId) async {
-        studentOfEpisode.episodeId = episodeId ;
+    studentOfEpisode.episodeId = episodeId;
     bool studentResult = await StudentsOfEpisodeService()
         .setStudentOfEpisode(studentOfEpisode, planLines, isFromCheck: true);
     bool planLinesResult =
@@ -192,39 +196,39 @@ class DataSyncController extends GetxController {
   PlanLine getPlanLine(ListenLine listenLine) {
     PlanLine planLine = PlanLine.fromDefault();
     planLine.fromSuraName = Constants.listVerse
-                    .where((element) =>
-                        element.surahId ==
-                        Constants.listSurah
-                            .firstWhere((element) =>
-                                element.name == getSuraName(listenLine.toSuraId))
-                            .id)
-                    .last
-                    .originalSurahOrder ==
-                listenLine.toAya
-            ? Constants.listSurah.last.name ==  getSuraName(listenLine.toSuraId)
-                ? Constants.listSurah.first.name
-                : Constants
-                    .listSurah[Constants.listSurah.indexWhere(
-                            (element) => element.name == getSuraName(listenLine.toSuraId)) +
-                        1]
-                    .name
-            : getSuraName(listenLine.toSuraId);
+                .where((element) =>
+                    element.surahId ==
+                    Constants.listSurah
+                        .firstWhere((element) =>
+                            element.name == getSuraName(listenLine.toSuraId))
+                        .id)
+                .last
+                .originalSurahOrder ==
+            listenLine.toAya
+        ? Constants.listSurah.last.name == getSuraName(listenLine.toSuraId)
+            ? Constants.listSurah.first.name
+            : Constants
+                .listSurah[Constants.listSurah.indexWhere((element) =>
+                        element.name == getSuraName(listenLine.toSuraId)) +
+                    1]
+                .name
+        : getSuraName(listenLine.toSuraId);
 
-        planLine.fromAya = Constants.listVerse
-                    .where((element) =>
-                        element.surahId ==
-                        Constants.listSurah
-                            .firstWhere((element) =>
-                                element.name == getSuraName(listenLine.toSuraId))
-                            .id)
-                    .last
-                    .originalSurahOrder ==
-                listenLine.toAya
-            ? 1
-            : listenLine.toAya + 1;
-        planLine.toSuraName = '';
-        planLine.toAya = 0;
-        planLine.mistakes = null;
+    planLine.fromAya = Constants.listVerse
+                .where((element) =>
+                    element.surahId ==
+                    Constants.listSurah
+                        .firstWhere((element) =>
+                            element.name == getSuraName(listenLine.toSuraId))
+                        .id)
+                .last
+                .originalSurahOrder ==
+            listenLine.toAya
+        ? 1
+        : listenLine.toAya + 1;
+    planLine.toSuraName = '';
+    planLine.toAya = 0;
+    planLine.mistakes = null;
 
     return planLine;
   }
