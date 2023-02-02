@@ -108,15 +108,34 @@ class UploadService {
           switch (element['operation']) {
             case 'create':
               element.remove('operation');
+              element.update(
+                  'gender', (value) => value == 'ذكر' ? 'male' : 'female');
+              element.update('is_hifz', (value) => value == 1 ? true : false);
+              element.update('is_tilawa', (value) => value == 1 ? true : false);
+              element.update(
+                  'is_big_review', (value) => value == 1 ? true : false);
+              element.update(
+                  'is_small_review', (value) => value == 1 ? true : false);
               allLogs['create'].add(element);
               break;
             case 'update':
               element.remove('operation');
+              element.remove('halaqa_id');
+              element.remove('mobile');
+              element.remove('country_id');
+              element.update(
+                  'gender', (value) => value == 'ذكر' ? 'male' : 'female');
+              element.update('is_hifz', (value) => value == 1 ? true : false);
+              element.update('is_tilawa', (value) => value == 1 ? true : false);
+              element.update(
+                  'is_big_review', (value) => value == 1 ? true : false);
+              element.update(
+                  'is_small_review', (value) => value == 1 ? true : false);
               allLogs['update'].add(element);
               break;
             case 'delete':
               element.remove('operation');
-              allLogs['delete'].add(element);
+              allLogs['delete'].add({'id':element['id']});
               break;
             default:
           }
@@ -186,7 +205,7 @@ class UploadService {
       DatabaseHelper dbHelper) async {
     try {
       var result =
-          await dbHelper.queryAllRows(DatabaseHelper.logTableStudentOfEpisode);
+          await dbHelper.queryAllRows(DatabaseHelper.logTableStudentState);
       return result ?? [];
     } catch (e) {
       print(e);
