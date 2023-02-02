@@ -272,7 +272,7 @@ class HomeController extends GetxController {
           }));
           if (!isCompleted) {
             CostomDailogs.warringDialogWithGet(
-                msg: 'error_get_PlanLine_students'.tr);
+                msg: 'failed_to_upload_changes'.tr);
           } else {
             loadStudentsOfEpisode(episodeId);
 
@@ -318,7 +318,7 @@ class HomeController extends GetxController {
           }));
           if (!isCompleted) {
             CostomDailogs.warringDialogWithGet(
-                msg: 'error_get_PlanLine_students'.tr);
+                msg: 'failed_to_upload_changes'.tr);
           } else {
             loadStudentsOfEpisode(episodeId);
 
@@ -376,13 +376,12 @@ class HomeController extends GetxController {
           planLinesStudent!.tlawa = getPlanLine(tilawa.last);
         }
         await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
-        if(planLines?.studentId == planLinesStudent.studentId ){
-          planLines = planLinesStudent ;
+        if (planLines?.studentId == planLinesStudent.studentId) {
+          planLines = planLinesStudent;
         }
       } catch (e) {
         isCompleted = false;
       }
-      
     }
     if (checkWorks.studentState.isNotEmpty) {
       try {
@@ -396,7 +395,7 @@ class HomeController extends GetxController {
       } catch (e) {
         isCompleted = false;
       }
-    } 
+    }
     update();
     navigator.pop(isCompleted);
   }
@@ -915,7 +914,6 @@ class HomeController extends GetxController {
     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
       checkEpisode = checkHalaqatResponse.data;
 
-      
       // Add Edisode
       final listAddEdisode =
           List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
@@ -966,18 +964,29 @@ class HomeController extends GetxController {
       }
     }
     //show masage
-      if (checkEpisode?.update == true) {
-        bool result = await CostomDailogs.yesNoDialogWithText(
-            text: 'new_update_is_available'.tr);
-        if (result) {
-          Get.offAll(() => const DataInitialization(),
-              duration: const Duration(seconds: 2),
-              curve: Curves.easeInOut,
-              transition: Transition.fadeIn);
-        } else {
-          exit(0);
-        }
+
+    if (checkEpisode?.update == true) {
+      if (await CostomDailogs.dialogWithText(
+          text: 'episode_data_is_being_updated'.tr)) {
+        Get.offAll(() => const DataInitialization(),
+            duration: const Duration(seconds: 2),
+            curve: Curves.easeInOut,
+            transition: Transition.fadeIn);
+      } else {
+        CostomDailogs.warringDialogWithGet(msg: 'failed_to_upload_changes'.tr);
       }
+
+      // bool result = await CostomDailogs.yesNoDialogWithText(
+      //     text: 'new_update_is_available'.tr);
+      // if (result) {
+      //   Get.offAll(() => const DataInitialization(),
+      //       duration: const Duration(seconds: 2),
+      //       curve: Curves.easeInOut,
+      //       transition: Transition.fadeIn);
+      // } else {
+      //   exit(0);
+      // }
+    }
 
     return checkHalaqatResponse;
   }
@@ -992,7 +1001,10 @@ class HomeController extends GetxController {
         fromAya: newListenLine.fromAya,
         toAya: newListenLine.toAya,
         toSuraName: getSuraName(newListenLine.fromSuraId),
-        mistake: 0,mistakes: Mistakes(totalMstkQty: newListenLine.totalMstkQty, totalMstkRead: newListenLine.totalMstkRead));
+        mistake: 0,
+        mistakes: Mistakes(
+            totalMstkQty: newListenLine.totalMstkQty,
+            totalMstkRead: newListenLine.totalMstkRead));
 
     ResponseContent responseContent = ResponseContent();
     await ListenLineService().setListenLineLocal(listenLine, isFromCheck: true);
