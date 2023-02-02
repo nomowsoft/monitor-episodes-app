@@ -266,99 +266,99 @@ class HomeController extends GetxController {
 
   void checkStudentListenLineAndAttendances(
       int? studentId, int episodeId) async {
-        if(await sendToTheServerFunction()){
-               var worksIds =
-        await ListenLineService().getListenLinesLocalIdsForStudent(studentId!);
-    var attendancesIds =
-        await StudentsOfEpisodeService().getStateLocalForStudent(studentId);
+    if (await sendToTheServerFunction()) {
+      var worksIds = await ListenLineService()
+          .getListenLinesLocalIdsForStudent(studentId!);
+      var attendancesIds =
+          await StudentsOfEpisodeService().getStateLocalForStudent(studentId);
 
-    ResponseContent checkStudentsWorksResponse =
-        await StudentsOfEpisodeService().checkStudentListenLineAndAttendances(
-            studentId, worksIds, attendancesIds, episodeId);
-    if (checkStudentsWorksResponse.isSuccess ||
-        checkStudentsWorksResponse.isNoContent) {
-      CheckStudentsWorkResponce checkWorks = checkStudentsWorksResponse.data;
-      if (checkWorks.update) {
-        if (await CostomDailogs.dialogWithText(
-            text: 'student_episode_data_is_being_updated'.tr)) {
-          bool isCompleted = await Get.dialog(cupertino.Builder(
-              builder: (cupertino.BuildContext dialogContext) {
-            changeStudentsWorksAndAttendances(
-                checkWorks, dialogContext, episodeId);
-            return cupertino.WillPopScope(
-              onWillPop: () async {
-                return false;
-              },
-              child: const cupertino.CupertinoAlertDialog(
-                content: WaitingDialog(),
-              ),
-            );
-          }));
-          if (!isCompleted) {
-            CostomDailogs.warringDialogWithGet(
-                msg: 'error_get_PlanLine_students'.tr);
-          } else {
-            loadStudentsOfEpisode(episodeId);
+      ResponseContent checkStudentsWorksResponse =
+          await StudentsOfEpisodeService().checkStudentListenLineAndAttendances(
+              studentId, worksIds, attendancesIds, episodeId);
+      if (checkStudentsWorksResponse.isSuccess ||
+          checkStudentsWorksResponse.isNoContent) {
+        CheckStudentsWorkResponce checkWorks = checkStudentsWorksResponse.data;
+        if (checkWorks.update) {
+          if (await CostomDailogs.dialogWithText(
+              text: 'student_episode_data_is_being_updated'.tr)) {
+            bool isCompleted = await Get.dialog(cupertino.Builder(
+                builder: (cupertino.BuildContext dialogContext) {
+              changeStudentsWorksAndAttendances(
+                  checkWorks, dialogContext, episodeId);
+              return cupertino.WillPopScope(
+                onWillPop: () async {
+                  return false;
+                },
+                child: const cupertino.CupertinoAlertDialog(
+                  content: WaitingDialog(),
+                ),
+              );
+            }));
+            if (!isCompleted) {
+              CostomDailogs.warringDialogWithGet(
+                  msg: 'failed_to_upload_changes'.tr);
+            } else {
+              loadStudentsOfEpisode(episodeId);
 
-            // Get.offAll(() => const SplashScreen(),
-            //     duration: const Duration(seconds: 2),
-            //     curve: cupertino.Curves.easeInOut,
-            //     transition: Transition.fadeIn);
+              // Get.offAll(() => const SplashScreen(),
+              //     duration: const Duration(seconds: 2),
+              //     curve: cupertino.Curves.easeInOut,
+              //     transition: Transition.fadeIn);
+            }
           }
         }
       }
     }
-        }
-
   }
 
   // check student
   void checkStudent(int episodeId) async {
-    if(await sendToTheServerFunction()){
-    List<StudentOfEpisode> listStudentOfEpisode =
-        await StudentsOfEpisodeService().getStudentsOfEpisodeLocal(episodeId) ??
-            [];
-    ResponseContent checkStudentsResponse =
-        await StudentsOfEpisodeService().checkStudents(
-      episodeId,
-      listStudentOfEpisode.isNotEmpty
-          ? listStudentOfEpisode.map((e) => e.id ?? 0).toList()
-          : [],
-    );
-    if (checkStudentsResponse.isSuccess || checkStudentsResponse.isNoContent) {
-      CheckStudentsResponce checkStudents = checkStudentsResponse.data;
+    if (await sendToTheServerFunction()) {
+      List<StudentOfEpisode> listStudentOfEpisode =
+          await StudentsOfEpisodeService()
+                  .getStudentsOfEpisodeLocal(episodeId) ??
+              [];
+      ResponseContent checkStudentsResponse =
+          await StudentsOfEpisodeService().checkStudents(
+        episodeId,
+        listStudentOfEpisode.isNotEmpty
+            ? listStudentOfEpisode.map((e) => e.id ?? 0).toList()
+            : [],
+      );
+      if (checkStudentsResponse.isSuccess ||
+          checkStudentsResponse.isNoContent) {
+        CheckStudentsResponce checkStudents = checkStudentsResponse.data;
 
-      if (checkStudents.update) {
-        if (await CostomDailogs.dialogWithText(
-            text: 'student_episode_data_is_being_updated'.tr)) {
-          bool isCompleted = await Get.dialog(cupertino.Builder(
-              builder: (cupertino.BuildContext dialogContext) {
-            changeStudents(checkStudents, dialogContext, episodeId);
-            return cupertino.WillPopScope(
-              onWillPop: () async {
-                return false;
-              },
-              child: const cupertino.CupertinoAlertDialog(
-                content: WaitingDialog(),
-              ),
-            );
-          }));
-          if (!isCompleted) {
-            CostomDailogs.warringDialogWithGet(
-                msg: 'error_get_PlanLine_students'.tr);
-          } else {
-            loadStudentsOfEpisode(episodeId);
+        if (checkStudents.update) {
+          if (await CostomDailogs.dialogWithText(
+              text: 'student_episode_data_is_being_updated'.tr)) {
+            bool isCompleted = await Get.dialog(cupertino.Builder(
+                builder: (cupertino.BuildContext dialogContext) {
+              changeStudents(checkStudents, dialogContext, episodeId);
+              return cupertino.WillPopScope(
+                onWillPop: () async {
+                  return false;
+                },
+                child: const cupertino.CupertinoAlertDialog(
+                  content: WaitingDialog(),
+                ),
+              );
+            }));
+            if (!isCompleted) {
+              CostomDailogs.warringDialogWithGet(
+                  msg: 'failed_to_upload_changes'.tr);
+            } else {
+              loadStudentsOfEpisode(episodeId);
 
-            // Get.offAll(() => const SplashScreen(),
-            //     duration: const Duration(seconds: 2),
-            //     curve: cupertino.Curves.easeInOut,
-            //     transition: Transition.fadeIn);
+              // Get.offAll(() => const SplashScreen(),
+              //     duration: const Duration(seconds: 2),
+              //     curve: cupertino.Curves.easeInOut,
+              //     transition: Transition.fadeIn);
+            }
           }
         }
       }
     }
-    }
-
   }
 
   //change work and attendances
@@ -367,9 +367,9 @@ class HomeController extends GetxController {
     final navigator = cupertino.Navigator.of(dialogContext);
     bool isCompleted = true;
     if (checkWorks.listenLine.isNotEmpty) {
-      late PlanLines? planLines;
+      late PlanLines? planLinesStudent;
       try {
-        planLines = await PlanLinesService()
+        planLinesStudent = await PlanLinesService()
             .getPlanLinesLocal(episodeId, checkWorks.listenLine[0].studentId);
 
         List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
@@ -393,18 +393,21 @@ class HomeController extends GetxController {
           }
         }
         if (hifz.isNotEmpty) {
-          planLines!.listen = getPlanLine(hifz.last);
+          planLinesStudent!.listen = getPlanLine(hifz.last);
         }
         if (morajaS.isNotEmpty) {
-          planLines!.reviewsmall = getPlanLine(morajaS.last);
+          planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
         }
         if (morajaB.isNotEmpty) {
-          planLines!.reviewbig = getPlanLine(morajaB.last);
+          planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
         }
         if (tilawa.isNotEmpty) {
-          planLines!.tlawa = getPlanLine(tilawa.last);
+          planLinesStudent!.tlawa = getPlanLine(tilawa.last);
         }
-        await PlanLinesService().updatePlanLinesLocal(planLines!);
+        await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
+        if (planLines?.studentId == planLinesStudent.studentId) {
+          planLines = planLinesStudent;
+        }
       } catch (e) {
         isCompleted = false;
       }
@@ -422,7 +425,7 @@ class HomeController extends GetxController {
         isCompleted = false;
       }
     }
-
+    update();
     navigator.pop(isCompleted);
   }
 
@@ -945,77 +948,112 @@ class HomeController extends GetxController {
   //Check halaqat
   Future checkHalaqat() async {
     if (await sendToTheServerFunction()) {
-          var listId = await EdisodesService().getEdisodesLocal();
-    ResponseContent checkHalaqatResponse = await CheckEpisodeService()
-        .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
-    if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
-      checkEpisode = checkHalaqatResponse.data;
+      var listId = await EdisodesService().getEdisodesLocal();
+      ResponseContent checkHalaqatResponse = await CheckEpisodeService()
+          .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
+      if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
+        try {
+          checkEpisode = checkHalaqatResponse.data;
+          if (checkEpisode?.update == true) {
+            // Add Edisode
+            final listAddEdisode =
+                List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
+            int numberEdisode;
+            for (numberEdisode = 0;
+                numberEdisode < listAddEdisode.length;
+                numberEdisode++) {
+              addEdisode(
+                  Episode(
+                      displayName:
+                          listAddEdisode[numberEdisode].name.toString(),
+                      name: listAddEdisode[numberEdisode].name.toString(),
+                      epsdType:
+                          listAddEdisode[numberEdisode].typeEpisode.toString(),
+                      id: listAddEdisode[numberEdisode].id),
+                  isFromCheck: true);
+              for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
+                var studentOfEpisode = StudentOfEpisode(
+                  episodeId: listAddEdisode[numberEdisode].id!.toInt(),
+                  name: listAddEdisode[numberEdisode]
+                      .students![i]
+                      .name
+                      .toString(),
+                  state: listAddEdisode[numberEdisode]
+                      .students![i]
+                      .state
+                      .toString(),
+                );
+                int idStedent = listAddEdisode[numberEdisode].id!.toInt();
+                var plalinLines = PlanLines(
+                    episodeId: listAddEdisode[numberEdisode].id!.toInt(),
+                    studentId: listAddEdisode[numberEdisode].students![i].id);
+                if (listAddEdisode[numberEdisode].students![i].isHifz == true) {
+                  plalinLines.listen = PlanLine.fromDefault();
+                } else if (listAddEdisode[numberEdisode]
+                        .students![i]
+                        .isTilawa ==
+                    true) {
+                  plalinLines.tlawa = PlanLine.fromDefault();
+                } else if (listAddEdisode[numberEdisode]
+                        .students![i]
+                        .isSmallReview ==
+                    true) {
+                  plalinLines.reviewsmall = PlanLine.fromDefault();
+                } else if (listAddEdisode[numberEdisode]
+                        .students![i]
+                        .isBigReview ==
+                    true) {
+                  plalinLines.reviewbig = PlanLine.fromDefault();
+                }
+                addStudent(studentOfEpisode, plalinLines, idStedent,
+                    isFromCheck: true);
+              }
+            }
 
-      // Add Edisode
-      final listAddEdisode =
-          List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
-      int numberEdisode;
-      for (numberEdisode = 0;
-          numberEdisode < listAddEdisode.length;
-          numberEdisode++) {
-        addEdisode(
-            Episode(
-                displayName: listAddEdisode[numberEdisode].name.toString(),
-                name: listAddEdisode[numberEdisode].name.toString(),
-                epsdType: listAddEdisode[numberEdisode].typeEpisode.toString(),
-                id: listAddEdisode[numberEdisode].id),
-            isFromCheck: true);
-        for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
-          var studentOfEpisode = StudentOfEpisode(
-            episodeId: listAddEdisode[numberEdisode].id!.toInt(),
-            name: listAddEdisode[numberEdisode].students![i].name.toString(),
-            state: listAddEdisode[numberEdisode].students![i].state.toString(),
-          );
-          int idStedent = listAddEdisode[numberEdisode].id!.toInt();
-          var plalinLines = PlanLines(
-              episodeId: listAddEdisode[numberEdisode].id!.toInt(),
-              studentId: listAddEdisode[numberEdisode].students![i].id);
-          if (listAddEdisode[numberEdisode].students![i].isHifz == true) {
-            plalinLines.listen = PlanLine.fromDefault();
-          } else if (listAddEdisode[numberEdisode].students![i].isTilawa ==
-              true) {
-            plalinLines.tlawa = PlanLine.fromDefault();
-          } else if (listAddEdisode[numberEdisode].students![i].isSmallReview ==
-              true) {
-            plalinLines.reviewsmall = PlanLine.fromDefault();
-          } else if (listAddEdisode[numberEdisode].students![i].isBigReview ==
-              true) {
-            plalinLines.reviewbig = PlanLine.fromDefault();
+            // !! delete data
+            final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
+            for (int i = 0; i < list.length; i++) {
+              deleteEdisode(
+                  Episode(id: list[i], epsdType: '', name: '', displayName: ''),
+                  isFromCheck: true);
+            }
+
+            await CostomDailogs.dialogWithText(
+                text: 'episode_data_is_being_updated'.tr);
           }
-          addStudent(studentOfEpisode, plalinLines, idStedent,
-              isFromCheck: true);
+        } catch (e) {
+          CostomDailogs.warringDialogWithGet(
+              msg: 'failed_to_upload_changes'.tr);
         }
-      }
+        //show masage
 
-      // !! delete data
-      final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
-      for (int i = 0; i < list.length; i++) {
-        deleteEdisode(
-            Episode(id: list[i], epsdType: '', name: '', displayName: ''),
-            isFromCheck: true);
-      }
-    }
-    //show masage
-    if (checkEpisode?.update == true) {
-      bool result = await CostomDailogs.yesNoDialogWithText(
-          text: 'new_update_is_available'.tr);
-      if (result) {
-        Get.offAll(() => const DataInitialization(),
-            duration: const Duration(seconds: 2),
-            curve: Curves.easeInOut,
-            transition: Transition.fadeIn);
-      } else {
-        exit(0);
+        // if (checkEpisode?.update == true) {
+        //   loadEpisodes();
+        //   if (await CostomDailogs.dialogWithText(
+        //       text: 'episode_data_is_being_updated'.tr)) {
+        //     // Get.offAll(() => const DataInitialization(),
+        //     //     duration: const Duration(seconds: 2),
+        //     //     curve: Curves.easeInOut,
+        //     //     transition: Transition.fadeIn);
+
+        //   } else {
+        //     CostomDailogs.warringDialogWithGet(
+        //         msg: 'failed_to_upload_changes'.tr);
+        //   }
+
       }
     }
 
-    }
-
+    // bool result = await CostomDailogs.yesNoDialogWithText(
+    //     text: 'new_update_is_available'.tr);
+    // if (result) {
+    //   Get.offAll(() => const DataInitialization(),
+    //       duration: const Duration(seconds: 2),
+    //       curve: Curves.easeInOut,
+    //       transition: Transition.fadeIn);
+    // } else {
+    //   exit(0);
+    // }
   }
 
   addListenLineFromCheck(String typePlanLine, int id, int episodeId,

@@ -43,6 +43,8 @@ class _AddStudentState extends State<AddStudent> {
   List<Episode> listEpisodes = [];
   Episode? selectEpisode;
 
+ 
+
   @override
   void initState() {
     // ignore: todo
@@ -59,7 +61,7 @@ class _AddStudentState extends State<AddStudent> {
       name.text = widget.student!.name;
       phone.text = widget.student!.phone;
       country.text = widget.student!.country;
-      gender = widget.student!.gender;
+      gender = widget.student!.gender.tr;
       listen = true;
       reviewsmall = false;
       reviewbig = false;
