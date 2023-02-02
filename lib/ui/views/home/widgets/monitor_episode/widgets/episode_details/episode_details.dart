@@ -43,11 +43,19 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
+    initStudent();
+  }
+
+  initStudent() async {
     HomeController homeController = Get.find<HomeController>();
     homeController.initStudntData();
-    homeController.loadStudentsOfEpisode(widget.episode.id!, isInit: true);
     homeController.checkStudent(widget.episode.id!);
-  }
+    await homeController.loadStudentsOfEpisode(widget.episode.id!,
+        isInit: true);
+    if(homeController.listStudentsOfEpisode.isNotEmpty){    
+    homeController.checkStudentListenLineAndAttendances(
+        homeController.listStudentsOfEpisode[0].id, widget.episode.id!);
+  }}
 
   @override
   Widget build(BuildContext context) {
