@@ -20,6 +20,7 @@ import 'package:monitor_episodes/model/core/user/auth_model.dart';
 import 'package:monitor_episodes/model/services/educational_plan_service.dart';
 import 'package:monitor_episodes/model/services/listen_line_service.dart';
 import 'package:monitor_episodes/model/services/plan_lines_service.dart';
+import 'package:monitor_episodes/model/services/upload_service.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 import 'package:monitor_episodes/model/services/teacher_service.dart';
 import '../main.dart';
@@ -27,6 +28,7 @@ import '../model/core/episodes/check_student_work_responce.dart';
 import '../model/core/episodes/check_episode.dart';
 import '../model/core/episodes/episode.dart';
 import '../model/core/shared/response_content.dart';
+import '../model/data/database_helper.dart';
 import '../model/services/check_episode_service.dart';
 import '../model/services/episodes_service.dart';
 import '../ui/shared/utils/custom_dailogs.dart';
@@ -84,12 +86,19 @@ class HomeController extends GetxController {
   Future<bool> addEdisode(Episode episode, {bool isFromCheck = false}) async {
     bool result = await EdisodesService()
         .setEdisodeLocal(episode, isFromCheck: isFromCheck);
+    if (!isFromCheck) {
+      //uplodeToServer
+      sendToTheServerFunction();
+    }
+
     loadEpisodes();
     return result;
   }
 
   Future<bool> editEdisode(Episode episode) async {
     bool result = await EdisodesService().updateEdisode(episode);
+    //uplodeToServer
+    sendToTheServerFunction();
     loadEpisodes();
     return result;
   }
@@ -116,6 +125,11 @@ class HomeController extends GetxController {
       await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id!);
       await EdisodesService()
           .deletedEpisode(episode.id!, isFromCheck: isFromCheck);
+
+      //uplodeToServer
+      if (!isFromCheck) {
+        sendToTheServerFunction();
+      }
       loadEpisodes();
       return true;
     } catch (e) {
@@ -143,7 +157,10 @@ class HomeController extends GetxController {
     }
     bool planLinesResult =
         await PlanLinesService().setPlanLinesLocal(planLines);
+
     if (!isFromCheck) {
+      //uplodeToServer
+      sendToTheServerFunction();
       loadStudentsOfEpisode(episodeId);
     }
     return studentResult && planLinesResult;
@@ -159,6 +176,8 @@ class HomeController extends GetxController {
       int index = _listStudentsOfEpisode
           .indexWhere((element) => element.id == studentOfEpisode.id);
       _listStudentsOfEpisode[index] = studentOfEpisode;
+      //uplodeToServer
+      sendToTheServerFunction();
       loadPlanLines(episodeId, studentOfEpisode.id!);
       //loadEducationalPlan(episodeId,studentOfEpisode.id!);
     }
@@ -177,6 +196,10 @@ class HomeController extends GetxController {
       await ListenLineService().deleteListenLineStudent(id);
       await StudentsOfEpisodeService()
           .deleteStudent(id, isFromCheck: isFromCheck);
+      if (!isFromCheck) {
+        //uplodeToServer
+        sendToTheServerFunction();
+      }
 
       update();
       return true;
@@ -243,7 +266,8 @@ class HomeController extends GetxController {
 
   void checkStudentListenLineAndAttendances(
       int? studentId, int episodeId) async {
-    var worksIds =
+        if(await sendToTheServerFunction()){
+               var worksIds =
         await ListenLineService().getListenLinesLocalIdsForStudent(studentId!);
     var attendancesIds =
         await StudentsOfEpisodeService().getStateLocalForStudent(studentId);
@@ -284,10 +308,13 @@ class HomeController extends GetxController {
         }
       }
     }
+        }
+
   }
 
   // check student
   void checkStudent(int episodeId) async {
+    if(await sendToTheServerFunction()){
     List<StudentOfEpisode> listStudentOfEpisode =
         await StudentsOfEpisodeService().getStudentsOfEpisodeLocal(episodeId) ??
             [];
@@ -330,6 +357,8 @@ class HomeController extends GetxController {
         }
       }
     }
+    }
+
   }
 
   //change work and attendances
@@ -502,6 +531,11 @@ class HomeController extends GetxController {
         isFromCheck: studentState != null);
 
     if (studentState == null) {
+      // Send To The Server
+      sendToTheServerFunction();
+    }
+
+    if (studentState == null) {
       int index =
           _listStudentsOfEpisode.indexWhere((element) => element.id == id);
       if (index >= 0) {
@@ -661,6 +695,11 @@ class HomeController extends GetxController {
     responseContent = ResponseContent(success: true, statusCode: '200');
 
     if (responseContent.isSuccess) {
+      if (newListenLine == null) {
+        // send to the server
+        sendToTheServerFunction();
+      }
+
       Educational educational = Educational(
         actualDate: DateTime.tryParse(listenLine.actualDate),
         fromAya: listenLine.fromAya,
@@ -904,14 +943,14 @@ class HomeController extends GetxController {
   }
 
   //Check halaqat
-  Future<ResponseContent> checkHalaqat() async {
-    var listId = await EdisodesService().getEdisodesLocal();
+  Future checkHalaqat() async {
+    if (await sendToTheServerFunction()) {
+          var listId = await EdisodesService().getEdisodesLocal();
     ResponseContent checkHalaqatResponse = await CheckEpisodeService()
         .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
       checkEpisode = checkHalaqatResponse.data;
 
-      
       // Add Edisode
       final listAddEdisode =
           List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
@@ -962,20 +1001,21 @@ class HomeController extends GetxController {
       }
     }
     //show masage
-      if (checkEpisode?.update == true) {
-        bool result = await CostomDailogs.yesNoDialogWithText(
-            text: 'new_update_is_available'.tr);
-        if (result) {
-          Get.offAll(() => const DataInitialization(),
-              duration: const Duration(seconds: 2),
-              curve: Curves.easeInOut,
-              transition: Transition.fadeIn);
-        } else {
-          exit(0);
-        }
+    if (checkEpisode?.update == true) {
+      bool result = await CostomDailogs.yesNoDialogWithText(
+          text: 'new_update_is_available'.tr);
+      if (result) {
+        Get.offAll(() => const DataInitialization(),
+            duration: const Duration(seconds: 2),
+            curve: Curves.easeInOut,
+            transition: Transition.fadeIn);
+      } else {
+        exit(0);
       }
+    }
 
-    return checkHalaqatResponse;
+    }
+
   }
 
   addListenLineFromCheck(String typePlanLine, int id, int episodeId,
@@ -988,7 +1028,10 @@ class HomeController extends GetxController {
         fromAya: newListenLine.fromAya,
         toAya: newListenLine.toAya,
         toSuraName: getSuraName(newListenLine.fromSuraId),
-        mistake: 0,mistakes: Mistakes(totalMstkQty: newListenLine.totalMstkQty, totalMstkRead: newListenLine.totalMstkRead));
+        mistake: 0,
+        mistakes: Mistakes(
+            totalMstkQty: newListenLine.totalMstkQty,
+            totalMstkRead: newListenLine.totalMstkRead));
 
     ResponseContent responseContent = ResponseContent();
     await ListenLineService().setListenLineLocal(listenLine, isFromCheck: true);
@@ -1082,4 +1125,58 @@ class HomeController extends GetxController {
   bool get gettingEducationalPlan => _gettingEducationalPlan;
   List<Episode> get listEpisodes => _listEpisodes;
   List<StudentOfEpisode> get listStudentsOfEpisode => _listStudentsOfEpisode;
+
+  //upload to the server method ===========================================================
+  Future sendToTheServerFunction() async {
+    late bool isCompleteEpisodeOperation,
+        isCompleteStudentOperation,
+        isCompleteStudentAttendance,
+        isCompleteStudentWork;
+    final dbHelper = DatabaseHelper.instance;
+    // get episode logs
+    var allEpisodeLogs =
+        await UploadService().getOperationOfEpisodeLogs(dbHelper);
+    // upload episode
+    isCompleteEpisodeOperation =
+        await UploadService().uploadEpisode(allEpisodeLogs, dbHelper);
+
+    if (isCompleteEpisodeOperation) {
+      // get student logs
+      var allStudentLogs =
+          await UploadService().getOperationOfStudentLogs(dbHelper);
+      // upload student
+      isCompleteStudentOperation =
+          await UploadService().uploadStudent(allStudentLogs, dbHelper);
+
+      if (isCompleteStudentOperation) {
+        // get student Attendance logs
+        var allStudentAttendanceLogs =
+            await UploadService().getStudentAttendanceLogs(dbHelper);
+        // upload student Attendance
+        isCompleteStudentAttendance = await UploadService()
+            .uploadStudentAttendance(allStudentAttendanceLogs, dbHelper);
+
+        if (isCompleteStudentAttendance) {
+          // get student Work logs
+
+          var allStudentWorkLogs =
+              await UploadService().getStudentWorkLogs(dbHelper);
+          // upload student Work
+          isCompleteStudentWork = await UploadService()
+              .uploadStudentWork(allStudentWorkLogs, dbHelper);
+        }
+      }
+    }
+
+    if (isCompleteEpisodeOperation &&
+        isCompleteStudentOperation &&
+        isCompleteStudentAttendance &&
+        isCompleteStudentWork) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  //upload to the server method ===========================================================
+
 }

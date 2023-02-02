@@ -65,7 +65,7 @@ class EdisodesService {
         var jsonServer = await episode.toJsonServer(isCreate: true);
         jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
         await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
-        episodeCrudOperationsRemoately(dbHelper);
+       //episodeCrudOperationsRemoately(dbHelper);
       }
       return true;
     } catch (e) {
@@ -83,7 +83,7 @@ class EdisodesService {
 
       jsonServer.addAll({EpisodeColumns.operation.value: 'update'});
       await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
-      episodeCrudOperationsRemoately(dbHelper);
+     // episodeCrudOperationsRemoately(dbHelper);
       return true;
     } catch (e) {
       return false;
@@ -107,7 +107,7 @@ class EdisodesService {
       if (!isFromCheck) {
         await dbHelper.insert(DatabaseHelper.logTableEpisode,
             {'id': episodeId, EpisodeColumns.operation.value: 'delete'});
-        episodeCrudOperationsRemoately(dbHelper);
+      //  episodeCrudOperationsRemoately(dbHelper);
       }
       return true;
     } catch (e) {
@@ -131,12 +131,12 @@ class EdisodesService {
     for (var episode in listOfEpisodes) {
       if (episode['operation'] == 'create') {
         episode.remove('operation');
-        episode.remove('IDs');
+       // episode.remove('IDs');
 
         listOfEpisodeTypeCreate.add(episode);
       } else if (episode['operation'] == 'update') {
         episode.remove('operation');
-        episode.remove('IDs');
+       // episode.remove('IDs');
         listOfEpisodeTypeUdate.add(episode);
       } else {
         listOfEpisodeTypeDelete.add({'id': episode['id']});

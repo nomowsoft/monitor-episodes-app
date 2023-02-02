@@ -120,8 +120,8 @@ class StudentsOfEpisodeService {
         });
         await dbHelper.insert(
             DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-        studentCrudOperationsRemoately(
-            dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+        // studentCrudOperationsRemoately(
+        //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       }
 
       return true;
@@ -154,8 +154,8 @@ class StudentsOfEpisodeService {
         });
         await dbHelper.insert(
             DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-        studentCrudOperationsRemoately(
-            dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+        // studentCrudOperationsRemoately(
+        //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       }
 
       return true;
@@ -183,8 +183,8 @@ class StudentsOfEpisodeService {
      
       await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
           {'id': id, EpisodeColumns.operation.value: 'delete'});
-      studentCrudOperationsRemoately(
-          dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+      // studentCrudOperationsRemoately(
+      //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
      
       return true;
     } catch (e) {
@@ -339,8 +339,8 @@ class StudentsOfEpisodeService {
           await dbHelper.insert(
               DatabaseHelper.logTableStudentState, jsonServer);
         }
-        studentCrudOperationsRemoately(
-            dbHelper, DatabaseHelper.logTableStudentState);
+        // studentCrudOperationsRemoately(
+        //     dbHelper, DatabaseHelper.logTableStudentState);
       }
 
       return true;
@@ -483,7 +483,7 @@ studentCrudOperationsRemoately(
     for (var student in listOfStudents) {
       if (student['operation'] == 'create') {
         student.remove('operation');
-        student.remove('IDs');
+       // student.remove('IDs');
         student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
         student.update('is_hifz', (value) => value == 1 ? true : false);
         student.update('is_tilawa', (value) => value == 1 ? true : false);
@@ -493,7 +493,7 @@ studentCrudOperationsRemoately(
         listOfStudentTypeCreate.add(student);
       } else if (student['operation'] == 'update') {
         student.remove('operation');
-        student.remove('IDs');
+       // student.remove('IDs');
         student.remove('halaqa_id');
         student.remove('mobile');
         student.remove('country_id');

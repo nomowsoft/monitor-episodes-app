@@ -100,9 +100,9 @@ class DatabaseHelper {
 
     // log tables
     await db.execute(
-        'CREATE TABLE $logTableEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.typeEpisode.value} TEXT,${EpisodeColumns.operation.value} TEXT )');
+        'CREATE TABLE $logTableEpisode (${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.typeEpisode.value} TEXT,${EpisodeColumns.operation.value} TEXT )');
     await db.execute(
-        'CREATE TABLE $logTableStudentOfEpisode (IDs INTEGER PRIMARY KEY, ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, halaqa_id TEXT,mobile TEXT,country_id INTEGER,gender TEXT,is_hifz BOOLEAN,is_tilawa BOOLEAN,is_big_review BOOLEAN,is_small_review BOOLEAN,${EpisodeColumns.operation.value} TEXT )');
+        'CREATE TABLE $logTableStudentOfEpisode ( ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, halaqa_id TEXT,mobile TEXT,country_id INTEGER,gender TEXT,is_hifz BOOLEAN,is_tilawa BOOLEAN,is_big_review BOOLEAN,is_small_review BOOLEAN,${EpisodeColumns.operation.value} TEXT )');
 
         await db.execute(
         'CREATE TABLE $logTableStudentState (id INTEGER PRIMARY KEY, student_id INTEGER, status TEXT, date_presence TEXT )');

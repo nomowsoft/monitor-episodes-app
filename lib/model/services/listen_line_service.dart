@@ -92,7 +92,7 @@ class ListenLineService {
       if(!isFromCheck){
       var jsonServer = await listenLine.toJsonServer();
       await dbHelper.insert(DatabaseHelper.logTableStudentWork, jsonServer);
-      setStudentListenLineRemotely(dbHelper);
+      // setStudentListenLineRemotely(dbHelper);
 
       }
 
