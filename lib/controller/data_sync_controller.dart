@@ -137,23 +137,25 @@ class DataSyncController extends GetxController {
             planLines.studentId = student.id!;
 
             ///
-            if(student.studentAttendances.isNotEmpty){
-            try {
-              for (var studentsState in student.studentAttendances) {
-                await setAttendance(studentsState.episodeId ,
-                 studentsState.state,
-                 studentsState.studentId,
-                 studentsState);
+            if (student.studentAttendances.isNotEmpty) {
+              try {
+                for (var studentsState in student.studentAttendances) {
+                  await setAttendance(
+                      studentsState.episodeId,
+                      studentsState.state,
+                      studentsState.studentId,
+                      studentsState);
+                }
+                if (student.studentAttendances.last.date ==
+                    DateFormat('yyyy-MM-dd').format(DateTime.now())) {
+                  student.state = student.studentAttendances.last.state.tr;
+                }
+              } catch (e) {
+                if (kDebugMode) {
+                  print(e);
+                }
               }
-              if (student.studentAttendances.last.date ==
-                  DateFormat('yyyy-MM-dd').format(DateTime.now())) {
-                student.state = student.studentAttendances.last.state.tr;
-              }
-            } catch (e) {
-              if (kDebugMode) {
-                print(e);
-              }
-            }}
+            }
 
             await addStudent(student, planLines, episode.id!);
           }
