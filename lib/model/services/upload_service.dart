@@ -230,6 +230,7 @@ class UploadService {
           return true;
         } else {
           return false;
+          
         }
       } catch (e) {
         print(e);

@@ -52,10 +52,11 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
     homeController.checkStudent(widget.episode.id!);
     await homeController.loadStudentsOfEpisode(widget.episode.id!,
         isInit: true);
-    if(homeController.listStudentsOfEpisode.isNotEmpty){    
-    homeController.checkStudentListenLineAndAttendances(
-        homeController.listStudentsOfEpisode[0].id, widget.episode.id!);
-  }}
+    if (homeController.listStudentsOfEpisode.isNotEmpty) {
+      homeController.checkStudentListenLineAndAttendances(
+          homeController.listStudentsOfEpisode[0].id, widget.episode.id!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

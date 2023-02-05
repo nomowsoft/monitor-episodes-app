@@ -251,10 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               hasWaitAnim = true;
                                               loginErorr = false;
                                             });
-                                            final prefs =
-                                                await SharedPreferences
-                                                    .getInstance();
-                                            prefs.setBool('isLogin', true);
+                                            
                                             Get.off(() => const DataInitialization(),
                                                 duration:
                                                     const Duration(seconds: 1),
