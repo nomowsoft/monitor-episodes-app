@@ -1065,7 +1065,7 @@ class HomeController extends GetxController {
         fromSuraName: getSuraName(newListenLine.fromSuraId),
         fromAya: newListenLine.fromAya,
         toAya: newListenLine.toAya,
-        toSuraName: getSuraName(newListenLine.fromSuraId),
+        toSuraName: getSuraName(newListenLine.toSuraId),
         mistake: 0,
         mistakes: Mistakes(
             totalMstkQty: newListenLine.totalMstkQty,

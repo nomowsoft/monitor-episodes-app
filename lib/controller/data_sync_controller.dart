@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:monitor_episodes/model/core/plan_lines/mistakes_plan_line.dart';
 import 'package:monitor_episodes/model/services/episodes_service.dart';
 import '../model/core/educational/educational.dart';
 import '../model/core/educational/educational_plan.dart';
@@ -185,11 +186,11 @@ class DataSyncController extends GetxController {
         fromSuraName: getSuraName(newListenLine.fromSuraId),
         fromAya: newListenLine.fromAya,
         toAya: newListenLine.toAya,
-        toSuraName: getSuraName(newListenLine.fromSuraId),
-        mistake: 0);
+        toSuraName: getSuraName(newListenLine.toSuraId),
+        mistake: 0,mistakes: Mistakes(totalMstkQty: newListenLine.totalMstkQty,totalMstkRead: newListenLine.totalMstkRead));
 
     ResponseContent responseContent = ResponseContent();
-    await ListenLineService().setListenLineLocal(listenLine);
+    await ListenLineService().setListenLineLocal(listenLine,isFromCheck: true);
     responseContent = ResponseContent(success: true, statusCode: '200');
     if (responseContent.isSuccess) {
       Educational educational = Educational(

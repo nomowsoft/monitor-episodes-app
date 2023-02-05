@@ -116,7 +116,6 @@ class ListenLine {
       }
     }
   }
-
 }
 
 getSuraName(int id) {
@@ -149,7 +148,7 @@ getTypeWorkserver(String typeFollow) {
       return 'listen';
     case 'mourajaa_g':
       return 'reviewbig';
-    case 'reviewbig':
+    case 'mourajaa_s':
       return 'reviewsmall';
     case 'tilawa':
       return 'tlawa';

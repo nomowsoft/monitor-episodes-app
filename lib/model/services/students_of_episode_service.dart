@@ -175,17 +175,17 @@ class StudentsOfEpisodeService {
     }
   }
 
-  Future<bool> deleteStudent(int id,{bool isFromCheck = false}) async {
+  Future<bool> deleteStudent(int id, {bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
           StudentOfEpisodeColumns.id.value, id);
-     
+
       await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
           {'id': id, EpisodeColumns.operation.value: 'delete'});
       // studentCrudOperationsRemoately(
       //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
-     
+
       return true;
     } catch (e) {
       return false;
@@ -222,6 +222,20 @@ class StudentsOfEpisodeService {
               ?.map((val) => StudentState.fromJson(val))
               .toList() ??
           [];
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<StudentState?> getLastStudentsStateLocal() async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allStudentsState =
+          await dbHelper.queryAllRows(DatabaseHelper.tableStudentState);
+      return allStudentsState
+          ?.map((val) => StudentState.fromJson(val))
+          .toList()
+          .last;
     } catch (e) {
       return null;
     }
@@ -336,6 +350,8 @@ class StudentsOfEpisodeService {
               studentsState.studentId,
               studentsState.date);
         } else {
+          var stuState = await getLastStudentsStateLocal();
+          jsonServer['id'] = stuState!.id;
           await dbHelper.insert(
               DatabaseHelper.logTableStudentState, jsonServer);
         }
@@ -483,7 +499,7 @@ studentCrudOperationsRemoately(
     for (var student in listOfStudents) {
       if (student['operation'] == 'create') {
         student.remove('operation');
-       // student.remove('IDs');
+        // student.remove('IDs');
         student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
         student.update('is_hifz', (value) => value == 1 ? true : false);
         student.update('is_tilawa', (value) => value == 1 ? true : false);
@@ -493,7 +509,7 @@ studentCrudOperationsRemoately(
         listOfStudentTypeCreate.add(student);
       } else if (student['operation'] == 'update') {
         student.remove('operation');
-       // student.remove('IDs');
+        // student.remove('IDs');
         student.remove('halaqa_id');
         student.remove('mobile');
         student.remove('country_id');
