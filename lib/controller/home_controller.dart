@@ -49,7 +49,6 @@ class HomeController extends GetxController {
   List<StudentOfEpisode> _listStudentsOfEpisode = [];
   PlanLines? planLines;
   EducationalPlan? educationalPlan;
-  CheckEpisode? checkEpisode;
 
   @override
   void onInit() async {
@@ -952,97 +951,189 @@ class HomeController extends GetxController {
       ResponseContent checkHalaqatResponse = await CheckEpisodeService()
           .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
       if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
-        try {
-          checkEpisode = checkHalaqatResponse.data;
-          if (checkEpisode?.update == true) {
-            // Add Edisode
-            final listAddEdisode =
-                List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
-            int numberEdisode;
-            for (numberEdisode = 0;
-                numberEdisode < listAddEdisode.length;
-                numberEdisode++) {
-              addEdisode(
-                  Episode(
-                      displayName:
-                          listAddEdisode[numberEdisode].name.toString(),
-                      name: listAddEdisode[numberEdisode].name.toString(),
-                      epsdType:
-                          listAddEdisode[numberEdisode].typeEpisode.toString(),
-                      id: listAddEdisode[numberEdisode].id),
-                  isFromCheck: true);
-              for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
-                var studentOfEpisode = StudentOfEpisode(
-                  episodeId: listAddEdisode[numberEdisode].id!.toInt(),
-                  name: listAddEdisode[numberEdisode]
-                      .students![i]
-                      .name
-                      .toString(),
-                  state: listAddEdisode[numberEdisode]
-                      .students![i]
-                      .state
-                      .toString(),
-                );
-                int idStedent = listAddEdisode[numberEdisode].id!.toInt();
-                var plalinLines = PlanLines(
-                    episodeId: listAddEdisode[numberEdisode].id!.toInt(),
-                    studentId: listAddEdisode[numberEdisode].students![i].id);
-                if (listAddEdisode[numberEdisode].students![i].isHifz == true) {
-                  plalinLines.listen = PlanLine.fromDefault();
-                } else if (listAddEdisode[numberEdisode]
-                        .students![i]
-                        .isTilawa ==
-                    true) {
-                  plalinLines.tlawa = PlanLine.fromDefault();
-                } else if (listAddEdisode[numberEdisode]
-                        .students![i]
-                        .isSmallReview ==
-                    true) {
-                  plalinLines.reviewsmall = PlanLine.fromDefault();
-                } else if (listAddEdisode[numberEdisode]
-                        .students![i]
-                        .isBigReview ==
-                    true) {
-                  plalinLines.reviewbig = PlanLine.fromDefault();
-                }
-                addStudent(studentOfEpisode, plalinLines, idStedent,
-                    isFromCheck: true);
-              }
+        CheckEpisode checkEpisode = checkHalaqatResponse.data;
+        if (checkEpisode.update!) {
+          if (await CostomDailogs.dialogWithText(
+              text: 'episode_data_is_being_updated'.tr)) {
+            bool isCompleted = await Get.dialog(cupertino.Builder(
+                builder: (cupertino.BuildContext dialogContext) {
+              changeHalaqat(checkEpisode, dialogContext,);
+              return cupertino.WillPopScope(
+                onWillPop: () async {
+                  return false;
+                },
+                child: const cupertino.CupertinoAlertDialog(
+                  content: WaitingDialog(),
+                ),
+              );
+            }));
+            if (!isCompleted) {
+              CostomDailogs.warringDialogWithGet(
+                  msg: 'failed_to_upload_changes'.tr);
+            } else {
+              loadEpisodes();
             }
-
-            // !! delete data
-            final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
-            for (int i = 0; i < list.length; i++) {
-              deleteEdisode(
-                  Episode(id: list[i], epsdType: '', name: '', displayName: ''),
-                  isFromCheck: true);
-            }
-
-            await CostomDailogs.dialogWithText(
-                text: 'episode_data_is_being_updated'.tr);
           }
-        } catch (e) {
-          CostomDailogs.warringDialogWithGet(
-              msg: 'failed_to_upload_changes'.tr);
         }
-        //show masage
-
-        // if (checkEpisode?.update == true) {
-        //   loadEpisodes();
-        //   if (await CostomDailogs.dialogWithText(
-        //       text: 'episode_data_is_being_updated'.tr)) {
-        //     // Get.offAll(() => const DataInitialization(),
-        //     //     duration: const Duration(seconds: 2),
-        //     //     curve: Curves.easeInOut,
-        //     //     transition: Transition.fadeIn);
-
-        //   } else {
-        //     CostomDailogs.warringDialogWithGet(
-        //         msg: 'failed_to_upload_changes'.tr);
-        //   }
-
       }
     }
+  }
+
+  //change  Halaqat
+  changeHalaqat(CheckEpisode checkEpisode, cupertino.BuildContext buildContext,) async {
+    final navigator = cupertino.Navigator.of(buildContext);
+    bool isCompleted = true;
+    if (checkEpisode.deletedHalaqat!.isNotEmpty) {
+      try {
+        for (var id in checkEpisode.deletedHalaqat!) {
+          await deleteEdisode(
+              Episode(id: id, epsdType: '', name: '', displayName: ''),
+              isFromCheck: true);
+        }
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+
+    if (checkEpisode.newHalaqat!.isNotEmpty) {
+      try {
+        for (NewHalaqat halaqaa in checkEpisode.newHalaqat!) {
+          for (Students studetnt in halaqaa.students ?? []) {
+            var studentOfEpisode = StudentOfEpisode(
+                episodeId: halaqaa.id,
+                id: studetnt.id,
+                name: studetnt.name ?? '',
+                state: studetnt.state ?? '');
+            var planLines =
+                PlanLines(episodeId: halaqaa.id, studentId: studetnt.id);
+            if (studetnt.isHifz!) {
+              planLines.listen = PlanLine.fromDefault();
+            }
+            if (studetnt.isBigReview!) {
+              planLines.reviewbig = PlanLine.fromDefault();
+            }
+            if (studetnt.isSmallReview!) {
+              planLines.reviewsmall = PlanLine.fromDefault();
+            }
+            if (studetnt.isTilawa!) {
+              planLines.tlawa = PlanLine.fromDefault();
+            }
+            isCompleted = await addStudent(
+                studentOfEpisode, planLines, halaqaa.id!,
+                isFromCheck: true);
+          }
+          isCompleted = await addEdisode(
+              Episode(
+                  displayName: halaqaa.name.toString(),
+                  name: halaqaa.name.toString(),
+                  epsdType: halaqaa.typeEpisode.toString(),
+                  id: halaqaa.id),
+              isFromCheck: true);
+        }
+      } catch (e) {
+        isCompleted = false;
+      }
+    }
+    navigator.pop(isCompleted);
+  }
+
+  // Future checkHalaqat() async {
+  //   if (await sendToTheServerFunction()) {
+  //     var listId = await EdisodesService().getEdisodesLocal();
+  //     ResponseContent checkHalaqatResponse = await CheckEpisodeService()
+  //         .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
+  //     if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
+  //       try {
+  //         checkEpisode = checkHalaqatResponse.data;
+  //         if (checkEpisode?.update == true) {
+  //           // Add Edisode
+  //           final listAddEdisode =
+  //               List<NewHalaqat>.from(checkEpisode?.newHalaqat ?? []);
+  //           int numberEdisode;
+  //           for (numberEdisode = 0;
+  //               numberEdisode < listAddEdisode.length;
+  //               numberEdisode++) {
+  //             addEdisode(
+  //                 Episode(
+  //                     displayName:
+  //                         listAddEdisode[numberEdisode].name.toString(),
+  //                     name: listAddEdisode[numberEdisode].name.toString(),
+  //                     epsdType:
+  //                         listAddEdisode[numberEdisode].typeEpisode.toString(),
+  //                     id: listAddEdisode[numberEdisode].id),
+  //                 isFromCheck: true);
+  //             for (int i = 0; i < listAddEdisode[i].students!.length; i++) {
+  //               var studentOfEpisode = StudentOfEpisode(
+  //                 episodeId: listAddEdisode[numberEdisode].id!.toInt(),
+  //                 name: listAddEdisode[numberEdisode]
+  //                     .students![i]
+  //                     .name
+  //                     .toString(),
+  //                 state: listAddEdisode[numberEdisode]
+  //                     .students![i]
+  //                     .state
+  //                     .toString(),
+  //               );
+  //               int idStedent = listAddEdisode[numberEdisode].id!.toInt();
+  //               var plalinLines = PlanLines(
+  //                   episodeId: listAddEdisode[numberEdisode].id!.toInt(),
+  //                   studentId: listAddEdisode[numberEdisode].students![i].id);
+  //               if (listAddEdisode[numberEdisode].students![i].isHifz == true) {
+  //                 plalinLines.listen = PlanLine.fromDefault();
+  //               } else if (listAddEdisode[numberEdisode]
+  //                       .students![i]
+  //                       .isTilawa ==
+  //                   true) {
+  //                 plalinLines.tlawa = PlanLine.fromDefault();
+  //               } else if (listAddEdisode[numberEdisode]
+  //                       .students![i]
+  //                       .isSmallReview ==
+  //                   true) {
+  //                 plalinLines.reviewsmall = PlanLine.fromDefault();
+  //               } else if (listAddEdisode[numberEdisode]
+  //                       .students![i]
+  //                       .isBigReview ==
+  //                   true) {
+  //                 plalinLines.reviewbig = PlanLine.fromDefault();
+  //               }
+  //               addStudent(studentOfEpisode, plalinLines, idStedent,
+  //                   isFromCheck: true);
+  //             }
+  //           }
+
+  //           // !! delete data
+  //           final list = List<int>.from(checkEpisode?.deletedHalaqat ?? []);
+  //           for (int i = 0; i < list.length; i++) {
+  //             deleteEdisode(
+  //                 Episode(id: list[i], epsdType: '', name: '', displayName: ''),
+  //                 isFromCheck: true);
+  //           }
+
+  //           await CostomDailogs.dialogWithText(
+  //               text: 'episode_data_is_being_updated'.tr);
+  //         }
+  //       } catch (e) {
+  //         CostomDailogs.warringDialogWithGet(
+  //             msg: 'failed_to_upload_changes'.tr);
+  //       }
+  //       //show masage
+
+  //       // if (checkEpisode?.update == true) {
+  //       //   loadEpisodes();
+  //       //   if (await CostomDailogs.dialogWithText(
+  //       //       text: 'episode_data_is_being_updated'.tr)) {
+  //       //     // Get.offAll(() => const DataInitialization(),
+  //       //     //     duration: const Duration(seconds: 2),
+  //       //     //     curve: Curves.easeInOut,
+  //       //     //     transition: Transition.fadeIn);
+
+  //       //   } else {
+  //       //     CostomDailogs.warringDialogWithGet(
+  //       //         msg: 'failed_to_upload_changes'.tr);
+  //       //   }
+
+  //     }
+  //   }
 
     // bool result = await CostomDailogs.yesNoDialogWithText(
     //     text: 'new_update_is_available'.tr);
@@ -1054,7 +1145,7 @@ class HomeController extends GetxController {
     // } else {
     //   exit(0);
     // }
-  }
+ // }
 
   addListenLineFromCheck(String typePlanLine, int id, int episodeId,
       ListenLine newListenLine) async {
