@@ -124,8 +124,6 @@ class HomeController extends GetxController {
       await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id!);
       await EdisodesService().deletedEpisode(episode.id!,
           ids: episode.ids, isFromCheck: isFromCheck);
-      await EdisodesService().deletedEpisode(episode.id!,
-          ids: episode.ids, isFromCheck: isFromCheck);
 
       //uplodeToServer
       if (!isFromCheck) {

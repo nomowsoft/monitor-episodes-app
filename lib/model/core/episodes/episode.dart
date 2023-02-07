@@ -32,7 +32,7 @@ class Episode {
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "ids": ids,
+        "ids":ids,
         "display_name": displayName,
         "epsd_type": epsdType,
         "type_episode": epsdType,
@@ -40,10 +40,10 @@ class Episode {
       };
   Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
     return {
-      "name": name,
-      "id": ids,
-      "type_episode": epsdType,
-    };
+        "name": name,
+        "id":ids,
+        "type_episode": epsdType,
+      };
   }
 
   Future<int?> getEpisodeId() async {
