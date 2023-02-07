@@ -957,7 +957,10 @@ class HomeController extends GetxController {
               text: 'episode_data_is_being_updated'.tr)) {
             bool isCompleted = await Get.dialog(cupertino.Builder(
                 builder: (cupertino.BuildContext dialogContext) {
-              changeHalaqat(checkEpisode, dialogContext,);
+              changeHalaqat(
+                checkEpisode,
+                dialogContext,
+              );
               return cupertino.WillPopScope(
                 onWillPop: () async {
                   return false;
@@ -980,7 +983,10 @@ class HomeController extends GetxController {
   }
 
   //change  Halaqat
-  changeHalaqat(CheckEpisode checkEpisode, cupertino.BuildContext buildContext,) async {
+  changeHalaqat(
+    CheckEpisode checkEpisode,
+    cupertino.BuildContext buildContext,
+  ) async {
     final navigator = cupertino.Navigator.of(buildContext);
     bool isCompleted = true;
     if (checkEpisode.deletedHalaqat!.isNotEmpty) {
@@ -999,11 +1005,28 @@ class HomeController extends GetxController {
       try {
         for (NewHalaqat halaqaa in checkEpisode.newHalaqat!) {
           for (Students studetnt in halaqaa.students ?? []) {
+            for (NewWorks newWorks in studetnt.newWorks ?? []) {
+              var lise =
+                  ListenLine.fromJsonServer(newWorks.toJson(), studetnt.id!);
+              addListenLineFromCheck(lise.typeFollow, studetnt.id!, halaqaa.id!,
+                  lise); // var newWorkStudetnt =
+            }
+            for (NewAttendances newAttendances
+                in studetnt.newAttendances ?? []) {
+              setAttendance(halaqaa.id!, studetnt.state!, studetnt.id!,
+                  studentState: StudentState(
+                      studentId: studetnt.id!,
+                      episodeId: halaqaa.id!,
+                      state: newAttendances.status!,
+                      date: newAttendances.datePresence!));
+            }
+
             var studentOfEpisode = StudentOfEpisode(
                 episodeId: halaqaa.id,
                 id: studetnt.id,
                 name: studetnt.name ?? '',
                 state: studetnt.state ?? '');
+
             var planLines =
                 PlanLines(episodeId: halaqaa.id, studentId: studetnt.id);
             if (studetnt.isHifz!) {
@@ -1026,7 +1049,7 @@ class HomeController extends GetxController {
               Episode(
                   displayName: halaqaa.name.toString(),
                   name: halaqaa.name.toString(),
-                  epsdType: halaqaa.typeEpisode.toString(),
+                  epsdType: halaqaa.epsdType.toString(),
                   id: halaqaa.id),
               isFromCheck: true);
         }
@@ -1036,6 +1059,7 @@ class HomeController extends GetxController {
     }
     navigator.pop(isCompleted);
   }
+  //
 
   // Future checkHalaqat() async {
   //   if (await sendToTheServerFunction()) {
@@ -1135,17 +1159,17 @@ class HomeController extends GetxController {
   //     }
   //   }
 
-    // bool result = await CostomDailogs.yesNoDialogWithText(
-    //     text: 'new_update_is_available'.tr);
-    // if (result) {
-    //   Get.offAll(() => const DataInitialization(),
-    //       duration: const Duration(seconds: 2),
-    //       curve: Curves.easeInOut,
-    //       transition: Transition.fadeIn);
-    // } else {
-    //   exit(0);
-    // }
- // }
+  // bool result = await CostomDailogs.yesNoDialogWithText(
+  //     text: 'new_update_is_available'.tr);
+  // if (result) {
+  //   Get.offAll(() => const DataInitialization(),
+  //       duration: const Duration(seconds: 2),
+  //       curve: Curves.easeInOut,
+  //       transition: Transition.fadeIn);
+  // } else {
+  //   exit(0);
+  // }
+  // }
 
   addListenLineFromCheck(String typePlanLine, int id, int episodeId,
       ListenLine newListenLine) async {

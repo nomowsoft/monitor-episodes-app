@@ -85,7 +85,6 @@ class DataSyncController extends GetxController {
           await EdisodesService().setEdisodeLocal(episode, isFromCheck: true);
           for (StudentOfEpisodeFromServer student in episode.students ?? []) {
             PlanLines planLines = PlanLines();
-
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planListen) {
                 await addListenLine(
@@ -187,10 +186,13 @@ class DataSyncController extends GetxController {
         fromAya: newListenLine.fromAya,
         toAya: newListenLine.toAya,
         toSuraName: getSuraName(newListenLine.toSuraId),
-        mistake: 0,mistakes: Mistakes(totalMstkQty: newListenLine.totalMstkQty,totalMstkRead: newListenLine.totalMstkRead));
+        mistake: 0,
+        mistakes: Mistakes(
+            totalMstkQty: newListenLine.totalMstkQty,
+            totalMstkRead: newListenLine.totalMstkRead));
 
     ResponseContent responseContent = ResponseContent();
-    await ListenLineService().setListenLineLocal(listenLine,isFromCheck: true);
+    await ListenLineService().setListenLineLocal(listenLine, isFromCheck: true);
     responseContent = ResponseContent(success: true, statusCode: '200');
     if (responseContent.isSuccess) {
       Educational educational = Educational(
