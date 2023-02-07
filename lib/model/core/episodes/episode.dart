@@ -24,6 +24,11 @@ class Episode {
         epsdType = json['episode_type'] ?? '',
         ids = json['id'] ?? 0,
         name = json['name'] ?? '';
+  Episode.fromServerCheckJson(Map<String, dynamic> json)
+      : displayName = json['name'] ?? '',
+        epsdType = json['type_episode'] ?? '',
+        ids = json['id'] ?? 0,
+        name = json['name'] ?? '';
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -43,6 +48,6 @@ class Episode {
 
   Future<int?> getEpisodeId() async {
     var result = await EdisodesService().getLastEdisodesLocal();
-   return result!.id;
+    return result!.id;
   }
 }
