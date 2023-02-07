@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class StudentState {
-  int? id;
+  int? id ,ids;
   int studentId, episodeId;
   String state, date;
 
@@ -14,13 +14,14 @@ class StudentState {
 
   StudentState.fromJson(Map<String, dynamic> json)
       : id = json['id'],
+      ids = json['ids'],
         studentId = json['student_id'] ?? 0,
         episodeId = json['episode_id'] ?? 0,
         date = json['date'] ?? '',
         state = json['state'] ?? '';
 
   StudentState.fromServerJson(Map<String, dynamic> json,int newStudentId,int newEdisodeId)
-      : id = json['id'],
+      : ids = json['id'],
         date = json['date_presence'] ?? '',
         state = json['status'] ?? '',
         studentId = newStudentId,
@@ -28,6 +29,7 @@ class StudentState {
 
   Map<String, dynamic> toJson() => {
         "id": id,
+        "ids": ids,
         "student_id": studentId,
         "episode_id": episodeId,
         "date": date,
@@ -35,14 +37,14 @@ class StudentState {
       };
 
   Map<String, dynamic> toJsonServer() => {
-        'id': id,
+        'id': ids,
         'student_id': studentId,
         'status': state,
         'date_presence': DateFormat('yyyy-MM-dd').format(DateTime.now()),
       };
 
   StudentState.fromJsonServer(json, {required int episId, required int stuId})
-      : id = json['id'],
+      : ids = json['id'],
         studentId = stuId,
         episodeId = episId,
         date = json['date_presence'],

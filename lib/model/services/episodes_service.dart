@@ -6,6 +6,7 @@ import 'package:monitor_episodes/model/core/shared/status_and_types.dart';
 import 'package:monitor_episodes/model/data/database_helper.dart';
 import 'package:monitor_episodes/model/helper/api_helper.dart';
 import 'package:monitor_episodes/model/helper/end_point.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/episodes/episode_students.dart';
 import '../core/shared/response_content.dart';
@@ -57,15 +58,20 @@ class EdisodesService {
 
   Future<bool> setEdisodeLocal(Episode episode,
       {bool isFromCheck = false}) async {
+    SharedPreferences sharPre = await SharedPreferences.getInstance();
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = episode.toJson();
       await dbHelper.insert(DatabaseHelper.tableEpisode, jsonLocal);
+
       if (!isFromCheck) {
-        var jsonServer = await episode.toJsonServer(isCreate: true);
+        var result = await getLastEdisodesLocal();
+        result!.ids = int.parse('${sharPre.getInt('login_log')}${result.id}');
+        await dbHelper.update(DatabaseHelper.tableEpisode, result.toJson());
+        var jsonServer = await result.toJsonServer(isCreate: true);
         jsonServer.addAll({EpisodeColumns.operation.value: 'create'});
         await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
-       //episodeCrudOperationsRemoately(dbHelper);
+        //episodeCrudOperationsRemoately(dbHelper);
       }
       return true;
     } catch (e) {
@@ -76,14 +82,17 @@ class EdisodesService {
   Future<bool> updateEdisode(Episode episode) async {
     try {
       final dbHelper = DatabaseHelper.instance;
+      var epi = await getEpisode(episode.id!);
+      episode.ids = epi?.ids;
       var jsonLocal = episode.toJson();
 
       await dbHelper.update(DatabaseHelper.tableEpisode, jsonLocal);
       var jsonServer = await episode.toJsonServer();
 
+      // jsonServer['id'] = epi?.ids;
       jsonServer.addAll({EpisodeColumns.operation.value: 'update'});
       await dbHelper.insert(DatabaseHelper.logTableEpisode, jsonServer);
-     // episodeCrudOperationsRemoately(dbHelper);
+      // episodeCrudOperationsRemoately(dbHelper);
       return true;
     } catch (e) {
       return false;
@@ -100,14 +109,19 @@ class EdisodesService {
     }
   }
 
-  Future<bool> deletedEpisode(int episodeId, {bool isFromCheck = false}) async {
+  Future<bool> deletedEpisode(int episodeId,
+      {bool isFromCheck = false, int? ids}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      await dbHelper.delete(DatabaseHelper.tableEpisode, episodeId);
+      if (isFromCheck) {
+        await dbHelper.deleteV1(DatabaseHelper.tableEpisode, ids!);
+      } else {
+        await dbHelper.delete(DatabaseHelper.tableEpisode, episodeId);
+      }
       if (!isFromCheck) {
         await dbHelper.insert(DatabaseHelper.logTableEpisode,
-            {'id': episodeId, EpisodeColumns.operation.value: 'delete'});
-      //  episodeCrudOperationsRemoately(dbHelper);
+            {'id': ids, EpisodeColumns.operation.value: 'delete'});
+        //  episodeCrudOperationsRemoately(dbHelper);
       }
       return true;
     } catch (e) {
@@ -131,12 +145,12 @@ class EdisodesService {
     for (var episode in listOfEpisodes) {
       if (episode['operation'] == 'create') {
         episode.remove('operation');
-       // episode.remove('IDs');
+        // episode.remove('IDs');
 
         listOfEpisodeTypeCreate.add(episode);
       } else if (episode['operation'] == 'update') {
         episode.remove('operation');
-       // episode.remove('IDs');
+        // episode.remove('IDs');
         listOfEpisodeTypeUdate.add(episode);
       } else {
         listOfEpisodeTypeDelete.add({'id': episode['id']});

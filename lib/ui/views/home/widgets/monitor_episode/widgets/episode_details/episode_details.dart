@@ -664,7 +664,10 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                       homeController
                                                           .listStudentsOfEpisode[
                                                               selectIndex]
-                                                          .id!);
+                                                          .id!,ids: homeController
+                                                          .listStudentsOfEpisode[
+                                                              selectIndex]
+                                                          .ids!);
 
                                               if (result) {
                                                 int indexDelete = selectIndex;
@@ -754,7 +757,10 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                       homeController
                                                           .listStudentsOfEpisode[
                                                               selectIndex]
-                                                          .id!);
+                                                          .id!,ids:homeController
+                                                          .listStudentsOfEpisode[
+                                                              selectIndex]
+                                                          .id! );
 
                                               if (result) {
                                                 int indexDelete = selectIndex;
