@@ -159,7 +159,7 @@ class DataSyncController extends GetxController {
                 if (student.studentAttendances.last.date ==
                     DateFormat('yyyy-MM-dd').format(DateTime.now())) {
                   student.state = student.studentAttendances.last.state.tr;
-                   StudentsOfEpisodeService()
+                 await  StudentsOfEpisodeService()
                     .updateStudentsOfEpisodeLocal(student, planLines,isFromSync: true);
                 }
                
