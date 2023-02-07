@@ -7,11 +7,12 @@ import 'package:monitor_episodes/model/core/plan_lines/plan_lines.dart';
 import '../listen_line/listen_line.dart';
 
 class EpisodeStudents extends Episode {
+  
   List<StudentOfEpisodeFromServer>? students;
   EpisodeStudents(
       {required super.displayName,
       required super.epsdType,
-      required super.id,
+      required super.ids,
       required super.name,
       required this.students});
   EpisodeStudents.fromJson(Map<String, dynamic> json)

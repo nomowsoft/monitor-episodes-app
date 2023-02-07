@@ -49,7 +49,11 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-        var value = item.value;
+        List<Map<String, dynamic>> value = item.value;
+        List<int> ids = [];
+        for (var element in value) {
+          ids.add(element['id']);
+        }
         String endPoint = operation == 'create'
             ? EndPoint.createHalaqat
             : operation == 'update'
@@ -66,8 +70,11 @@ class UploadService {
             contentType: ContentTypeHeaders.applicationJson);
 
         if (responsce.isSuccess) {
-          dbHelper.deleteAllWhere(DatabaseHelper.logTableEpisode,
-              EpisodeColumns.operation.value, operation);
+          for (var id in ids) {
+            await dbHelper.delete(DatabaseHelper.logTableEpisode, id);
+          }
+          // dbHelper.deleteAllWhere(DatabaseHelper.logTableEpisode,
+          //     EpisodeColumns.operation.value, operation);
           switch (operation) {
             case 'create':
               create = true;
@@ -154,7 +161,11 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-        var value = item.value;
+        List<Map<String, dynamic>> value = item.value;
+        List<int> ids = [];
+        for (var element in value) {
+          ids.add(element['id']);
+        }
         String endPoint = operation == 'create'
             ? EndPoint.createStudent
             : operation == 'update'
@@ -171,8 +182,11 @@ class UploadService {
             contentType: ContentTypeHeaders.applicationJson);
 
         if (responsce.isSuccess) {
-          dbHelper.deleteAllWhere(DatabaseHelper.logTableStudentOfEpisode,
-              EpisodeColumns.operation.value, operation);
+          for (var id in ids) {
+            dbHelper.delete(DatabaseHelper.logTableStudentOfEpisode, id);
+          }
+          // dbHelper.deleteAllWhere(DatabaseHelper.logTableStudentOfEpisode,
+          //     EpisodeColumns.operation.value, operation);
           switch (operation) {
             case 'create':
               create = true;
@@ -217,6 +231,11 @@ class UploadService {
       DatabaseHelper dbHelper) async {
     if (allStudentAttendanceLogs!.isNotEmpty) {
       try {
+        
+        List<int> ids = [];
+        for (var element in allStudentAttendanceLogs) {
+          ids.add(element['id']);
+        }
         var data = jsonEncode(
           {'data': allStudentAttendanceLogs},
         );
@@ -226,7 +245,10 @@ class UploadService {
             contentType: ContentTypeHeaders.applicationJson);
 
         if (responsce.isSuccess) {
-          dbHelper.deleteAll(DatabaseHelper.logTableStudentState);
+          for (var id in ids) {
+              dbHelper.delete(DatabaseHelper.logTableStudentState,id);
+          }
+          // dbHelper.deleteAll(DatabaseHelper.logTableStudentState);
           return true;
         } else {
           return false;
@@ -256,6 +278,10 @@ class UploadService {
       DatabaseHelper dbHelper) async {
     if (allStudentWorkLogs!.isNotEmpty) {
       try {
+         List<int> ids = [];
+        for (var element in allStudentWorkLogs) {
+          ids.add(element['id']);
+        }
         var data = jsonEncode(
           {'data': allStudentWorkLogs},
         );
@@ -265,7 +291,10 @@ class UploadService {
             contentType: ContentTypeHeaders.applicationJson);
 
         if (responsce.isSuccess) {
-          dbHelper.deleteAll(DatabaseHelper.logTableStudentWork);
+          for (var id in ids) {
+            dbHelper.delete(DatabaseHelper.logTableStudentWork,id);
+          }
+          // dbHelper.deleteAll(DatabaseHelper.logTableStudentWork);
           return true;
         } else {
           return false;

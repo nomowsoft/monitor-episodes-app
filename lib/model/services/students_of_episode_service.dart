@@ -140,6 +140,18 @@ class StudentsOfEpisodeService {
       return false;
     }
   }
+  Future setStudentOfEpisodeForLogin(
+      StudentOfEpisode studentEpisode) async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      var jsonLocal = studentEpisode.toJson();
+        await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
 
   Future updateStudentsOfEpisodeLocal(
       StudentOfEpisode studentEpisode, PlanLines? planLines) async {

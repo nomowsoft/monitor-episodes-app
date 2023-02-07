@@ -188,11 +188,11 @@ class HomeController extends GetxController {
   Future<bool> deleteStudent(int episodeId, int id,
       {int? ids, bool isFromCheck = false}) async {
     try {
-      await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
-      await PlanLinesService().deleteAllPlanLinesOfStudent(id);
-      // Student State
-      await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
-      await ListenLineService().deleteListenLineStudent(id);
+      // await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
+      // await PlanLinesService().deleteAllPlanLinesOfStudent(id);
+      // // Student State
+      // await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
+      // await ListenLineService().deleteListenLineStudent(id);
       await StudentsOfEpisodeService()
           .deleteStudent(id, ids: ids ?? id, isFromCheck: isFromCheck);
       if (!isFromCheck) {
