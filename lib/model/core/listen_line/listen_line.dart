@@ -4,7 +4,7 @@ import 'package:monitor_episodes/model/offline_quran/verses.dart';
 import 'package:monitor_episodes/model/services/listen_line_service.dart';
 
 class ListenLine {
-  int? id;
+  int? id,ids;
   String typeFollow, actualDate;
   int studentId,
       fromSuraId,
@@ -16,6 +16,7 @@ class ListenLine {
 
   ListenLine({
     this.id,
+    this.ids,
     required this.studentId,
     required this.fromSuraId,
     required this.fromAya,
@@ -28,6 +29,7 @@ class ListenLine {
   });
   ListenLine.fromJson(Map<String, dynamic> json)
       : id = json['id'],
+       ids = json['ids'],
         studentId = json['student_id'] ?? 0,
         typeFollow = json['type_follow'] ?? '',
         actualDate = json['actual_date'] ?? '',
@@ -41,7 +43,7 @@ class ListenLine {
   ListenLine.fromJsonServer(
     Map<String, dynamic> json,
     int stuId,
-  )   : id = json['id'],
+  )   : ids = json['id'],
         studentId = stuId,
         typeFollow = getTypeWorkserver(json['type_work']),
         fromSuraId = json['from_sura_id'],
@@ -54,6 +56,7 @@ class ListenLine {
 
   Map<String, dynamic> toJson() => {
         "id": id,
+        "ids": ids,
         "student_id": studentId,
         "type_follow": typeFollow,
         "actual_date": actualDate,
@@ -67,7 +70,7 @@ class ListenLine {
 
   Future<Map<String, dynamic>> toJsonServer() async {
     return {
-      'id': await getListenLineId(),
+      'id': ids,
       'student_id': studentId.toString(),
       'date_listen': actualDate,
       'type_work': getTypeWork(typeFollow),

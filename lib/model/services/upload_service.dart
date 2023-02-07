@@ -135,7 +135,7 @@ class UploadService {
               break;
             case 'delete':
               element.remove('operation');
-              allLogs['delete'].add({'id':element['id']});
+              allLogs['delete'].add({'id': element['id']});
               break;
             default:
           }
@@ -230,7 +230,6 @@ class UploadService {
           return true;
         } else {
           return false;
-          
         }
       } catch (e) {
         print(e);

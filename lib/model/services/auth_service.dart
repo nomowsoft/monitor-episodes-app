@@ -27,6 +27,8 @@ class AuthService {
     if (response.success ?? false) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setInt('teacher_id', response.data['result']['data']['teacher_id']);
+      prefs.setInt('login_log', response.data['result']['data']['login_log']);
+
       prefs.setBool('isLogin', true);
     } else if (response.isBadRequest) {
       response.message = 'BadRequest';

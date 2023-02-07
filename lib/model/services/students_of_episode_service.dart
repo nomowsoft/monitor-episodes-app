@@ -9,6 +9,8 @@ import 'package:monitor_episodes/model/core/episodes/student_of_episode.dart';
 import 'package:monitor_episodes/model/core/episodes/student_state.dart';
 import 'package:monitor_episodes/model/data/database_helper.dart';
 import 'package:intl/intl.dart';
+import 'package:monitor_episodes/model/services/episodes_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/shared/response_content.dart';
 import '../core/shared/status_and_types.dart';
@@ -42,7 +44,7 @@ class StudentsOfEpisodeService {
       return allStudents
               ?.map((val) => StudentState.fromJson(val))
               .toList()
-              .map((e) => e.id)
+              .map((e) => e.ids)
               .toList() ??
           [];
     } catch (e) {
@@ -98,6 +100,8 @@ class StudentsOfEpisodeService {
   Future setStudentOfEpisode(
       StudentOfEpisode studentEpisode, PlanLines planLines,
       {isFromCheck}) async {
+    SharedPreferences sharPre = await SharedPreferences.getInstance();
+
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
@@ -110,7 +114,13 @@ class StudentsOfEpisodeService {
         await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
       } else {
         await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
-        var jsonServer = await studentEpisode.toJsonServer(isCreate: true);
+        var result = await getLastStudentsLocal();
+        result!.ids = int.parse('${sharPre.getInt('login_log')}${result.id}');
+        await dbHelper.update(
+            DatabaseHelper.tableStudentOfEpisode, result.toJson());
+        var epi = await EdisodesService().getEpisode(result.episodeId!);
+        result.episodeId = epi!.ids;
+        var jsonServer = await result.toJsonServer(isCreate: true);
         jsonServer.addAll({
           'is_hifz': isHifz ? 1 : 0,
           'is_tilawa': isTilawa ? 1 : 0,
@@ -135,6 +145,8 @@ class StudentsOfEpisodeService {
       StudentOfEpisode studentEpisode, PlanLines? planLines) async {
     try {
       final dbHelper = DatabaseHelper.instance;
+      var stu = await getStudent(studentEpisode.id!);
+      studentEpisode.ids = stu?.ids;
       var jsonLocal = studentEpisode.toJson();
       await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
 
@@ -175,14 +187,20 @@ class StudentsOfEpisodeService {
     }
   }
 
-  Future<bool> deleteStudent(int id, {bool isFromCheck = false}) async {
+  Future<bool> deleteStudent(int id,
+      {int? ids, bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
-          StudentOfEpisodeColumns.id.value, id);
+      if (isFromCheck) {
+        await dbHelper.deleteV1(DatabaseHelper.tableStudentOfEpisode, ids??id);
+      } else {
+        await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
+            StudentOfEpisodeColumns.id.value, id);
+               await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
+          {'id': ids, EpisodeColumns.operation.value: 'delete'});
+      }
 
-      await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
-          {'id': id, EpisodeColumns.operation.value: 'delete'});
+   
       // studentCrudOperationsRemoately(
       //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
 
@@ -312,6 +330,8 @@ class StudentsOfEpisodeService {
 
   Future setStudentStateLocal(StudentState studentsState,
       {bool isFromCheck = false}) async {
+    SharedPreferences sharPre = await SharedPreferences.getInstance();
+
     try {
       final dbHelper = DatabaseHelper.instance;
       //local
@@ -334,24 +354,27 @@ class StudentsOfEpisodeService {
       await dbHelper.insert(DatabaseHelper.tableStudentState, jsonLocal);
       // server
       if (!isFromCheck) {
-        var jsonServer = studentsState.toJsonServer();
+        var result = await getLastStudentsStateLocal();
+        result!.ids = int.parse('${sharPre.getInt('login_log')}${result.id}');
+        await dbHelper.update(
+            DatabaseHelper.tableStudentState, result.toJson());
+        var epi = await EdisodesService().getEpisode(result.episodeId);
+        result.episodeId = epi!.ids!;
+        var stu = await getStudent(result.studentId);
+        result.studentId = stu!.ids!;
+        var jsonServer = result.toJsonServer();
         var countLog = await dbHelper.queryRowCountWhereAnd(
             DatabaseHelper.logTableStudentState,
             'id',
             'date_presence',
-            studentsState.studentId,
-            studentsState.date);
+            result.studentId,
+            result.date);
         if (countLog != null && countLog > 0) {
-          dbHelper.updateWhereAnd(
-              DatabaseHelper.logTableStudentState,
-              jsonServer,
-              'id',
-              'date_presence',
-              studentsState.studentId,
-              studentsState.date);
+          dbHelper.updateWhereAnd(DatabaseHelper.logTableStudentState,
+              jsonServer, 'id', 'date_presence', result.studentId, result.date);
         } else {
-          var stuState = await getLastStudentsStateLocal();
-          jsonServer['id'] = stuState!.id;
+          // var stuState = await getLastStudentsStateLocal();
+          // jsonServer['id'] = stuState!.id;
           await dbHelper.insert(
               DatabaseHelper.logTableStudentState, jsonServer);
         }
@@ -418,13 +441,14 @@ class StudentsOfEpisodeService {
   }
 
   Future<ResponseContent<dynamic>> checkStudentListenLineAndAttendances(
+      int studentIds,
       int studentId,
       List<int?> worksIds,
       List<int?> attendancesIds,
       int episodeId) async {
     var json = {
       'data': {
-        "student_id": studentId,
+        "student_id": studentIds,
         "works": worksIds,
         'attendances': attendancesIds
       }
