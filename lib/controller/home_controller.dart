@@ -1007,11 +1007,28 @@ class HomeController extends GetxController {
       try {
         for (NewHalaqat halaqaa in checkEpisode.newHalaqat!) {
           for (Students studetnt in halaqaa.students ?? []) {
+            for (NewWorks newWorks in studetnt.newWorks ?? []) {
+              var lise =
+                  ListenLine.fromJsonServer(newWorks.toJson(), studetnt.id!);
+              addListenLineFromCheck(lise.typeFollow, studetnt.id!, halaqaa.id!,
+                  lise); // var newWorkStudetnt =
+            }
+            for (NewAttendances newAttendances
+                in studetnt.newAttendances ?? []) {
+              setAttendance(halaqaa.id!, studetnt.state!, studetnt.id!,
+                  studentState: StudentState(
+                      studentId: studetnt.id!,
+                      episodeId: halaqaa.id!,
+                      state: newAttendances.status!,
+                      date: newAttendances.datePresence!));
+            }
+
             var studentOfEpisode = StudentOfEpisode(
                 episodeId: halaqaa.id,
                 id: studetnt.id,
                 name: studetnt.name ?? '',
                 state: studetnt.state ?? '');
+
             var planLines =
                 PlanLines(episodeId: halaqaa.id, studentId: studetnt.id);
             if (studetnt.isHifz!) {
@@ -1034,7 +1051,7 @@ class HomeController extends GetxController {
               Episode(
                   displayName: halaqaa.name.toString(),
                   name: halaqaa.name.toString(),
-                  epsdType: halaqaa.typeEpisode.toString(),
+                  epsdType: halaqaa.epsdType.toString(),
                   id: halaqaa.id),
               isFromCheck: true);
         }
@@ -1044,6 +1061,7 @@ class HomeController extends GetxController {
     }
     navigator.pop(isCompleted);
   }
+  //
 
   // Future checkHalaqat() async {
   //   if (await sendToTheServerFunction()) {

@@ -129,8 +129,8 @@ class DataSyncController extends GetxController {
             }
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planTlawa) {
-                await addListenLine(
-                    PlanLinesType.tlawa, lastStu!.id!, lastEpi!.id!, planListen);
+                await addListenLine(PlanLinesType.tlawa, lastStu!.id!,
+                    lastEpi!.id!, planListen);
               }
               if (student.studentWorks.planTlawa.isNotEmpty) {
                 planLines.tlawa =

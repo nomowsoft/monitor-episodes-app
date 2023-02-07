@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:monitor_episodes/controller/home_controller.dart';
 import 'package:monitor_episodes/controller/statistics_controller.dart';
-import 'package:monitor_episodes/main.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/ui/shared/utils/custom_dailogs.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/monitor_episodes.dart';
@@ -12,6 +11,7 @@ import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/e
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../model/core/shared/response_content.dart';
+import '../login_screen/login_screen.dart';
 import 'widgets/about_us/about_us.dart';
 
 class Home extends StatefulWidget {
@@ -21,12 +21,12 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-
 class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
@@ -229,23 +229,23 @@ class _HomeState extends State<Home> {
                                 textScaleFactor: SizeConfig.textScaleFactor,
                               ),
                               onTap: () async {
-                                Get.back();
-                                bool result =
-                                    await CostomDailogs.yesNoDialogWithText(
-                                        text:
-                                            'do_you_want_to_logout_and_delete_all_data'
-                                                .tr);
-                                if (result) {
-                                  await homeController.deleteAllEdisodes();
-                                  await homeController.removeTeacherLocal();
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  prefs.setBool('isLogin', false);
-                                  Get.offAll(() => const SplashScreen(),
-                                      duration: const Duration(seconds: 2),
-                                      curve: Curves.easeInOut,
-                                      transition: Transition.fadeIn);
-                                }
+                                // Get.back();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool('isLogin', false);
+                                Get.offAll(() => const LoginScreen(),
+                                    duration: const Duration(seconds: 2),
+                                    curve: Curves.easeInOut,
+                                    transition: Transition.fadeIn);
+                                // bool result =
+                                //     await CostomDailogs.yesNoDialogWithText(
+                                //         text:
+                                //             'do_you_want_to_logout_and_delete_all_data'
+                                //                 .tr);
+                                // if (result) {
+                                //   await homeController.deleteAllEdisodes();
+                                //   await homeController.removeTeacherLocal();
+                                // }
                               },
                             ),
                           ],

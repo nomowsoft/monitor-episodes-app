@@ -251,8 +251,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                               hasWaitAnim = true;
                                               loginErorr = false;
                                             });
-                                            
-                                            Get.off(() => const DataInitialization(),
+
+                                            Get.off(
+                                                () =>
+                                                    const DataInitialization(),
                                                 duration:
                                                     const Duration(seconds: 1),
                                                 curve: Curves.easeInOut,

@@ -52,8 +52,8 @@ class StudentOfEpisodeFromServer extends StudentOfEpisode {
         studentAttendances = (json['student_attendances'] as List)
             .map((e) => StudentState.fromServerJson(e, json['id'], episodeId))
             .toList(),
-        studentWorks = PlanLinesStudent.fromJson(
-            json['student_works'], json['id']),
+        studentWorks =
+            PlanLinesStudent.fromJson(json['student_works'], json['id']),
         super.fromServer(json);
 }
 
@@ -62,15 +62,19 @@ class PlanLinesStudent {
   List<ListenLine> planReviewSmall;
   List<ListenLine> planReviewBig;
   List<ListenLine> planTlawa;
-  PlanLinesStudent({required this.planListen,required this.planReviewSmall,required this.planReviewBig, required this.planTlawa});
-  PlanLinesStudent.fromJson(Map<String, dynamic> json,int studentId)
+  PlanLinesStudent(
+      {required this.planListen,
+      required this.planReviewSmall,
+      required this.planReviewBig,
+      required this.planTlawa});
+  PlanLinesStudent.fromJson(Map<String, dynamic> json, int studentId)
       : planListen = (json['plan_listen'] as List)
             .map((e) => ListenLine.fromJsonServer(e, studentId))
             .toList(),
-        planReviewSmall =(json['plan_review_small'] as List)
+        planReviewSmall = (json['plan_review_small'] as List)
             .map((e) => ListenLine.fromJsonServer(e, studentId))
-            .toList(), 
-        planReviewBig =(json['plan_review_big'] as List)
+            .toList(),
+        planReviewBig = (json['plan_review_big'] as List)
             .map((e) => ListenLine.fromJsonServer(e, studentId))
             .toList(),
         planTlawa = (json['plan_tlawa'] as List)
