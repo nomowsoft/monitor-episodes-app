@@ -148,6 +148,8 @@ class DataSyncController extends GetxController {
             if (student.studentAttendances.isNotEmpty) {
               try {
                 for (var studentsState in student.studentAttendances) {
+                  studentsState.episodeId = lastEpi.id!;
+                  studentsState.studentId = lastStu.id!;
                   await setAttendance(
                       studentsState.episodeId,
                       studentsState.state,
@@ -158,6 +160,8 @@ class DataSyncController extends GetxController {
                     DateFormat('yyyy-MM-dd').format(DateTime.now())) {
                   student.state = student.studentAttendances.last.state.tr;
                 }
+                StudentsOfEpisodeService()
+                    .updateStudentsOfEpisodeLocal(student, planLines);
               } catch (e) {
                 if (kDebugMode) {
                   print(e);
