@@ -3,11 +3,13 @@ import 'package:monitor_episodes/model/services/episodes_service.dart';
 class Episode {
   String displayName;
   int? id;
+  int? ids;
   String name, epsdType;
 
   Episode(
       {required this.displayName,
       this.id,
+      this.ids,
       required this.name,
       required this.epsdType});
 
@@ -15,15 +17,17 @@ class Episode {
       : displayName = json['display_name'] ?? '',
         epsdType = json['epsd_type'] ?? '',
         id = json['id'] ?? 0,
+        ids = json['ids'] ?? 0,
         name = json['name'] ?? '';
   Episode.fromServerJson(Map<String, dynamic> json)
       : displayName = json['name'] ?? '',
         epsdType = json['episode_type'] ?? '',
-        id = json['id'] ?? 0,
+        ids = json['id'] ?? 0,
         name = json['name'] ?? '';
 
   Map<String, dynamic> toJson() => {
         "id": id,
+        "ids":ids,
         "display_name": displayName,
         "epsd_type": epsdType,
         "type_episode": epsdType,
@@ -32,7 +36,7 @@ class Episode {
   Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
     return {
         "name": name,
-        "id":isCreate? await getEpisodeId():id,
+        "id":ids,
         "type_episode": epsdType,
       };
   }

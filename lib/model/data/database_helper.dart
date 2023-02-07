@@ -46,10 +46,11 @@ class DatabaseHelper {
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute(
-        'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT,${EpisodeColumns.typeEpisode.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
+        'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ids INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT,${EpisodeColumns.typeEpisode.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
         ', ${EpisodeColumns.epsdWork.value} TEXT)');
     await db.execute('CREATE TABLE $tableStudentOfEpisode ('
         '${StudentOfEpisodeColumns.id.value} INTEGER PRIMARY KEY,'
+        'ids INTEGER,'
         '${StudentOfEpisodeColumns.age.value} INTEGER,'
         '${StudentOfEpisodeColumns.name.value} TEXT,'
         '${StudentOfEpisodeColumns.state.value} TEXT,'
@@ -71,6 +72,7 @@ class DatabaseHelper {
         ')');
     await db.execute('CREATE TABLE $tableStudentState ('
         'id INTEGER PRIMARY KEY,' 
+         'ids INTEGER,'
         'student_id INTEGER,'
         '${StudentStateColumns.state.value} TEXT,'
         '${StudentStateColumns.date.value} TEXT,'
@@ -78,6 +80,7 @@ class DatabaseHelper {
         ')');
     await db.execute('CREATE TABLE $tableListenLine ('
         'id INTEGER PRIMARY KEY,'
+        'ids INTEGER,'
         'student_id INTEGER,'
         '${ListenLineColumns.typeFollow.value} TEXT,'
         '${ListenLineColumns.actualDate.value} TEXT,'
@@ -240,6 +243,10 @@ class DatabaseHelper {
   Future<int?> delete(tableName, int id) async {
     Database? db = await instance.database;
     return await db?.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
+  }
+   Future<int?> deleteV1(tableName, int ids) async {
+    Database? db = await instance.database;
+    return await db?.delete(tableName, where: 'ids = ?', whereArgs: [ids]);
   }
 
   Future<int?> deleteAll(tableName) async {

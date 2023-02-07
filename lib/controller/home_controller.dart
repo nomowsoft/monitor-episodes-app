@@ -122,8 +122,8 @@ class HomeController extends GetxController {
         }
       }
       await StudentsOfEpisodeService().deleteStudentsOfEpisode(episode.id!);
-      await EdisodesService()
-          .deletedEpisode(episode.id!, isFromCheck: isFromCheck);
+      await EdisodesService().deletedEpisode(episode.id!,
+          ids: episode.ids, isFromCheck: isFromCheck);
 
       //uplodeToServer
       if (!isFromCheck) {
@@ -150,10 +150,10 @@ class HomeController extends GetxController {
     bool studentResult = await StudentsOfEpisodeService().setStudentOfEpisode(
         studentOfEpisode, planLines,
         isFromCheck: isFromCheck);
-    if (!isFromCheck) {
-      var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
-      planLines.studentId = stuId!.id;
-    }
+    //===
+    var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
+    planLines.studentId = stuId!.id;
+    //===
     bool planLinesResult =
         await PlanLinesService().setPlanLinesLocal(planLines);
 
@@ -186,7 +186,7 @@ class HomeController extends GetxController {
   }
 
   Future<bool> deleteStudent(int episodeId, int id,
-      {bool isFromCheck = false}) async {
+      {int? ids, bool isFromCheck = false}) async {
     try {
       await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
       await PlanLinesService().deleteAllPlanLinesOfStudent(id);
@@ -194,7 +194,7 @@ class HomeController extends GetxController {
       await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
       await ListenLineService().deleteListenLineStudent(id);
       await StudentsOfEpisodeService()
-          .deleteStudent(id, isFromCheck: isFromCheck);
+          .deleteStudent(id, ids: ids ?? id, isFromCheck: isFromCheck);
       if (!isFromCheck) {
         //uplodeToServer
         sendToTheServerFunction();
@@ -270,10 +270,11 @@ class HomeController extends GetxController {
           .getListenLinesLocalIdsForStudent(studentId!);
       var attendancesIds =
           await StudentsOfEpisodeService().getStateLocalForStudent(studentId);
+      var stuIds = await StudentsOfEpisodeService().getStudent(studentId);
 
       ResponseContent checkStudentsWorksResponse =
           await StudentsOfEpisodeService().checkStudentListenLineAndAttendances(
-              studentId, worksIds, attendancesIds, episodeId);
+              stuIds!.ids!, studentId, worksIds, attendancesIds, episodeId);
       if (checkStudentsWorksResponse.isSuccess ||
           checkStudentsWorksResponse.isNoContent) {
         CheckStudentsWorkResponce checkWorks = checkStudentsWorksResponse.data;
@@ -317,11 +318,12 @@ class HomeController extends GetxController {
           await StudentsOfEpisodeService()
                   .getStudentsOfEpisodeLocal(episodeId) ??
               [];
+      var epiIds = await EdisodesService().getEpisode(episodeId);
       ResponseContent checkStudentsResponse =
           await StudentsOfEpisodeService().checkStudents(
-        episodeId,
+        epiIds!.ids!,
         listStudentOfEpisode.isNotEmpty
-            ? listStudentOfEpisode.map((e) => e.id ?? 0).toList()
+            ? listStudentOfEpisode.map((e) => e.ids ?? 0).toList()
             : [],
       );
       if (checkStudentsResponse.isSuccess ||
@@ -449,7 +451,7 @@ class HomeController extends GetxController {
         for (var studetnt in checkStudentsResponce.newStudents) {
           var studentOfEpisode = StudentOfEpisode(
               episodeId: episodeId,
-              id: studetnt.id,
+              ids: studetnt.id,
               name: studetnt.name,
               state: studetnt.state);
           var planLines =
@@ -949,7 +951,7 @@ class HomeController extends GetxController {
     if (await sendToTheServerFunction()) {
       var listId = await EdisodesService().getEdisodesLocal();
       ResponseContent checkHalaqatResponse = await CheckEpisodeService()
-          .postCheckhalaqat(listId!.map((e) => e.id ?? 0).toList());
+          .postCheckhalaqat(listId!.map((e) => e.ids ?? 0).toList());
       if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
         CheckEpisode checkEpisode = checkHalaqatResponse.data;
         if (checkEpisode.update!) {
