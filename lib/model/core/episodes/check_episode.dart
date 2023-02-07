@@ -50,13 +50,10 @@ class NewHalaqat extends Episode {
       : students = (json['students'] as List)
             .map((e) => Students.fromJson(e))
             .toList(),
-        super.fromServerJson(json);
+        super.fromServerCheckJson(json);
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = id;
-    data['name'] = name;
-    data['type_episode'] = epsdType;
     if (students != null) {
       data['students'] = students!.map((v) => v.toJson()).toList();
     }

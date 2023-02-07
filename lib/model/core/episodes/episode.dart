@@ -24,10 +24,15 @@ class Episode {
         epsdType = json['episode_type'] ?? '',
         ids = json['id'] ?? 0,
         name = json['name'] ?? '';
+  Episode.fromServerCheckJson(Map<String, dynamic> json)
+      : displayName = json['name'] ?? '',
+        epsdType = json['type_episode'] ?? '',
+        ids = json['id'] ?? 0,
+        name = json['name'] ?? '';
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "ids":ids,
+        "ids": ids,
         "display_name": displayName,
         "epsd_type": epsdType,
         "type_episode": epsdType,
@@ -35,14 +40,14 @@ class Episode {
       };
   Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
     return {
-        "name": name,
-        "id":ids,
-        "type_episode": epsdType,
-      };
+      "name": name,
+      "id": ids,
+      "type_episode": epsdType,
+    };
   }
 
   Future<int?> getEpisodeId() async {
     var result = await EdisodesService().getLastEdisodesLocal();
-   return result!.id;
+    return result!.id;
   }
 }
