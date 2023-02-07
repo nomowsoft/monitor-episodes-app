@@ -49,7 +49,7 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-        List<Map<String, dynamic>> value = item.value;
+        var value = item.value;
         List<int> ids = [];
         for (var element in value) {
           ids.add(element['id']);
@@ -161,7 +161,7 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-        List<Map<String, dynamic>> value = item.value;
+        var value = item.value;
         List<int> ids = [];
         for (var element in value) {
           ids.add(element['id']);
@@ -231,7 +231,6 @@ class UploadService {
       DatabaseHelper dbHelper) async {
     if (allStudentAttendanceLogs!.isNotEmpty) {
       try {
-        
         List<int> ids = [];
         for (var element in allStudentAttendanceLogs) {
           ids.add(element['id']);
@@ -246,7 +245,7 @@ class UploadService {
 
         if (responsce.isSuccess) {
           for (var id in ids) {
-              dbHelper.delete(DatabaseHelper.logTableStudentState,id);
+            dbHelper.delete(DatabaseHelper.logTableStudentState, id);
           }
           // dbHelper.deleteAll(DatabaseHelper.logTableStudentState);
           return true;
@@ -278,7 +277,7 @@ class UploadService {
       DatabaseHelper dbHelper) async {
     if (allStudentWorkLogs!.isNotEmpty) {
       try {
-         List<int> ids = [];
+        List<int> ids = [];
         for (var element in allStudentWorkLogs) {
           ids.add(element['id']);
         }
@@ -292,7 +291,7 @@ class UploadService {
 
         if (responsce.isSuccess) {
           for (var id in ids) {
-            dbHelper.delete(DatabaseHelper.logTableStudentWork,id);
+            dbHelper.delete(DatabaseHelper.logTableStudentWork, id);
           }
           // dbHelper.deleteAll(DatabaseHelper.logTableStudentWork);
           return true;
