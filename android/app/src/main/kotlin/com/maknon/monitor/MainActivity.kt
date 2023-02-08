@@ -1,4 +1,4 @@
-package com.example.monitor_episodes
+package org.maknon.monitor
 
 import io.flutter.embedding.android.FlutterActivity
 
