@@ -209,4 +209,15 @@ class EdisodesService {
       return response;
     }
   }
+
+  Future<bool> deleteAllDatabase() async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      await dbHelper.deletAllDatabase();
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

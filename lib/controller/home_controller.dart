@@ -136,6 +136,10 @@ class HomeController extends GetxController {
     }
   }
 
+  Future deleteDatabase() async {
+    EdisodesService().deleteAllDatabase();
+  }
+
   Future deleteAllEdisodes() async {
     List<Episode>? listEpisodes =
         await EdisodesService().getEdisodesLocal() ?? [];
