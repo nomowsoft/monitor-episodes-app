@@ -1426,7 +1426,10 @@ class HomeController extends GetxController {
 
         return false;
       }
+    } else {
+      return false;
     }
+
     //upload to the server method ===========================================================
   }
 }
