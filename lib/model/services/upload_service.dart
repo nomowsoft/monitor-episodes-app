@@ -49,7 +49,6 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-<<<<<<< HEAD
         if((item.value as List).isEmpty){
           switch (operation) {
             case 'create':
@@ -65,9 +64,6 @@ class UploadService {
           }
           continue;
         }
-=======
-        var value = item.value;
->>>>>>> c0ad8400f6d6d1fc255efdd807fddd16f09d2775
         List<int> ids = [];
         for (var element in item.value as List) {
           ids.add(element['id']);
@@ -180,7 +176,6 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-<<<<<<< HEAD
         //List<Map<String, dynamic>> value = item.value;
          if((item.value as List).isEmpty){
           switch (operation) {
@@ -197,9 +192,6 @@ class UploadService {
           }
           continue;
         }
-=======
-        var value = item.value;
->>>>>>> c0ad8400f6d6d1fc255efdd807fddd16f09d2775
         List<int> ids = [];
         for (var element in item.value as List) {
           ids.add(element['id']);
