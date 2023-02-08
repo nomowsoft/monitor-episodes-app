@@ -49,9 +49,23 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-        List<Map<String, dynamic>> value = item.value;
+        if((item.value as List).isEmpty){
+          switch (operation) {
+            case 'create':
+              create = true;
+              break;
+            case 'update':
+              update = true;
+              break;
+            case 'delete':
+              delete = true;
+              break;
+            default:
+          }
+          continue;
+        }
         List<int> ids = [];
-        for (var element in value) {
+        for (var element in item.value as List) {
           ids.add(element['id']);
         }
         String endPoint = operation == 'create'
@@ -63,7 +77,7 @@ class UploadService {
                     : '';
 
         var data = jsonEncode(
-          {'data': value},
+          {'data': item.value},
         );
         var responsce = await ApiHelper().postV2(endPoint, data,
             linkApi: "http://rased-api.maknon.org.sa",
@@ -71,7 +85,8 @@ class UploadService {
 
         if (responsce.isSuccess) {
           for (var id in ids) {
-            await dbHelper.delete(DatabaseHelper.logTableEpisode, id);
+           int? result = await dbHelper.delete(DatabaseHelper.logTableEpisode, id);
+           print(result);
           }
           // dbHelper.deleteAllWhere(DatabaseHelper.logTableEpisode,
           //     EpisodeColumns.operation.value, operation);
@@ -161,9 +176,24 @@ class UploadService {
       bool create = false, update = false, delete = false;
       for (var item in allLogs.entries) {
         String operation = item.key;
-        List<Map<String, dynamic>> value = item.value;
+        //List<Map<String, dynamic>> value = item.value;
+         if((item.value as List).isEmpty){
+          switch (operation) {
+            case 'create':
+              create = true;
+              break;
+            case 'update':
+              update = true;
+              break;
+            case 'delete':
+              delete = true;
+              break;
+            default:
+          }
+          continue;
+        }
         List<int> ids = [];
-        for (var element in value) {
+        for (var element in item.value as List) {
           ids.add(element['id']);
         }
         String endPoint = operation == 'create'
@@ -175,7 +205,7 @@ class UploadService {
                     : '';
 
         var data = jsonEncode(
-          {'data': value},
+          {'data': item.value},
         );
         var responsce = await ApiHelper().postV2(endPoint, data,
             linkApi: "http://rased-api.maknon.org.sa",
