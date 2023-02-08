@@ -38,6 +38,7 @@ import '../ui/views/home/home.dart';
 import 'data_sync_controller.dart';
 
 class HomeController extends GetxController {
+  bool _isUpload = false;
   int _currentPageIndex = 1;
   int _currentIndex = 1;
   TeacherModel? _teacher;
@@ -58,6 +59,7 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
+  //  sendToTheServerFunction();
   }
 
   initFilds() {
@@ -1344,6 +1346,8 @@ class HomeController extends GetxController {
   }
 
   // setter
+  set isUpload(bool value) => {_isUpload = value, update()};
+
   set currentIndex(int index) => {_currentIndex = index, update()};
   set currentPageIndex(int index) => {_currentPageIndex = index, update()};
   set gettingEpisodes(bool val) => {_gettingEpisodes = val, update()};
@@ -1355,6 +1359,8 @@ class HomeController extends GetxController {
 
   //geter
   int get currentIndex => _currentIndex;
+  bool get isUpload => _isUpload;
+
   int get currentPageIndex => _currentPageIndex;
   TeacherModel? get teacher => _teacher;
   bool get gettingEpisodes => _gettingEpisodes;
@@ -1366,55 +1372,64 @@ class HomeController extends GetxController {
 
   //upload to the server method ===========================================================
   Future sendToTheServerFunction() async {
-    late bool isCompleteEpisodeOperation,
-        isCompleteStudentOperation,
-        isCompleteStudentAttendance,
-        isCompleteStudentWork;
-    final dbHelper = DatabaseHelper.instance;
-    // get episode logs
-    var allEpisodeLogs =
-        await UploadService().getOperationOfEpisodeLogs(dbHelper);
-    // upload episode
-    isCompleteEpisodeOperation =
-        await UploadService().uploadEpisode(allEpisodeLogs, dbHelper);
+    if (!isUpload) {
+      isUpload = true;
+      late bool isCompleteEpisodeOperation,
+          isCompleteStudentOperation,
+          isCompleteStudentAttendance,
+          isCompleteStudentWork;
+      final dbHelper = DatabaseHelper.instance;
+      // get episode logs
+      var allEpisodeLogs =
+          await UploadService().getOperationOfEpisodeLogs(dbHelper);
+      // upload episode
+      isCompleteEpisodeOperation =
+          await UploadService().uploadEpisode(allEpisodeLogs, dbHelper);
 
-    if (isCompleteEpisodeOperation) {
-      // get student logs
-      var allStudentLogs =
-          await UploadService().getOperationOfStudentLogs(dbHelper);
-      // upload student
-      isCompleteStudentOperation =
-          await UploadService().uploadStudent(allStudentLogs, dbHelper);
+      if (isCompleteEpisodeOperation) {
+        // get student logs
+        var allStudentLogs =
+            await UploadService().getOperationOfStudentLogs(dbHelper);
+        // upload student
+        isCompleteStudentOperation =
+            await UploadService().uploadStudent(allStudentLogs, dbHelper);
 
-      if (isCompleteStudentOperation) {
-        // get student Attendance logs
-        var allStudentAttendanceLogs =
-            await UploadService().getStudentAttendanceLogs(dbHelper);
-        // upload student Attendance
-        isCompleteStudentAttendance = await UploadService()
-            .uploadStudentAttendance(allStudentAttendanceLogs, dbHelper);
+        if (isCompleteStudentOperation) {
+          // get student Attendance logs
+          var allStudentAttendanceLogs =
+              await UploadService().getStudentAttendanceLogs(dbHelper);
+          // upload student Attendance
+          isCompleteStudentAttendance = await UploadService()
+              .uploadStudentAttendance(allStudentAttendanceLogs, dbHelper);
 
-        if (isCompleteStudentAttendance) {
-          // get student Work logs
+          if (isCompleteStudentAttendance) {
+            // get student Work logs
 
-          var allStudentWorkLogs =
-              await UploadService().getStudentWorkLogs(dbHelper);
-          // upload student Work
-          isCompleteStudentWork = await UploadService()
-              .uploadStudentWork(allStudentWorkLogs, dbHelper);
+            var allStudentWorkLogs =
+                await UploadService().getStudentWorkLogs(dbHelper);
+            // upload student Work
+            isCompleteStudentWork = await UploadService()
+                .uploadStudentWork(allStudentWorkLogs, dbHelper);
+          }
         }
       }
-    }
 
-    if (isCompleteEpisodeOperation &&
-        isCompleteStudentOperation &&
-        isCompleteStudentAttendance &&
-        isCompleteStudentWork) {
-      return true;
+      if (isCompleteEpisodeOperation &&
+          isCompleteStudentOperation &&
+          isCompleteStudentAttendance &&
+          isCompleteStudentWork) {
+        isUpload = false;
+
+        return true;
+      } else {
+        isUpload = false;
+
+        return false;
+      }
     } else {
       return false;
     }
-  }
-  //upload to the server method ===========================================================
 
+    //upload to the server method ===========================================================
+  }
 }
