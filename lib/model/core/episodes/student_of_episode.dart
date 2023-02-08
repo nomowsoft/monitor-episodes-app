@@ -31,7 +31,7 @@ class StudentOfEpisode {
         country = json['country'],
         episodeId = json['episode_id'] is int ? json['episode_id'] : null;
 
-  StudentOfEpisode.fromServer(Map<String, dynamic> json)
+  StudentOfEpisode.fromServer(Map<String, dynamic> json,)
       : age = json['age'],
         ids = json['id'],
         name = json['name'],

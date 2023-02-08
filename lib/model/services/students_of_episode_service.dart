@@ -140,16 +140,32 @@ class StudentsOfEpisodeService {
       return false;
     }
   }
-
-  Future updateStudentsOfEpisodeLocal(
-      StudentOfEpisode studentEpisode, PlanLines? planLines) async {
+  Future setStudentOfEpisodeForLogin(
+      StudentOfEpisode studentEpisode) async {
     try {
       final dbHelper = DatabaseHelper.instance;
+      var jsonLocal = studentEpisode.toJson();
+        await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future updateStudentsOfEpisodeLocal(
+      StudentOfEpisode studentEpisode, PlanLines? planLines,{bool isFromSync = false}) async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      var jsonLocal = studentEpisode.toJson();
+
+      if(isFromSync){
+      await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      
+      }else{
       var stu = await getStudent(studentEpisode.id!);
       studentEpisode.ids = stu?.ids;
-      var jsonLocal = studentEpisode.toJson();
       await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
-
       if (planLines != null) {
         var jsonServer = await studentEpisode.toJsonServer();
         bool isHifz = planLines.listen != null;
@@ -169,6 +185,8 @@ class StudentsOfEpisodeService {
         // studentCrudOperationsRemoately(
         //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
       }
+      }
+
 
       return true;
     } catch (e) {

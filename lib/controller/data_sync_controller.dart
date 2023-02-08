@@ -83,12 +83,18 @@ class DataSyncController extends GetxController {
       if (listEpisodes.isNotEmpty) {
         for (var episode in listEpisodes) {
           await EdisodesService().setEdisodeLocal(episode, isFromCheck: true);
+          var lastEpi = await EdisodesService().getLastEdisodesLocal();
           for (StudentOfEpisodeFromServer student in episode.students ?? []) {
             PlanLines planLines = PlanLines();
+            bool studentResult = await StudentsOfEpisodeService()
+                .setStudentOfEpisodeForLogin(student);
+            var lastStu =
+                await StudentsOfEpisodeService().getLastStudentsLocal();
+
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planListen) {
-                await addListenLine(
-                    PlanLinesType.listen, student.id!, episode.id!, planListen);
+                await addListenLine(PlanLinesType.listen, lastStu!.id!,
+                    lastEpi!.id!, planListen);
               }
               if (student.studentWorks.planListen.isNotEmpty) {
                 planLines.listen =
@@ -99,8 +105,8 @@ class DataSyncController extends GetxController {
             }
             if (student.isSmallReview) {
               for (var planListen in student.studentWorks.planReviewSmall) {
-                await addListenLine(PlanLinesType.reviewsmall, student.id!,
-                    episode.id!, planListen);
+                await addListenLine(PlanLinesType.reviewsmall, lastStu!.id!,
+                    lastEpi!.id!, planListen);
               }
               if (student.studentWorks.planReviewSmall.isNotEmpty) {
                 planLines.reviewsmall =
@@ -111,8 +117,8 @@ class DataSyncController extends GetxController {
             }
             if (student.isBigReview) {
               for (var planListen in student.studentWorks.planReviewBig) {
-                await addListenLine(PlanLinesType.reviewbig, student.id!,
-                    episode.id!, planListen);
+                await addListenLine(PlanLinesType.reviewbig, lastStu!.id!,
+                    lastEpi!.id!, planListen);
               }
               if (student.studentWorks.planReviewBig.isNotEmpty) {
                 planLines.reviewbig =
@@ -123,8 +129,8 @@ class DataSyncController extends GetxController {
             }
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planTlawa) {
-                await addListenLine(
-                    PlanLinesType.tlawa, student.id!, episode.id!, planListen);
+                await addListenLine(PlanLinesType.tlawa, lastStu!.id!,
+                    lastEpi!.id!, planListen);
               }
               if (student.studentWorks.planTlawa.isNotEmpty) {
                 planLines.tlawa =
@@ -133,13 +139,17 @@ class DataSyncController extends GetxController {
                 planLines.tlawa = PlanLine.fromDefault();
               }
             }
-            planLines.episodeId = episode.id!;
-            planLines.studentId = student.id!;
+            planLines.episodeId = lastEpi!.id!;
+            planLines.studentId = lastStu!.id!;
+            bool planLinesResult =
+                await PlanLinesService().setPlanLinesLocal(planLines);
 
             ///
             if (student.studentAttendances.isNotEmpty) {
               try {
                 for (var studentsState in student.studentAttendances) {
+                  studentsState.episodeId = lastEpi.id!;
+                  studentsState.studentId = lastStu.id!;
                   await setAttendance(
                       studentsState.episodeId,
                       studentsState.state,
@@ -149,15 +159,16 @@ class DataSyncController extends GetxController {
                 if (student.studentAttendances.last.date ==
                     DateFormat('yyyy-MM-dd').format(DateTime.now())) {
                   student.state = student.studentAttendances.last.state.tr;
+                 await  StudentsOfEpisodeService()
+                    .updateStudentsOfEpisodeLocal(student, planLines,isFromSync: true);
                 }
+               
               } catch (e) {
                 if (kDebugMode) {
                   print(e);
                 }
               }
             }
-
-            await addStudent(student, planLines, episode.id!);
           }
         }
       }
@@ -170,7 +181,7 @@ class DataSyncController extends GetxController {
       PlanLines planLines, int episodeId) async {
     studentOfEpisode.episodeId = episodeId;
     bool studentResult = await StudentsOfEpisodeService()
-        .setStudentOfEpisode(studentOfEpisode, planLines, isFromCheck: true);
+        .setStudentOfEpisodeForLogin(studentOfEpisode);
     bool planLinesResult =
         await PlanLinesService().setPlanLinesLocal(planLines);
     return studentResult && planLinesResult;
@@ -181,6 +192,7 @@ class DataSyncController extends GetxController {
     late PlanLine planLine;
     late ListenLine listenLine;
     listenLine = newListenLine;
+    listenLine.studentId = id;
     planLine = PlanLine(
         fromSuraName: getSuraName(newListenLine.fromSuraId),
         fromAya: newListenLine.fromAya,
