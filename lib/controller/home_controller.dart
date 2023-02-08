@@ -59,7 +59,7 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
-  //  sendToTheServerFunction();
+    //  sendToTheServerFunction();
   }
 
   initFilds() {
@@ -349,13 +349,19 @@ class HomeController extends GetxController {
           await StudentsOfEpisodeService()
                   .getStudentsOfEpisodeLocal(episodeId) ??
               [];
+      var listLogids =
+          await StudentsOfEpisodeService().getLogStudentsOfEpisodeLocal();
+      var listIds = <int>[
+        ...listStudentOfEpisode.isNotEmpty
+            ? listStudentOfEpisode.map((e) => e.ids ?? 0).toList()
+            : [],
+        ...listLogids
+      ];
       var epiIds = await EdisodesService().getEpisode(episodeId);
       ResponseContent checkStudentsResponse =
           await StudentsOfEpisodeService().checkStudents(
         epiIds!.ids!,
-        listStudentOfEpisode.isNotEmpty
-            ? listStudentOfEpisode.map((e) => e.ids ?? 0).toList()
-            : [],
+        listIds,
       );
       if (checkStudentsResponse.isSuccess ||
           checkStudentsResponse.isNoContent) {
@@ -983,8 +989,11 @@ class HomeController extends GetxController {
   Future checkHalaqat() async {
     if (await sendToTheServerFunction()) {
       var listId = await EdisodesService().getEdisodesLocal();
-      ResponseContent checkHalaqatResponse = await CheckEpisodeService()
-          .postCheckhalaqat(listId!.map((e) => e.ids ?? 0).toList());
+      var listIdLog = await EdisodesService().getLogEdisodesLocal();
+
+      var listIds = [...listId!.map((e) => e.ids ?? 0).toList(), ...listIdLog];
+      ResponseContent checkHalaqatResponse =
+          await CheckEpisodeService().postCheckhalaqat(listIds);
       if (checkHalaqatResponse.isSuccess || checkHalaqatResponse.isNoContent) {
         CheckEpisode checkEpisode = checkHalaqatResponse.data;
         if (checkEpisode.update!) {
@@ -1346,7 +1355,10 @@ class HomeController extends GetxController {
   }
 
   // setter
-  set isUpload(bool value) => {_isUpload = value, update()};
+  set isUpload(bool value) => {
+        _isUpload = value,
+        //  update()
+      };
 
   set currentIndex(int index) => {_currentIndex = index, update()};
   set currentPageIndex(int index) => {_currentPageIndex = index, update()};
