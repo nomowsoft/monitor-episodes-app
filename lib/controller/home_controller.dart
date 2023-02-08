@@ -59,7 +59,7 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
-    sendToTheServerFunction();
+  //  sendToTheServerFunction();
   }
 
   initFilds() {
