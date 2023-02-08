@@ -141,7 +141,7 @@ class DataSyncController extends GetxController {
               }
             }
             planLines.episodeId = lastEpi.id!;
-            planLines.studentId = lastStu!.id!;
+            planLines.studentId = lastStu.id!;
             bool planLinesResult =
                 await PlanLinesService().setPlanLinesLocal(planLines);
 
