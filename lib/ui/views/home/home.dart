@@ -234,7 +234,6 @@ class _HomeState extends State<Home> {
                                     await SharedPreferences.getInstance();
                                 prefs.setBool('isLogin', false);
                                 await homeController.deleteDatabase();
-
                                 Get.offAll(() => const LoginScreen(),
                                     duration: const Duration(seconds: 2),
                                     curve: Curves.easeInOut,

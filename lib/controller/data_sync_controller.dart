@@ -160,9 +160,10 @@ class DataSyncController extends GetxController {
                 if (student.studentAttendances.any((element) =>
                     element.date ==
                     DateFormat('yyyy-MM-dd').format(DateTime.now()))) {
-                  var lastAttendance = student.studentAttendances.firstWhere((element) =>
-                      element.date ==
-                      DateFormat('yyyy-MM-dd').format(DateTime.now()));
+                  var lastAttendance = student.studentAttendances.firstWhere(
+                      (element) =>
+                          element.date ==
+                          DateFormat('yyyy-MM-dd').format(DateTime.now()));
                   student.state = lastAttendance.state.tr;
                   student.stateDate =
                       DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -170,8 +171,6 @@ class DataSyncController extends GetxController {
                       student, planLines,
                       isFromSync: true);
                 }
-                 
-                
               } catch (e) {
                 if (kDebugMode) {
                   print(e);

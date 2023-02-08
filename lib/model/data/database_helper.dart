@@ -271,8 +271,18 @@ class DatabaseHelper {
   }
 
   Future deletAllDatabase() async {
-    String path = p.join(await getDatabasesPath(), "maknoon.db");
-    await File(path).delete();
+    // String path = p.join(await getDatabasesPath(), "maknoon.db");
+    // await File(path).delete();
+    await deleteAll(logTableStudentWork);
+    await deleteAll(tableStudentOfEpisode);
+    await deleteAll(tablePlanLines);
+    await deleteAll(tableListenLine);
+    await deleteAll(tableEducationalPlan);
+    await deleteAll(tableStudentState);
+    await deleteAll(logTableStudentState);
+    await deleteAll(logTableStudentOfEpisode);
+    await deleteAll(logTableEpisode);
+    await deleteAll(tableEpisode);
 
 // await deleteDatabase(path);
   }
