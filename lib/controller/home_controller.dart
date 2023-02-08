@@ -102,6 +102,31 @@ class HomeController extends GetxController {
     return result;
   }
 
+  // check student in deleteEdisode
+
+  Future<bool?> checkStudentInEpisode(int id) async {
+    try {
+      var x = await StudentsOfEpisodeService().getStudentsOfEpisodeLocal(id);
+
+      if (x!.isNotEmpty) return true;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // check plinLine stedent
+  Future<bool?> checkPlineLine(int idStudent) async {
+    try {
+      var x =
+          await ListenLineService().getListenLinesLocalIdsForStudent(idStudent);
+      if (x.isNotEmpty) return true;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> deleteEdisode(Episode episode,
       {bool isFromCheck = false}) async {
     try {

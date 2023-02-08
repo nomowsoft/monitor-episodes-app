@@ -210,5 +210,6 @@ Map<String, String> translateArabic = {
   "episode_data_is_being_updated":
       "تم تحديث بيانات الحلقات في النظام.\n الرجاء الضغط على ( مزامنة ) لعكس التحديثات في التطبيق.",
   "sync": "مزامنة",
-  "": "",
+  "the_student_cannot_be_deleted_because_it_is_linked_to_a_memorization_plan":
+      "لايمكن حذف الطالب لانه مربوط بخطة حفظ أو مراجعة",
 };

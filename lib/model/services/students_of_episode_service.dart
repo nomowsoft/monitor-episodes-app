@@ -140,12 +140,12 @@ class StudentsOfEpisodeService {
       return false;
     }
   }
-  Future setStudentOfEpisodeForLogin(
-      StudentOfEpisode studentEpisode) async {
+
+  Future setStudentOfEpisodeForLogin(StudentOfEpisode studentEpisode) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
-        await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
       return true;
     } catch (e) {
       print(e);
@@ -154,39 +154,38 @@ class StudentsOfEpisodeService {
   }
 
   Future updateStudentsOfEpisodeLocal(
-      StudentOfEpisode studentEpisode, PlanLines? planLines,{bool isFromSync = false}) async {
+      StudentOfEpisode studentEpisode, PlanLines? planLines,
+      {bool isFromSync = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
 
-      if(isFromSync){
-      await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
-      
-      }else{
-      var stu = await getStudent(studentEpisode.id!);
-      studentEpisode.ids = stu?.ids;
-      await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
-      if (planLines != null) {
-        var jsonServer = await studentEpisode.toJsonServer();
-        bool isHifz = planLines.listen != null;
-        bool isTilawa = planLines.tlawa != null;
-        bool isBigReview = planLines.reviewbig != null;
-        bool isSmalleview = planLines.reviewsmall != null;
+      if (isFromSync) {
+        await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      } else {
+        var stu = await getStudent(studentEpisode.id!);
+        studentEpisode.ids = stu?.ids;
+        await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+        if (planLines != null) {
+          var jsonServer = await studentEpisode.toJsonServer();
+          bool isHifz = planLines.listen != null;
+          bool isTilawa = planLines.tlawa != null;
+          bool isBigReview = planLines.reviewbig != null;
+          bool isSmalleview = planLines.reviewsmall != null;
 
-        jsonServer.addAll({
-          'is_hifz': isHifz ? 1 : 0,
-          'is_tilawa': isTilawa ? 1 : 0,
-          'is_big_review': isBigReview ? 1 : 0,
-          'is_small_review': isSmalleview ? 1 : 0,
-          EpisodeColumns.operation.value: 'update'
-        });
-        await dbHelper.insert(
-            DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-        // studentCrudOperationsRemoately(
-        //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+          jsonServer.addAll({
+            'is_hifz': isHifz ? 1 : 0,
+            'is_tilawa': isTilawa ? 1 : 0,
+            'is_big_review': isBigReview ? 1 : 0,
+            'is_small_review': isSmalleview ? 1 : 0,
+            EpisodeColumns.operation.value: 'update'
+          });
+          await dbHelper.insert(
+              DatabaseHelper.logTableStudentOfEpisode, jsonServer);
+          // studentCrudOperationsRemoately(
+          //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+        }
       }
-      }
-
 
       return true;
     } catch (e) {
@@ -210,15 +209,15 @@ class StudentsOfEpisodeService {
     try {
       final dbHelper = DatabaseHelper.instance;
       if (isFromCheck) {
-        await dbHelper.deleteV1(DatabaseHelper.tableStudentOfEpisode, ids??id);
+        await dbHelper.deleteV1(
+            DatabaseHelper.tableStudentOfEpisode, ids ?? id);
       } else {
         await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
             StudentOfEpisodeColumns.id.value, id);
-               await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
-          {'id': ids, EpisodeColumns.operation.value: 'delete'});
+        await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
+            {'id': ids, EpisodeColumns.operation.value: 'delete'});
       }
 
-   
       // studentCrudOperationsRemoately(
       //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
 
