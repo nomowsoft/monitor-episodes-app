@@ -974,7 +974,7 @@ class HomeController extends GetxController {
     } else if (PlanLinesType.tlawa == typePlanLine) {
       return 'tlawa';
     }
-    return '';
+    return typePlanLine;
   }
 
   //Check halaqat
@@ -1050,10 +1050,10 @@ class HomeController extends GetxController {
                 ids: studetnt.id,
                 name: studetnt.name ?? '',
                 state: studetnt.state ?? '');
-    
+
             isCompleted = await StudentsOfEpisodeService()
                 .setStudentOfEpisodeForLogin(studentOfEpisode);
-                
+
             var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
 
             List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
@@ -1085,22 +1085,27 @@ class HomeController extends GetxController {
             planLines.episodeId = epiId.id!;
             planLines.studentId = stuId!.id!;
             if (studetnt.isHifz!) {
-              planLines.listen = hifz.isNotEmpty
+              planLines.listen = hifz.isEmpty
                   ? PlanLine.fromDefault()
                   : getPlanLine(hifz.last);
             }
-            if (morajaS.isNotEmpty) {
-              planLines.reviewsmall = getPlanLine(morajaS.last);
+            if (studetnt.isSmallReview!) {
+              planLines.reviewsmall = morajaS.isEmpty
+                  ? PlanLine.fromDefault()
+                  : getPlanLine(morajaS.last);
             }
-            if (morajaB.isNotEmpty) {
-              planLines.reviewbig = getPlanLine(morajaB.last);
+            if (studetnt.isBigReview!) {
+              planLines.reviewbig = morajaB.isEmpty
+                  ? PlanLine.fromDefault()
+                  : getPlanLine(morajaB.last);
             }
-            if (tilawa.isNotEmpty) {
-              planLines.tlawa = getPlanLine(tilawa.last);
+            if (studetnt.isTilawa!) {
+              planLines.tlawa = tilawa.isEmpty
+                  ? PlanLine.fromDefault()
+                  : getPlanLine(tilawa.last);
             }
 
             await PlanLinesService().setPlanLinesLocal(planLines);
-
 
             // add  new Attendances
             if (studetnt.newAttendances!.isNotEmpty) {
@@ -1108,6 +1113,7 @@ class HomeController extends GetxController {
                   in studetnt.newAttendances ?? []) {
                 setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
                     studentState: StudentState(
+                        ids: newAttendances.id,
                         studentId: stuId.id!,
                         episodeId: epiId.id!,
                         state: newAttendances.status!,
@@ -1123,8 +1129,9 @@ class HomeController extends GetxController {
                 studentOfEpisode.state = lastAttendance.status!.tr;
                 studentOfEpisode.stateDate =
                     DateFormat('yyyy-MM-dd').format(DateTime.now());
+                studentOfEpisode.id = stuId.id;
                 await StudentsOfEpisodeService().updateStudentsOfEpisodeLocal(
-                    stuId, planLines,
+                    studentOfEpisode, planLines,
                     isFromSync: true);
               }
             }

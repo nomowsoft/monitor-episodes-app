@@ -6,6 +6,7 @@ class StudentState {
   String state, date;
 
   StudentState({
+    this.ids,
     required this.studentId,
     required this.episodeId,
     required this.state,
