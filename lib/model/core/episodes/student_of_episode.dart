@@ -3,11 +3,12 @@ import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 
 class StudentOfEpisode {
-  int? age, id, episodeId;
+  int? age, id,ids, episodeId;
   String name, state, stateDate, phone, address, gender, country;
   StudentOfEpisode(
       {this.age,
       this.id,
+      this.ids,
       required this.episodeId,
       this.name = '',
       this.state = '',
@@ -20,6 +21,7 @@ class StudentOfEpisode {
   StudentOfEpisode.fromJsonLocal(Map<String, dynamic> json)
       : age = json['age'],
         id = json['id'],
+        ids = json['ids'],
         name = json['name'],
         state = json['state'],
         stateDate = json['state_date'],
@@ -29,9 +31,9 @@ class StudentOfEpisode {
         country = json['country'],
         episodeId = json['episode_id'] is int ? json['episode_id'] : null;
 
-  StudentOfEpisode.fromServer(Map<String, dynamic> json)
+  StudentOfEpisode.fromServer(Map<String, dynamic> json,)
       : age = json['age'],
-        id = json['id'],
+        ids = json['id'],
         name = json['name'],
         state = json['state']?? "تحضير الطالب",
         stateDate = json['state_date']??DateFormat('yyyy-MM-dd').format(DateTime.now()),
@@ -44,6 +46,7 @@ class StudentOfEpisode {
   Map<String, dynamic> toJson() => {
         "age": age ?? 0,
         "id": id,
+        'ids':ids,
         "name": name,
         "state": state,
         "gender": gender,
@@ -58,7 +61,7 @@ class StudentOfEpisode {
   Future<Map<String, dynamic>> toJsonServer({bool isCreate = false}) async {
     return {
       'name': name,
-      'id': isCreate ? await getStudentId() : id,
+      'id': ids,
       'halaqa_id': episodeId.toString(),
       'mobile': phone,
       'gender': gender,

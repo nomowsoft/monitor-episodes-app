@@ -131,8 +131,9 @@ class _ItemEpisodeState extends State<ItemEpisode> {
                                     '${'do_you_want_delete'.tr} ${widget.episode.name}')) {
                               HomeController homeController =
                                   Get.find<HomeController>();
-                              if (homeController
-                                  .listStudentsOfEpisode.isNotEmpty) {
+                              var i = widget.episode.id;
+                              if (await homeController.checkStudentInEpisode(i!)==true
+                                  ) {
                                 CostomDailogs.snackBar(
                                     response: ResponseContent(
                                         statusCode: '0',

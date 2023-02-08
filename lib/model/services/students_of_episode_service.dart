@@ -9,6 +9,8 @@ import 'package:monitor_episodes/model/core/episodes/student_of_episode.dart';
 import 'package:monitor_episodes/model/core/episodes/student_state.dart';
 import 'package:monitor_episodes/model/data/database_helper.dart';
 import 'package:intl/intl.dart';
+import 'package:monitor_episodes/model/services/episodes_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/shared/response_content.dart';
 import '../core/shared/status_and_types.dart';
@@ -42,7 +44,7 @@ class StudentsOfEpisodeService {
       return allStudents
               ?.map((val) => StudentState.fromJson(val))
               .toList()
-              .map((e) => e.id)
+              .map((e) => e.ids)
               .toList() ??
           [];
     } catch (e) {
@@ -98,6 +100,8 @@ class StudentsOfEpisodeService {
   Future setStudentOfEpisode(
       StudentOfEpisode studentEpisode, PlanLines planLines,
       {isFromCheck}) async {
+    SharedPreferences sharPre = await SharedPreferences.getInstance();
+
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
@@ -110,7 +114,13 @@ class StudentsOfEpisodeService {
         await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
       } else {
         await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
-        var jsonServer = await studentEpisode.toJsonServer(isCreate: true);
+        var result = await getLastStudentsLocal();
+        result!.ids = int.parse('${sharPre.getInt('login_log')}${result.id}');
+        await dbHelper.update(
+            DatabaseHelper.tableStudentOfEpisode, result.toJson());
+        var epi = await EdisodesService().getEpisode(result.episodeId!);
+        result.episodeId = epi!.ids;
+        var jsonServer = await result.toJsonServer(isCreate: true);
         jsonServer.addAll({
           'is_hifz': isHifz ? 1 : 0,
           'is_tilawa': isTilawa ? 1 : 0,
@@ -131,31 +141,50 @@ class StudentsOfEpisodeService {
     }
   }
 
-  Future updateStudentsOfEpisodeLocal(
-      StudentOfEpisode studentEpisode, PlanLines? planLines) async {
+  Future setStudentOfEpisodeForLogin(StudentOfEpisode studentEpisode) async {
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = studentEpisode.toJson();
-      await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      await dbHelper.insert(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
 
-      if (planLines != null) {
-        var jsonServer = await studentEpisode.toJsonServer();
-        bool isHifz = planLines.listen != null;
-        bool isTilawa = planLines.tlawa != null;
-        bool isBigReview = planLines.reviewbig != null;
-        bool isSmalleview = planLines.reviewsmall != null;
+  Future updateStudentsOfEpisodeLocal(
+      StudentOfEpisode studentEpisode, PlanLines? planLines,
+      {bool isFromSync = false}) async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      var jsonLocal = studentEpisode.toJson();
 
-        jsonServer.addAll({
-          'is_hifz': isHifz ? 1 : 0,
-          'is_tilawa': isTilawa ? 1 : 0,
-          'is_big_review': isBigReview ? 1 : 0,
-          'is_small_review': isSmalleview ? 1 : 0,
-          EpisodeColumns.operation.value: 'update'
-        });
-        await dbHelper.insert(
-            DatabaseHelper.logTableStudentOfEpisode, jsonServer);
-        // studentCrudOperationsRemoately(
-        //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+      if (isFromSync) {
+        await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+      } else {
+        var stu = await getStudent(studentEpisode.id!);
+        studentEpisode.ids = stu?.ids;
+        await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
+        if (planLines != null) {
+          var jsonServer = await studentEpisode.toJsonServer();
+          bool isHifz = planLines.listen != null;
+          bool isTilawa = planLines.tlawa != null;
+          bool isBigReview = planLines.reviewbig != null;
+          bool isSmalleview = planLines.reviewsmall != null;
+
+          jsonServer.addAll({
+            'is_hifz': isHifz ? 1 : 0,
+            'is_tilawa': isTilawa ? 1 : 0,
+            'is_big_review': isBigReview ? 1 : 0,
+            'is_small_review': isSmalleview ? 1 : 0,
+            EpisodeColumns.operation.value: 'update'
+          });
+          await dbHelper.insert(
+              DatabaseHelper.logTableStudentOfEpisode, jsonServer);
+          // studentCrudOperationsRemoately(
+          //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
+        }
       }
 
       return true;
@@ -175,17 +204,22 @@ class StudentsOfEpisodeService {
     }
   }
 
-  Future<bool> deleteStudent(int id,{bool isFromCheck = false}) async {
+  Future<bool> deleteStudent(int id,
+      {int? ids, bool isFromCheck = false}) async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
-          StudentOfEpisodeColumns.id.value, id);
-     
-      await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
-          {'id': id, EpisodeColumns.operation.value: 'delete'});
+      if (isFromCheck) {
+        await dbHelper.deleteV1(DatabaseHelper.tableStudentOfEpisode, ids!);
+      } else {
+        await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
+            StudentOfEpisodeColumns.id.value, id);
+        await dbHelper.insert(DatabaseHelper.logTableStudentOfEpisode,
+            {'id': ids, EpisodeColumns.operation.value: 'delete'});
+      }
+
       // studentCrudOperationsRemoately(
       //     dbHelper, DatabaseHelper.logTableStudentOfEpisode);
-     
+
       return true;
     } catch (e) {
       return false;
@@ -222,6 +256,20 @@ class StudentsOfEpisodeService {
               ?.map((val) => StudentState.fromJson(val))
               .toList() ??
           [];
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<StudentState?> getLastStudentsStateLocal() async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allStudentsState =
+          await dbHelper.queryAllRows(DatabaseHelper.tableStudentState);
+      return allStudentsState
+          ?.map((val) => StudentState.fromJson(val))
+          .toList()
+          .last;
     } catch (e) {
       return null;
     }
@@ -298,6 +346,8 @@ class StudentsOfEpisodeService {
 
   Future setStudentStateLocal(StudentState studentsState,
       {bool isFromCheck = false}) async {
+    SharedPreferences sharPre = await SharedPreferences.getInstance();
+
     try {
       final dbHelper = DatabaseHelper.instance;
       //local
@@ -320,22 +370,27 @@ class StudentsOfEpisodeService {
       await dbHelper.insert(DatabaseHelper.tableStudentState, jsonLocal);
       // server
       if (!isFromCheck) {
-        var jsonServer = studentsState.toJsonServer();
+        var result = await getLastStudentsStateLocal();
+        result!.ids = int.parse('${sharPre.getInt('login_log')}${result.id}');
+        await dbHelper.update(
+            DatabaseHelper.tableStudentState, result.toJson());
+        var epi = await EdisodesService().getEpisode(result.episodeId);
+        result.episodeId = epi!.ids!;
+        var stu = await getStudent(result.studentId);
+        result.studentId = stu!.ids!;
+        var jsonServer = result.toJsonServer();
         var countLog = await dbHelper.queryRowCountWhereAnd(
             DatabaseHelper.logTableStudentState,
             'id',
             'date_presence',
-            studentsState.studentId,
-            studentsState.date);
+            result.studentId,
+            result.date);
         if (countLog != null && countLog > 0) {
-          dbHelper.updateWhereAnd(
-              DatabaseHelper.logTableStudentState,
-              jsonServer,
-              'id',
-              'date_presence',
-              studentsState.studentId,
-              studentsState.date);
+          dbHelper.updateWhereAnd(DatabaseHelper.logTableStudentState,
+              jsonServer, 'id', 'date_presence', result.studentId, result.date);
         } else {
+          // var stuState = await getLastStudentsStateLocal();
+          // jsonServer['id'] = stuState!.id;
           await dbHelper.insert(
               DatabaseHelper.logTableStudentState, jsonServer);
         }
@@ -402,13 +457,14 @@ class StudentsOfEpisodeService {
   }
 
   Future<ResponseContent<dynamic>> checkStudentListenLineAndAttendances(
+      int studentIds,
       int studentId,
       List<int?> worksIds,
       List<int?> attendancesIds,
       int episodeId) async {
     var json = {
       'data': {
-        "student_id": studentId,
+        "student_id": studentIds,
         "works": worksIds,
         'attendances': attendancesIds
       }
@@ -483,7 +539,7 @@ studentCrudOperationsRemoately(
     for (var student in listOfStudents) {
       if (student['operation'] == 'create') {
         student.remove('operation');
-       // student.remove('IDs');
+        // student.remove('IDs');
         student.update('gender', (value) => value == 'ذكر' ? 'male' : 'female');
         student.update('is_hifz', (value) => value == 1 ? true : false);
         student.update('is_tilawa', (value) => value == 1 ? true : false);
@@ -493,7 +549,7 @@ studentCrudOperationsRemoately(
         listOfStudentTypeCreate.add(student);
       } else if (student['operation'] == 'update') {
         student.remove('operation');
-       // student.remove('IDs');
+        // student.remove('IDs');
         student.remove('halaqa_id');
         student.remove('mobile');
         student.remove('country_id');

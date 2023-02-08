@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:monitor_episodes/model/core/shared/enums.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
@@ -46,10 +48,11 @@ class DatabaseHelper {
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute(
-        'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT,${EpisodeColumns.typeEpisode.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
+        'CREATE TABLE $tableEpisode (${EpisodeColumns.id.value} INTEGER PRIMARY KEY, ids INTEGER, ${EpisodeColumns.name.value} TEXT, ${EpisodeColumns.displayName.value} TEXT,${EpisodeColumns.typeEpisode.value} TEXT, ${EpisodeColumns.epsdType.value} TEXT '
         ', ${EpisodeColumns.epsdWork.value} TEXT)');
     await db.execute('CREATE TABLE $tableStudentOfEpisode ('
         '${StudentOfEpisodeColumns.id.value} INTEGER PRIMARY KEY,'
+        'ids INTEGER,'
         '${StudentOfEpisodeColumns.age.value} INTEGER,'
         '${StudentOfEpisodeColumns.name.value} TEXT,'
         '${StudentOfEpisodeColumns.state.value} TEXT,'
@@ -70,7 +73,8 @@ class DatabaseHelper {
         '${PlanLinesColumns.episodeId.value} INTEGER'
         ')');
     await db.execute('CREATE TABLE $tableStudentState ('
-        'id INTEGER PRIMARY KEY,' 
+        'id INTEGER PRIMARY KEY,'
+        'ids INTEGER,'
         'student_id INTEGER,'
         '${StudentStateColumns.state.value} TEXT,'
         '${StudentStateColumns.date.value} TEXT,'
@@ -78,6 +82,7 @@ class DatabaseHelper {
         ')');
     await db.execute('CREATE TABLE $tableListenLine ('
         'id INTEGER PRIMARY KEY,'
+        'ids INTEGER,'
         'student_id INTEGER,'
         '${ListenLineColumns.typeFollow.value} TEXT,'
         '${ListenLineColumns.actualDate.value} TEXT,'
@@ -104,10 +109,10 @@ class DatabaseHelper {
     await db.execute(
         'CREATE TABLE $logTableStudentOfEpisode ( ${EpisodeColumns.id.value} INTEGER, ${EpisodeColumns.name.value} TEXT, halaqa_id TEXT,mobile TEXT,country_id INTEGER,gender TEXT,is_hifz BOOLEAN,is_tilawa BOOLEAN,is_big_review BOOLEAN,is_small_review BOOLEAN,${EpisodeColumns.operation.value} TEXT )');
 
-        await db.execute(
+    await db.execute(
         'CREATE TABLE $logTableStudentState (id INTEGER PRIMARY KEY, student_id INTEGER, status TEXT, date_presence TEXT )');
 
-        await db.execute(
+    await db.execute(
         'CREATE TABLE $logTableStudentWork (id INTEGER PRIMARY KEY, student_id INTEGER, date_listen TEXT, type_work TEXT, from_sura INTEGER, to_sura INTEGER, from_aya INTEGER, to_aya INTEGER, nbr_error_hifz INTEGER, nbr_error_tajwed INTEGER)');
   }
 
@@ -242,6 +247,11 @@ class DatabaseHelper {
     return await db?.delete(tableName, where: '$columnId = ?', whereArgs: [id]);
   }
 
+  Future<int?> deleteV1(tableName, int ids) async {
+    Database? db = await instance.database;
+    return await db?.delete(tableName, where: 'ids = ?', whereArgs: [ids]);
+  }
+
   Future<int?> deleteAll(tableName) async {
     Database? db = await instance.database;
     return await db?.delete(tableName);
@@ -258,5 +268,12 @@ class DatabaseHelper {
     Database? db = await instance.database;
     return await db?.delete(tableName,
         where: '$column1 = ? AND $column2 = ?', whereArgs: [value1, value2]);
+  }
+
+  Future deletAllDatabase() async {
+    String path = p.join(await getDatabasesPath(), "maknoon.db");
+    await File(path).delete();
+
+// await deleteDatabase(path);
   }
 }

@@ -4,6 +4,8 @@ import 'package:monitor_episodes/model/core/shared/enums.dart';
 import 'package:monitor_episodes/model/core/listen_line/listen_line.dart';
 import 'package:monitor_episodes/model/data/database_helper.dart';
 import 'package:monitor_episodes/model/helper/end_point.dart';
+import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/shared/status_and_types.dart';
 import '../helper/api_helper.dart';
@@ -25,11 +27,11 @@ class ListenLineService {
       final dbHelper = DatabaseHelper.instance;
       final allStudents = await dbHelper.queryAllRowsWhere(
           DatabaseHelper.tableListenLine, 'student_id', studentId);
-          print(allStudents);
+      print(allStudents);
       return allStudents
               ?.map((val) => ListenLine.fromJson(val))
               .toList()
-              .map((e) => e.id)
+              .map((e) => e.ids)
               .toList() ??
           [];
     } catch (e) {
@@ -85,15 +87,22 @@ class ListenLineService {
     }
   }
 
-  Future setListenLineLocal(ListenLine listenLine,{bool isFromCheck = false}) async {
+  Future setListenLineLocal(ListenLine listenLine,
+      {bool isFromCheck = false}) async {
+    SharedPreferences sharPre = await SharedPreferences.getInstance();
     try {
       final dbHelper = DatabaseHelper.instance;
       var jsonLocal = listenLine.toJson();
       await dbHelper.insert(DatabaseHelper.tableListenLine, jsonLocal);
-      if(!isFromCheck){
-      var jsonServer = await listenLine.toJsonServer();
-      await dbHelper.insert(DatabaseHelper.logTableStudentWork, jsonServer);
-      // setStudentListenLineRemotely(dbHelper);
+      if (!isFromCheck) {
+        var result = await getLastListenLinesLocal();
+        result!.ids = int.parse('${sharPre.getInt('login_log')}${result.id}');
+        await dbHelper.update(DatabaseHelper.tableListenLine, result.toJson());
+        var stu = await StudentsOfEpisodeService().getStudent(result.studentId);
+        result.studentId = stu!.ids!;
+        var jsonServer = await result.toJsonServer();
+        await dbHelper.insert(DatabaseHelper.logTableStudentWork, jsonServer);
+        // setStudentListenLineRemotely(dbHelper);
 
       }
 

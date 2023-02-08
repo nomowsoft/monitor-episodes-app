@@ -30,7 +30,7 @@ class PlanLines {
         episodeId = newEpisodeId,
         studentId = newStudentId;
 
- 
+   
   PlanLines.fromServerJson(
       Map<String, dynamic> json, int newEpisodeId, int newStudentId)
       : listen = (json['plan_listen'] as Map).isNotEmpty
