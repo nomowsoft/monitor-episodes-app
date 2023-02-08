@@ -244,9 +244,9 @@ class _HomeState extends State<Home> {
                                 //         text:
                                 //             'do_you_want_to_logout_and_delete_all_data'
                                 //                 .tr);
-                                // if (result) {
-                                await homeController.deleteAllEdisodes();
-                                await homeController.removeTeacherLocal();
+                                // // if (result) {
+                                // await homeController.deleteAllEdisodes();
+                                // await homeController.removeTeacherLocal();
                                 // }
                               },
                             ),
