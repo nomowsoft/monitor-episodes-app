@@ -136,6 +136,10 @@ class HomeController extends GetxController {
     }
   }
 
+  Future deleteDatabase() async {
+    EdisodesService().deleteAllDatabase();
+  }
+
   Future deleteAllEdisodes() async {
     List<Episode>? listEpisodes =
         await EdisodesService().getEdisodesLocal() ?? [];
@@ -994,9 +998,8 @@ class HomeController extends GetxController {
     if (checkEpisode.deletedHalaqat!.isNotEmpty) {
       try {
         for (var id in checkEpisode.deletedHalaqat!) {
-          await deleteEdisode(
-              Episode(id: id, epsdType: '', name: '', displayName: ''),
-              isFromCheck: true);
+          await EdisodesService()
+              .deletedEpisode(ids: id, id, isFromCheck: true);
         }
       } catch (e) {
         isCompleted = false;
@@ -1020,22 +1023,22 @@ class HomeController extends GetxController {
                 ids: studetnt.id,
                 name: studetnt.name ?? '',
                 state: studetnt.state ?? '');
-            var planLines =
+            var planLine =
                 PlanLines(episodeId: epiId.id, studentId: studetnt.id);
             if (studetnt.isHifz!) {
-              planLines.listen = PlanLine.fromDefault();
+              planLine.listen = PlanLine.fromDefault();
             }
             if (studetnt.isBigReview!) {
-              planLines.reviewbig = PlanLine.fromDefault();
+              planLine.reviewbig = PlanLine.fromDefault();
             }
             if (studetnt.isSmallReview!) {
-              planLines.reviewsmall = PlanLine.fromDefault();
+              planLine.reviewsmall = PlanLine.fromDefault();
             }
             if (studetnt.isTilawa!) {
-              planLines.tlawa = PlanLine.fromDefault();
+              planLine.tlawa = PlanLine.fromDefault();
             }
             isCompleted = await addStudent(
-                studentOfEpisode, planLines, epiId.id!,
+                studentOfEpisode, planLine, epiId.id!,
                 isFromCheck: true);
             var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
             for (NewWorks newWorks in studetnt.newWorks ?? []) {
@@ -1047,11 +1050,11 @@ class HomeController extends GetxController {
                   morajaB = [],
                   tilawa = [];
 
-              planLines.studentId = stuId.id;
+              planLine.studentId = stuId.id;
               var listenLine =
                   ListenLine.fromJsonServer(newWorks.toJson(), stuId.id!);
-              addListenLineFromCheck(
-                  listenLine.typeFollow, studetnt.id!, halaqaa.id!, listenLine);
+              addListenLineFromCheck(listenLine.typeFollow,
+                  listenLine.studentId, epiId.id!, listenLine);
               switch (listenLine.typeFollow) {
                 case 'listen':
                   hifz.add(listenLine);
@@ -1081,13 +1084,13 @@ class HomeController extends GetxController {
                 planLinesStudent!.tlawa = getPlanLine(tilawa.last);
               }
               await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
-              if (planLines.studentId == planLinesStudent.studentId) {
+              if (planLine.studentId == planLinesStudent.studentId) {
                 planLines = planLinesStudent;
               }
             }
             for (NewAttendances newAttendances
                 in studetnt.newAttendances ?? []) {
-              setAttendance(halaqaa.id!, studetnt.state!, studetnt.id!,
+              setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
                   studentState: StudentState(
                       studentId: stuId!.id!,
                       episodeId: epiId.id!,

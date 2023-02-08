@@ -233,6 +233,8 @@ class _HomeState extends State<Home> {
                                 final prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool('isLogin', false);
+                                await homeController.deleteDatabase();
+
                                 Get.offAll(() => const LoginScreen(),
                                     duration: const Duration(seconds: 2),
                                     curve: Curves.easeInOut,
@@ -242,9 +244,9 @@ class _HomeState extends State<Home> {
                                 //         text:
                                 //             'do_you_want_to_logout_and_delete_all_data'
                                 //                 .tr);
-                                // if (result) {
-                                //   await homeController.deleteAllEdisodes();
-                                //   await homeController.removeTeacherLocal();
+                                // // if (result) {
+                                // await homeController.deleteAllEdisodes();
+                                // await homeController.removeTeacherLocal();
                                 // }
                               },
                             ),
