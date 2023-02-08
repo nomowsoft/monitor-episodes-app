@@ -86,16 +86,16 @@ class DataSyncController extends GetxController {
           var lastEpi = await EdisodesService().getLastEdisodesLocal();
           for (StudentOfEpisodeFromServer student in episode.students ?? []) {
             PlanLines planLines = PlanLines();
-            student.episodeId =lastEpi!.id;
+            student.episodeId = lastEpi!.id;
             bool studentResult = await StudentsOfEpisodeService()
                 .setStudentOfEpisodeForLogin(student);
             var lastStu =
                 await StudentsOfEpisodeService().getLastStudentsLocal();
-               student.id = lastStu!.id;
+            student.id = lastStu!.id;
             if (student.isHifz) {
               for (var planListen in student.studentWorks.planListen) {
-                await addListenLine(PlanLinesType.listen, lastStu.id!,
-                    lastEpi.id!, planListen);
+                await addListenLine(
+                    PlanLinesType.listen, lastStu.id!, lastEpi.id!, planListen);
               }
               if (student.studentWorks.planListen.isNotEmpty) {
                 planLines.listen =
@@ -130,8 +130,8 @@ class DataSyncController extends GetxController {
             }
             if (student.isTilawa) {
               for (var planListen in student.studentWorks.planTlawa) {
-                await addListenLine(PlanLinesType.tlawa, lastStu.id!,
-                    lastEpi.id!, planListen);
+                await addListenLine(
+                    PlanLinesType.tlawa, lastStu.id!, lastEpi.id!, planListen);
               }
               if (student.studentWorks.planTlawa.isNotEmpty) {
                 planLines.tlawa =
@@ -157,14 +157,21 @@ class DataSyncController extends GetxController {
                       studentsState.studentId,
                       studentsState);
                 }
-                if (student.studentAttendances.first.date ==
-                    DateFormat('yyyy-MM-dd').format(DateTime.now())) {
-                  student.state = student.studentAttendances.first.state.tr;
-                  student.stateDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-                 await  StudentsOfEpisodeService()
-                    .updateStudentsOfEpisodeLocal(student, planLines,isFromSync: true);
+                if (student.studentAttendances.any((element) =>
+                    element.date ==
+                    DateFormat('yyyy-MM-dd').format(DateTime.now()))) {
+                  var lastAttendance = student.studentAttendances.firstWhere((element) =>
+                      element.date ==
+                      DateFormat('yyyy-MM-dd').format(DateTime.now()));
+                  student.state = lastAttendance.state.tr;
+                  student.stateDate =
+                      DateFormat('yyyy-MM-dd').format(DateTime.now());
+                  await StudentsOfEpisodeService().updateStudentsOfEpisodeLocal(
+                      student, planLines,
+                      isFromSync: true);
                 }
-               
+                 
+                
               } catch (e) {
                 if (kDebugMode) {
                   print(e);
@@ -283,7 +290,8 @@ class DataSyncController extends GetxController {
     await StudentsOfEpisodeService()
         .setStudentStateLocal(studentState, isFromCheck: true);
   }
-    String getTypePlanLine(String typePlanLine) {
+
+  String getTypePlanLine(String typePlanLine) {
     if (PlanLinesType.listen == typePlanLine) {
       return 'listen';
     } else if (PlanLinesType.reviewsmall == typePlanLine) {

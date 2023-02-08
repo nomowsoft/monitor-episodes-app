@@ -210,7 +210,7 @@ class StudentsOfEpisodeService {
     try {
       final dbHelper = DatabaseHelper.instance;
       if (isFromCheck) {
-        await dbHelper.deleteV1(DatabaseHelper.tableStudentOfEpisode, ids??id);
+        await dbHelper.deleteV1(DatabaseHelper.tableStudentOfEpisode, ids!);
       } else {
         await dbHelper.deleteAllWhere(DatabaseHelper.tableStudentOfEpisode,
             StudentOfEpisodeColumns.id.value, id);

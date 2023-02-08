@@ -192,11 +192,11 @@ class HomeController extends GetxController {
   Future<bool> deleteStudent(int episodeId, int id,
       {int? ids, bool isFromCheck = false}) async {
     try {
-      // await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
-      // await PlanLinesService().deleteAllPlanLinesOfStudent(id);
-      // // Student State
-      // await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
-      // await ListenLineService().deleteListenLineStudent(id);
+      await EducationalPlanService().deleteAllEducationalPlansOfStudent(id);
+      await PlanLinesService().deleteAllPlanLinesOfStudent(id);
+      // Student State
+      await StudentsOfEpisodeService().deleteStudentStateOfEp(id);
+      await ListenLineService().deleteListenLineStudent(id);
       await StudentsOfEpisodeService()
           .deleteStudent(id, ids: ids ?? id, isFromCheck: isFromCheck);
       if (!isFromCheck) {
@@ -442,7 +442,9 @@ class HomeController extends GetxController {
     if (checkStudentsResponce.deletedStudentsIds.isNotEmpty) {
       try {
         for (var id in checkStudentsResponce.deletedStudentsIds) {
-          await deleteStudent(episodeId, id, isFromCheck: true);
+          await StudentsOfEpisodeService()
+              .deleteStudent(id, ids: id, isFromCheck: true);
+          // await deleteStudent(episodeId, id, isFromCheck: true);
           // PlanLinesService().deleteAllPlanLinesOfStudent(id);
         }
       } catch (e) {
@@ -1023,38 +1025,20 @@ class HomeController extends GetxController {
                 ids: studetnt.id,
                 name: studetnt.name ?? '',
                 state: studetnt.state ?? '');
-            var planLine =
-                PlanLines(episodeId: epiId.id, studentId: studetnt.id);
-            if (studetnt.isHifz!) {
-              planLine.listen = PlanLine.fromDefault();
-            }
-            if (studetnt.isBigReview!) {
-              planLine.reviewbig = PlanLine.fromDefault();
-            }
-            if (studetnt.isSmallReview!) {
-              planLine.reviewsmall = PlanLine.fromDefault();
-            }
-            if (studetnt.isTilawa!) {
-              planLine.tlawa = PlanLine.fromDefault();
-            }
-            isCompleted = await addStudent(
-                studentOfEpisode, planLine, epiId.id!,
-                isFromCheck: true);
+    
+            isCompleted = await StudentsOfEpisodeService()
+                .setStudentOfEpisodeForLogin(studentOfEpisode);
+                
             var stuId = await StudentsOfEpisodeService().getLastStudentsLocal();
+
+            List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
             for (NewWorks newWorks in studetnt.newWorks ?? []) {
-              var planLinesStudent = await PlanLinesService()
-                  .getPlanLinesLocal(epiId.id!, stuId!.id!);
-
-              List<ListenLine> hifz = [],
-                  morajaS = [],
-                  morajaB = [],
-                  tilawa = [];
-
-              planLine.studentId = stuId.id;
               var listenLine =
-                  ListenLine.fromJsonServer(newWorks.toJson(), stuId.id!);
+                  ListenLine.fromJsonServer(newWorks.toJson(), stuId!.id!);
+
               addListenLineFromCheck(listenLine.typeFollow,
                   listenLine.studentId, epiId.id!, listenLine);
+
               switch (listenLine.typeFollow) {
                 case 'listen':
                   hifz.add(listenLine);
@@ -1070,32 +1054,54 @@ class HomeController extends GetxController {
                   break;
                 default:
               }
-
-              if (hifz.isNotEmpty) {
-                planLinesStudent!.listen = getPlanLine(hifz.last);
-              }
-              if (morajaS.isNotEmpty) {
-                planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
-              }
-              if (morajaB.isNotEmpty) {
-                planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
-              }
-              if (tilawa.isNotEmpty) {
-                planLinesStudent!.tlawa = getPlanLine(tilawa.last);
-              }
-              await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
-              if (planLine.studentId == planLinesStudent.studentId) {
-                planLines = planLinesStudent;
-              }
             }
-            for (NewAttendances newAttendances
-                in studetnt.newAttendances ?? []) {
-              setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
-                  studentState: StudentState(
-                      studentId: stuId!.id!,
-                      episodeId: epiId.id!,
-                      state: newAttendances.status!,
-                      date: newAttendances.datePresence!));
+            // add  planLines
+            PlanLines planLines = PlanLines();
+            planLines.episodeId = epiId.id!;
+            planLines.studentId = stuId!.id!;
+            if (studetnt.isHifz!) {
+              planLines.listen = hifz.isNotEmpty
+                  ? PlanLine.fromDefault()
+                  : getPlanLine(hifz.last);
+            }
+            if (morajaS.isNotEmpty) {
+              planLines.reviewsmall = getPlanLine(morajaS.last);
+            }
+            if (morajaB.isNotEmpty) {
+              planLines.reviewbig = getPlanLine(morajaB.last);
+            }
+            if (tilawa.isNotEmpty) {
+              planLines.tlawa = getPlanLine(tilawa.last);
+            }
+
+            await PlanLinesService().setPlanLinesLocal(planLines);
+
+
+            // add  new Attendances
+            if (studetnt.newAttendances!.isNotEmpty) {
+              for (NewAttendances newAttendances
+                  in studetnt.newAttendances ?? []) {
+                setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
+                    studentState: StudentState(
+                        studentId: stuId.id!,
+                        episodeId: epiId.id!,
+                        state: newAttendances.status!,
+                        date: newAttendances.datePresence!));
+              }
+              if (studetnt.newAttendances!.any((element) =>
+                  element.datePresence ==
+                  DateFormat('yyyy-MM-dd').format(DateTime.now()))) {
+                var lastAttendance = studetnt.newAttendances!.firstWhere(
+                    (element) =>
+                        element.datePresence ==
+                        DateFormat('yyyy-MM-dd').format(DateTime.now()));
+                studentOfEpisode.state = lastAttendance.status!.tr;
+                studentOfEpisode.stateDate =
+                    DateFormat('yyyy-MM-dd').format(DateTime.now());
+                await StudentsOfEpisodeService().updateStudentsOfEpisodeLocal(
+                    stuId, planLines,
+                    isFromSync: true);
+              }
             }
           }
         }
@@ -1222,6 +1228,7 @@ class HomeController extends GetxController {
     late PlanLine planLine;
     late ListenLine listenLine;
     listenLine = newListenLine;
+    listenLine.typeFollow = getTypePlanLine(typePlanLine);
     planLine = PlanLine(
         fromSuraName: getSuraName(newListenLine.fromSuraId),
         fromAya: newListenLine.fromAya,
