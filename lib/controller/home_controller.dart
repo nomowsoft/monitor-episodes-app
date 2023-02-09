@@ -1072,17 +1072,17 @@ class HomeController extends GetxController {
               var listenLine =
                   ListenLine.fromJsonServer(newWorks.toJson(), stuId!.id!);
 
-              addListenLineFromCheck(listenLine.typeFollow,
+             await addListenLineFromCheck(listenLine.typeFollow,
                   listenLine.studentId, epiId.id!, listenLine);
 
               switch (listenLine.typeFollow) {
                 case 'listen':
                   hifz.add(listenLine);
                   break;
-                case 'reviewsmall':
+                case 'review_small':
                   morajaS.add(listenLine);
                   break;
-                case 'reviewbig':
+                case 'review_big':
                   morajaB.add(listenLine);
                   break;
                 case 'tlawa':
@@ -1266,7 +1266,7 @@ class HomeController extends GetxController {
   // }
   // }
 
-  addListenLineFromCheck(String typePlanLine, int id, int episodeId,
+ Future addListenLineFromCheck(String typePlanLine, int id, int episodeId,
       ListenLine newListenLine) async {
     late PlanLine planLine;
     late ListenLine listenLine;
@@ -1297,6 +1297,7 @@ class HomeController extends GetxController {
       );
       EducationalPlan newEducationalPlan =
           await EducationalPlanService().getEducationalPlanLocal(episodeId, id);
+      print(typePlanLine);    
       if (PlanLinesType.listen == typePlanLine) {
         newEducationalPlan.planListen.add(educational);
       } else if (PlanLinesType.reviewsmall == typePlanLine) {
