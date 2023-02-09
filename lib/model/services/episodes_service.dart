@@ -24,6 +24,22 @@ class EdisodesService {
     }
   }
 
+  Future<List<int>> getLogEdisodesLocal() async {
+    try {
+      final dbHelper = DatabaseHelper.instance;
+      final allProducts =
+          await dbHelper.queryAllRowsWhere(DatabaseHelper.logTableEpisode, EpisodeColumns.operation.value, 'delete');
+
+            List<int> ids = [];
+        for (var element in allProducts as List) {
+          ids.add(element['id']);
+        }
+      return ids;
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<Episode?> getLastEdisodesLocal() async {
     try {
       final dbHelper = DatabaseHelper.instance;
