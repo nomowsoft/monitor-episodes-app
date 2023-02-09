@@ -9,6 +9,12 @@ enum EpisodeColumns {
   operation,
   typeEpisode,
 }
+extension DateOnlyCompare on DateTime {
+  bool isSameDate(DateTime other) {
+    return year == other.year && month == other.month
+           && day == other.day;
+  }
+}
 
 extension MyEnumEpisodeColumns on EpisodeColumns {
   String get value {

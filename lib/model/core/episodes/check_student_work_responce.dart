@@ -5,7 +5,7 @@ import '../listen_line/listen_line.dart';
 class CheckStudentsWorkResponce {
   List<StudentState> studentState;
   List<ListenLine> listenLine;
-  bool update;
+  bool? update;
   CheckStudentsWorkResponce({
     required this.listenLine,
     required this.studentState,
