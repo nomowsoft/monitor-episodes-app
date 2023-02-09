@@ -220,6 +220,7 @@ class _AddEpisodeState extends State<AddEpisode> {
                           episode = Episode(
                               displayName: name.text,
                               id: widget.episode!.id,
+                              ids: widget.episode!.ids,
                               name: name.text,
                               epsdType: episodeType);
                           result = await homeController.editEdisode(episode);

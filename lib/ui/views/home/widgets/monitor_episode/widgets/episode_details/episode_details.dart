@@ -49,9 +49,10 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
   initStudent() async {
     HomeController homeController = Get.find<HomeController>();
     homeController.initStudntData();
-    homeController.checkStudent(widget.episode.id!);
     await homeController.loadStudentsOfEpisode(widget.episode.id!,
         isInit: true);
+    await homeController.checkStudent(widget.episode.id!);
+
     if (homeController.listStudentsOfEpisode.isNotEmpty) {
       homeController.checkStudentListenLineAndAttendances(
           homeController.listStudentsOfEpisode[0].id, widget.episode.id!);

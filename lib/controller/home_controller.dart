@@ -311,7 +311,7 @@ class HomeController extends GetxController {
         CheckStudentsWorkResponce checkWorks = checkStudentsWorksResponse.data;
         if (checkWorks.update) {
           if (await CostomDailogs.dialogWithText(
-              text: 'student_episode_data_is_being_updated'.tr)) {
+              text: 'student_attendances_episode_data_is_being_updated'.tr)) {
             bool isCompleted = await Get.dialog(cupertino.Builder(
                 builder: (cupertino.BuildContext dialogContext) {
               changeStudentsWorksAndAttendances(
@@ -343,7 +343,7 @@ class HomeController extends GetxController {
   }
 
   // check student
-  void checkStudent(int episodeId) async {
+  Future checkStudent(int episodeId) async {
     if (await sendToTheServerFunction()) {
       List<StudentOfEpisode> listStudentOfEpisode =
           await StudentsOfEpisodeService()
@@ -412,10 +412,10 @@ class HomeController extends GetxController {
             case 'listen':
               hifz.add(listenLine);
               break;
-            case 'reviewsmall':
+            case 'review_small':
               morajaS.add(listenLine);
               break;
-            case 'reviewbig':
+            case 'review_big':
               morajaB.add(listenLine);
               break;
             case 'tlawa':

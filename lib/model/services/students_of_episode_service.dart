@@ -163,8 +163,8 @@ class StudentsOfEpisodeService {
       if (isFromSync) {
         await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
       } else {
-        var stu = await getStudent(studentEpisode.id!);
-        studentEpisode.ids = stu?.ids;
+        //var stu = await getStudent(studentEpisode.id!);
+        //studentEpisode.ids = stu?.ids;
         await dbHelper.update(DatabaseHelper.tableStudentOfEpisode, jsonLocal);
         if (planLines != null) {
           var jsonServer = await studentEpisode.toJsonServer();
