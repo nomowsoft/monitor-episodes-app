@@ -676,6 +676,7 @@ class _AddStudentState extends State<AddStudent> {
                                 ? selectEpisode!.id
                                 : widget.episodeId!),
                             id: widget.student!.id,
+                            ids: widget.student!.ids,  
                             name: name.text,
                             phone: phone.text,
                             country: country.text,

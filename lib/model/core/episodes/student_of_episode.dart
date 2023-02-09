@@ -65,7 +65,7 @@ class StudentOfEpisode {
       'halaqa_id': episodeId.toString(),
       'mobile': phone,
       'gender': gender,
-      'country_id': getCountry()
+      'country_id':country.isNotEmpty? getCountry():null
     };
   }
 

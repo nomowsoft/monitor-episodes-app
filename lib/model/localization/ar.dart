@@ -207,6 +207,8 @@ Map<String, String> translateArabic = {
   "new_update_is_available": "يتوفر تحديث جديد للبيانات",
   "student_episode_data_is_being_updated":
       "تم تحديث بيانات الطلاب في النظام.\n الرجاء الضغط على ( مزامنة ) لعكس التحديثات في التطبيق.",
+  "student_attendances_episode_data_is_being_updated":
+      "تم تحديث بيانات الطالب في النظام.\n الرجاء الضغط على ( مزامنة ) لعكس التحديثات في التطبيق.",
   "episode_data_is_being_updated":
       "تم تحديث بيانات الحلقات في النظام.\n الرجاء الضغط على ( مزامنة ) لعكس التحديثات في التطبيق.",
   "sync": "مزامنة",

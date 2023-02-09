@@ -99,7 +99,7 @@ class DataSyncController extends GetxController {
               }
               if (student.studentWorks.planListen.isNotEmpty) {
                 planLines.listen =
-                    getPlanLine(student.studentWorks.planListen.last);
+                    getPlanLine(student.studentWorks.planListen.first);
               } else {
                 planLines.listen = PlanLine.fromDefault();
               }
@@ -111,7 +111,7 @@ class DataSyncController extends GetxController {
               }
               if (student.studentWorks.planReviewSmall.isNotEmpty) {
                 planLines.reviewsmall =
-                    getPlanLine(student.studentWorks.planReviewSmall.last);
+                    getPlanLine(student.studentWorks.planReviewSmall.first);
               } else {
                 planLines.reviewsmall = PlanLine.fromDefault();
               }
@@ -123,7 +123,7 @@ class DataSyncController extends GetxController {
               }
               if (student.studentWorks.planReviewBig.isNotEmpty) {
                 planLines.reviewbig =
-                    getPlanLine(student.studentWorks.planReviewBig.last);
+                    getPlanLine(student.studentWorks.planReviewBig.first);
               } else {
                 planLines.reviewbig = PlanLine.fromDefault();
               }
@@ -135,7 +135,7 @@ class DataSyncController extends GetxController {
               }
               if (student.studentWorks.planTlawa.isNotEmpty) {
                 planLines.tlawa =
-                    getPlanLine(student.studentWorks.planTlawa.last);
+                    getPlanLine(student.studentWorks.planTlawa.first);
               } else {
                 planLines.tlawa = PlanLine.fromDefault();
               }
