@@ -450,9 +450,9 @@ class StudentsOfEpisodeService {
   }
 
   Future<ResponseContent> checkStudents(
-      int episodeId, List<int> studentsIds) async {
+      int episodeIds, List<int> studentsIds, int episodeId) async {
     var json = {
-      'data': {"halaqa_id": episodeId, "students": studentsIds}
+      'data': {"halaqa_id": episodeIds, "students": studentsIds}
     };
     var data = jsonEncode(json);
     ResponseContent response = await ApiHelper().postV2(
@@ -462,7 +462,7 @@ class StudentsOfEpisodeService {
     if (response.success ?? false) {
       try {
         response.data = response.data != null
-            ? CheckStudentsResponce.fromJson(response.data['result']['result'])
+            ? CheckStudentsResponce.fromJson(response.data['result']['result'],episodeId)
             : null;
         return response;
       } catch (e) {

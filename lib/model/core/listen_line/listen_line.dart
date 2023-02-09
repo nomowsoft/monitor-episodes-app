@@ -54,6 +54,7 @@ class ListenLine {
         totalMstkQty = json['nbr_error_hifz'],
         totalMstkRead = json['nbr_error_tajwed'];
 
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "ids": ids,
