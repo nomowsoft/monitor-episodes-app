@@ -681,7 +681,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                       ids: homeController
                                                           .listStudentsOfEpisode[
                                                               selectIndex]
-                                                          .id!);
+                                                          .ids!);
 
                                               if (result) {
                                                 int indexDelete = selectIndex;

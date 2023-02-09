@@ -27,6 +27,7 @@ import '../main.dart';
 import '../model/core/episodes/check_student_work_responce.dart';
 import '../model/core/episodes/check_episode.dart';
 import '../model/core/episodes/episode.dart';
+import '../model/core/shared/enums.dart';
 import '../model/core/shared/response_content.dart';
 import '../model/data/database_helper.dart';
 import '../model/services/check_episode_service.dart';
@@ -309,7 +310,7 @@ class HomeController extends GetxController {
       if (checkStudentsWorksResponse.isSuccess ||
           checkStudentsWorksResponse.isNoContent) {
         CheckStudentsWorkResponce checkWorks = checkStudentsWorksResponse.data;
-        if (checkWorks.update) {
+        if (checkWorks.update ?? false) {
           if (await CostomDailogs.dialogWithText(
               text: 'student_attendances_episode_data_is_being_updated'.tr)) {
             bool isCompleted = await Get.dialog(cupertino.Builder(
@@ -358,11 +359,8 @@ class HomeController extends GetxController {
         ...listLogids
       ];
       var epiIds = await EdisodesService().getEpisode(episodeId);
-      ResponseContent checkStudentsResponse =
-          await StudentsOfEpisodeService().checkStudents(
-        epiIds!.ids!,
-        listIds,
-      );
+      ResponseContent checkStudentsResponse = await StudentsOfEpisodeService()
+          .checkStudents(epiIds!.ids!, listIds, episodeId);
       if (checkStudentsResponse.isSuccess ||
           checkStudentsResponse.isNoContent) {
         CheckStudentsResponce checkStudents = checkStudentsResponse.data;
@@ -509,6 +507,109 @@ class HomeController extends GetxController {
           }
           isCompleted = await addStudent(studentOfEpisode, planLines, episodeId,
               isFromCheck: true);
+          var lastStudent =
+              await StudentsOfEpisodeService().getLastStudentsLocal();
+          // PlainLine
+          planLines.studentId = lastStudent!.id;
+          List<ListenLine> hifz = [], morajaS = [], morajaB = [], tilawa = [];
+
+          for (var listenLine in studetnt.listenLine) {
+            //ListenLine
+            listenLine.studentId = lastStudent.id!;
+            await addListenLineFromCheck(listenLine.typeFollow,
+                listenLine.studentId, episodeId, listenLine);
+            //editStudent(studentOfEpisode, planLines, episodeId)
+            switch (listenLine.typeFollow) {
+              case 'listen':
+                hifz.add(listenLine);
+                break;
+              case 'review_small':
+                morajaS.add(listenLine);
+                break;
+              case 'review_big':
+                morajaB.add(listenLine);
+                break;
+              case 'tlawa':
+                tilawa.add(listenLine);
+                break;
+              default:
+            }
+          }
+          if (studetnt.isHifz) {
+            planLines.listen = hifz.isEmpty
+                ? PlanLine.fromDefault()
+                : getPlanLine(hifz.reduce((value, element) {
+                    var result =
+                        DateOnlyCompare(DateTime.parse(value.actualDate))
+                                .isSameDate(DateTime.parse(element.actualDate))
+                            ? element
+                            : value;
+                    return result;
+                  }));
+          }
+          if (studetnt.isSmallReview) {
+            planLines.reviewsmall = morajaS.isEmpty
+                ? PlanLine.fromDefault()
+                : getPlanLine(morajaS.reduce((value, element) {
+                    var result =
+                        DateOnlyCompare(DateTime.parse(value.actualDate))
+                                .isSameDate(DateTime.parse(element.actualDate))
+                            ? element
+                            : value;
+                    return result;
+                  }));
+          }
+          if (studetnt.isBigReview) {
+            planLines.reviewbig = morajaB.isEmpty
+                ? PlanLine.fromDefault()
+                : getPlanLine(morajaB.reduce((value, element) {
+                    var result =
+                        DateOnlyCompare(DateTime.parse(value.actualDate))
+                                .isSameDate(DateTime.parse(element.actualDate))
+                            ? element
+                            : value;
+                    return result;
+                  }));
+          }
+          if (studetnt.isTilawa) {
+            planLines.tlawa = tilawa.isEmpty
+                ? PlanLine.fromDefault()
+                : getPlanLine(tilawa.reduce((value, element) {
+                    var result =
+                        DateOnlyCompare(DateTime.parse(value.actualDate))
+                                .isSameDate(DateTime.parse(element.actualDate))
+                            ? element
+                            : value;
+                    return result;
+                  }));
+          }
+
+          isCompleted =
+              await PlanLinesService().updatePlanLinesLocal(planLines);
+          for (var studentState in studetnt.studentState) {
+            setAttendance(episodeId, studetnt.state, lastStudent.id!,
+                studentState: StudentState(
+                    ids: studentState.id,
+                    studentId: lastStudent.id!,
+                    episodeId: episodeId,
+                    state: studentState.state,
+                    date: studentState.date));
+          }
+
+          if (studetnt.studentState.any((element) =>
+              element.date ==
+              DateFormat('yyyy-MM-dd').format(DateTime.now()))) {
+            var lastAttendance = studetnt.studentState.firstWhere((element) =>
+                element.date ==
+                DateFormat('yyyy-MM-dd').format(DateTime.now()));
+            studentOfEpisode.state = lastAttendance.state.tr;
+            studentOfEpisode.stateDate =
+                DateFormat('yyyy-MM-dd').format(DateTime.now());
+            studentOfEpisode.id = lastStudent.id;
+            await StudentsOfEpisodeService().updateStudentsOfEpisodeLocal(
+                studentOfEpisode, planLines,
+                isFromSync: true);
+          }
         }
       } catch (e) {
         isCompleted = false;
