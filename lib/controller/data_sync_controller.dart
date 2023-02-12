@@ -98,8 +98,19 @@ class DataSyncController extends GetxController {
                     PlanLinesType.listen, lastStu.id!, lastEpi.id!, planListen);
               }
               if (student.studentWorks.planListen.isNotEmpty) {
-                planLines.listen =
-                    getPlanLine(student.studentWorks.planListen.first);
+                var maxDate = student.studentWorks.planListen.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = student.studentWorks.planListen
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
+                planLines.listen = getPlanLine(lastLine);
+                // planLines.listen =
+                //     getPlanLine(student.studentWorks.planListen.first);
               } else {
                 planLines.listen = PlanLine.fromDefault();
               }
