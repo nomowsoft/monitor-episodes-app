@@ -429,16 +429,56 @@ class HomeController extends GetxController {
           }
         }
         if (hifz.isNotEmpty) {
-          planLinesStudent!.listen = getPlanLine(hifz.last);
+            var maxDate = hifz.reduce((min, e) => DateTime.parse(e.actualDate)
+                      .isAfter(DateTime.parse(min.actualDate))
+                  ? e
+                  : min);
+              var lastLine = hifz
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLinesStudent!.listen = getPlanLine(lastLine);
+        //  planLinesStudent!.listen = getPlanLine(hifz.last);
         }
         if (morajaS.isNotEmpty) {
-          planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
+          var maxDate = morajaS.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = morajaS
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLinesStudent!.reviewsmall = getPlanLine(lastLine);
+         // planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
         }
         if (morajaB.isNotEmpty) {
-          planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
+          var maxDate = morajaB.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = morajaB
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+               planLinesStudent!.reviewbig = getPlanLine(lastLine);
+         // planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
         }
-        if (tilawa.isNotEmpty) {
-          planLinesStudent!.tlawa = getPlanLine(tilawa.last);
+        if (tilawa.isNotEmpty) { 
+              var maxDate = tilawa.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = tilawa
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLinesStudent!.tlawa = getPlanLine(lastLine);
+             
+         // planLinesStudent!.tlawa = getPlanLine(tilawa.last);
         }
         await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
         if (planLines?.studentId == planLinesStudent.studentId) {
@@ -536,60 +576,116 @@ class HomeController extends GetxController {
             }
           }
           if (studetnt.isHifz) {
-            planLines.listen = hifz.isEmpty
-                ? PlanLine.fromDefault()
-                : getPlanLine(hifz.reduce((value, element) {
-                    var result =
-                        DateOnlyCompare(DateTime.parse(value.actualDate))
-                                .isSameDate(DateTime.parse(element.actualDate))
-                            ? element
-                            : value;
-                    return result;
-                  }));
+            if (hifz.isNotEmpty) {
+              var maxDate = hifz.reduce((min, e) => DateTime.parse(e.actualDate)
+                      .isAfter(DateTime.parse(min.actualDate))
+                  ? e
+                  : min);
+              var lastLine = hifz
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.listen = getPlanLine(lastLine);
+            } else {
+              planLines.listen = PlanLine.fromDefault();
+            }
+            // planLines.listen = hifz.isEmpty
+            //     ? PlanLine.fromDefault()
+            //     : getPlanLine(hifz.reduce((value, element) {
+            //         var result =
+            //             DateOnlyCompare(DateTime.parse(value.actualDate))
+            //                     .isSameDate(DateTime.parse(element.actualDate))
+            //                 ? element
+            //                 : value;
+            //         return result;
+            //       }));
           }
           if (studetnt.isSmallReview) {
-            planLines.reviewsmall = morajaS.isEmpty
-                ? PlanLine.fromDefault()
-                : getPlanLine(morajaS.reduce((value, element) {
-                    var result =
-                        DateOnlyCompare(DateTime.parse(value.actualDate))
-                                .isSameDate(DateTime.parse(element.actualDate))
-                            ? element
-                            : value;
-                    return result;
-                  }));
+            if (morajaS.isNotEmpty) {
+              var maxDate = morajaS.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = morajaS
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.reviewsmall = getPlanLine(lastLine);
+            } else {
+              planLines.reviewsmall = PlanLine.fromDefault();
+            }
+
+            // planLines.reviewsmall = morajaS.isEmpty
+            //     ? PlanLine.fromDefault()
+            //     : getPlanLine(morajaS.reduce((value, element) {
+            //         var result =
+            //             DateOnlyCompare(DateTime.parse(value.actualDate))
+            //                     .isSameDate(DateTime.parse(element.actualDate))
+            //                 ? element
+            //                 : value;
+            //         return result;
+            //       }));
           }
           if (studetnt.isBigReview) {
-            planLines.reviewbig = morajaB.isEmpty
-                ? PlanLine.fromDefault()
-                : getPlanLine(morajaB.reduce((value, element) {
-                    var result =
-                        DateOnlyCompare(DateTime.parse(value.actualDate))
-                                .isSameDate(DateTime.parse(element.actualDate))
-                            ? element
-                            : value;
-                    return result;
-                  }));
+            if (morajaB.isNotEmpty) {
+              var maxDate = morajaB.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = morajaB
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.reviewbig = getPlanLine(lastLine);
+            } else {
+              planLines.reviewbig = PlanLine.fromDefault();
+            }
+            // planLines.reviewbig = morajaB.isEmpty
+            //     ? PlanLine.fromDefault()
+            //     : getPlanLine(morajaB.reduce((value, element) {
+            //         var result =
+            //             DateOnlyCompare(DateTime.parse(value.actualDate))
+            //                     .isSameDate(DateTime.parse(element.actualDate))
+            //                 ? element
+            //                 : value;
+            //         return result;
+            //       }));
           }
           if (studetnt.isTilawa) {
-            planLines.tlawa = tilawa.isEmpty
-                ? PlanLine.fromDefault()
-                : getPlanLine(tilawa.reduce((value, element) {
-                    var result =
-                        DateOnlyCompare(DateTime.parse(value.actualDate))
-                                .isSameDate(DateTime.parse(element.actualDate))
-                            ? element
-                            : value;
-                    return result;
-                  }));
+            if (tilawa.isNotEmpty) {
+              var maxDate = tilawa.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = tilawa
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.tlawa = getPlanLine(lastLine);
+            } else {
+              planLines.tlawa = PlanLine.fromDefault();
+            }
+            // planLines.tlawa = tilawa.isEmpty
+            //     ? PlanLine.fromDefault()
+            //     : getPlanLine(tilawa.reduce((value, element) {
+            //         var result =
+            //             DateOnlyCompare(DateTime.parse(value.actualDate))
+            //                     .isSameDate(DateTime.parse(element.actualDate))
+            //                 ? element
+            //                 : value;
+            //         return result;
+            //       }));
           }
 
           isCompleted =
               await PlanLinesService().updatePlanLinesLocal(planLines);
           for (var studentState in studetnt.studentState) {
-            setAttendance(episodeId, studetnt.state, lastStudent.id!,
+           await setAttendance(episodeId, studetnt.state, lastStudent.id!,
                 studentState: StudentState(
-                    ids: studentState.id,
+                    ids: studentState.ids,
                     studentId: lastStudent.id!,
                     episodeId: episodeId,
                     state: studentState.state,
@@ -1052,7 +1148,7 @@ class HomeController extends GetxController {
 
         if (index >= 0) {
           if (_listStudentsOfEpisode[index].state == 'student_preparation'.tr) {
-            setAttendance(_listStudentsOfEpisode[index].episodeId!, 'present',
+           await setAttendance(_listStudentsOfEpisode[index].episodeId!, 'present',
                 _listStudentsOfEpisode[index].id!);
             // _listStudentsOfEpisode[index].state = 'present'.tr;
             // _listStudentsOfEpisode[index].stateDate =
@@ -1173,7 +1269,7 @@ class HomeController extends GetxController {
               var listenLine =
                   ListenLine.fromJsonServer(newWorks.toJson(), stuId!.id!);
 
-             await addListenLineFromCheck(listenLine.typeFollow,
+              await addListenLineFromCheck(listenLine.typeFollow,
                   listenLine.studentId, epiId.id!, listenLine);
 
               switch (listenLine.typeFollow) {
@@ -1197,24 +1293,79 @@ class HomeController extends GetxController {
             planLines.episodeId = epiId.id!;
             planLines.studentId = stuId!.id!;
             if (studetnt.isHifz!) {
-              planLines.listen = hifz.isEmpty
-                  ? PlanLine.fromDefault()
-                  : getPlanLine(hifz.last);
+               if (hifz.isNotEmpty) {
+              var maxDate = hifz.reduce((min, e) => DateTime.parse(e.actualDate)
+                      .isAfter(DateTime.parse(min.actualDate))
+                  ? e
+                  : min);
+              var lastLine = hifz
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.listen = getPlanLine(lastLine);
+            } else {
+              planLines.listen = PlanLine.fromDefault();
+            }
+              // planLines.listen = hifz.isEmpty
+              //     ? PlanLine.fromDefault()
+              //     : getPlanLine(hifz.last);
             }
             if (studetnt.isSmallReview!) {
-              planLines.reviewsmall = morajaS.isEmpty
-                  ? PlanLine.fromDefault()
-                  : getPlanLine(morajaS.last);
+              if (morajaS.isNotEmpty) {
+              var maxDate = morajaS.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = morajaS
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.reviewsmall = getPlanLine(lastLine);
+            } else {
+              planLines.reviewsmall = PlanLine.fromDefault();
+            }
+              // planLines.reviewsmall = morajaS.isEmpty
+              //     ? PlanLine.fromDefault()
+              //     : getPlanLine(morajaS.last);
             }
             if (studetnt.isBigReview!) {
-              planLines.reviewbig = morajaB.isEmpty
-                  ? PlanLine.fromDefault()
-                  : getPlanLine(morajaB.last);
+              if (morajaB.isNotEmpty) {
+              var maxDate = morajaB.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = morajaB
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.reviewbig = getPlanLine(lastLine);
+            } else {
+              planLines.reviewbig = PlanLine.fromDefault();
+            }
+              // planLines.reviewbig = morajaB.isEmpty
+              //     ? PlanLine.fromDefault()
+              //     : getPlanLine(morajaB.last);
             }
             if (studetnt.isTilawa!) {
-              planLines.tlawa = tilawa.isEmpty
-                  ? PlanLine.fromDefault()
-                  : getPlanLine(tilawa.last);
+                   if (tilawa.isNotEmpty) {
+              var maxDate = tilawa.reduce((min, e) =>
+                  DateTime.parse(e.actualDate)
+                          .isAfter(DateTime.parse(min.actualDate))
+                      ? e
+                      : min);
+              var lastLine = tilawa
+                  .where((element) => element.actualDate == maxDate.actualDate)
+                  .reduce((value, element) =>
+                      value.toAya > element.toAya ? value : element);
+              planLines.tlawa = getPlanLine(lastLine);
+            } else {
+              planLines.tlawa = PlanLine.fromDefault();
+            }
+              // planLines.tlawa = tilawa.isEmpty
+              //     ? PlanLine.fromDefault()
+              //     : getPlanLine(tilawa.last);
             }
 
             await PlanLinesService().setPlanLinesLocal(planLines);
@@ -1223,7 +1374,7 @@ class HomeController extends GetxController {
             if (studetnt.newAttendances!.isNotEmpty) {
               for (NewAttendances newAttendances
                   in studetnt.newAttendances ?? []) {
-                setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
+               await setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
                     studentState: StudentState(
                         ids: newAttendances.id,
                         studentId: stuId.id!,
@@ -1367,7 +1518,7 @@ class HomeController extends GetxController {
   // }
   // }
 
- Future addListenLineFromCheck(String typePlanLine, int id, int episodeId,
+  Future addListenLineFromCheck(String typePlanLine, int id, int episodeId,
       ListenLine newListenLine) async {
     late PlanLine planLine;
     late ListenLine listenLine;
@@ -1398,7 +1549,7 @@ class HomeController extends GetxController {
       );
       EducationalPlan newEducationalPlan =
           await EducationalPlanService().getEducationalPlanLocal(episodeId, id);
-      print(typePlanLine);    
+      print(typePlanLine);
       if (PlanLinesType.listen == typePlanLine) {
         newEducationalPlan.planListen.add(educational);
       } else if (PlanLinesType.reviewsmall == typePlanLine) {
