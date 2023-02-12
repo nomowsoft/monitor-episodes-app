@@ -24,6 +24,7 @@ class EpisodeDetails extends StatefulWidget {
 }
 
 class _EpisodeDetailsState extends State<EpisodeDetails> {
+  Object renderObject = Object();
   int selectIndex = 0;
   int indextab = 0;
   List<String> tabs = [
@@ -223,6 +224,7 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                                           index]
                                                       .id!);
                                             } else {
+                                              renderObject = Object();
                                               homeController.loadEducationalPlan(
                                                   widget.episode.id!,
                                                   homeController
@@ -799,6 +801,8 @@ class _EpisodeDetailsState extends State<EpisodeDetails> {
                                         )
                                       : indextab == 1
                                           ? EducationalPlan(
+                                              key: ValueKey<Object>(
+                                                  renderObject),
                                               episode: widget.episode,
                                               id: homeController
                                                   .listStudentsOfEpisode[
