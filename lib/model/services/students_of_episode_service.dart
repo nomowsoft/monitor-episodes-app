@@ -34,16 +34,19 @@ class StudentsOfEpisodeService {
       return null;
     }
   }
-    Future<List<int>> getLogStudentsOfEpisodeLocal() async {
+
+  Future<List<int>> getLogStudentsOfEpisodeLocal() async {
     try {
       final dbHelper = DatabaseHelper.instance;
-      final allProducts =
-          await dbHelper.queryAllRowsWhere(DatabaseHelper.logTableStudentOfEpisode, EpisodeColumns.operation.value, 'delete');
+      final allProducts = await dbHelper.queryAllRowsWhere(
+          DatabaseHelper.logTableStudentOfEpisode,
+          EpisodeColumns.operation.value,
+          'delete');
 
-            List<int> ids = [];
-        for (var element in allProducts as List) {
-          ids.add(element['id']);
-        }
+      List<int> ids = [];
+      for (var element in allProducts as List) {
+        ids.add(element['id']);
+      }
       return ids;
     } catch (e) {
       return [];
