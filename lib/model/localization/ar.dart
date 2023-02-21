@@ -214,4 +214,7 @@ Map<String, String> translateArabic = {
   "sync": "مزامنة",
   "the_student_cannot_be_deleted_because_it_is_linked_to_a_memorization_plan":
       "لايمكن حذف الطالب لانه مربوط بخطة حفظ أو مراجعة",
+      "settings":'إعدادات',
+      "language":'اللغة',
+      "delete_account": "حذف الحساب",
 };

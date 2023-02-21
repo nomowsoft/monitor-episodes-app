@@ -8,6 +8,7 @@ import 'package:monitor_episodes/ui/shared/utils/custom_dailogs.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/monitor_episodes.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/add_episode.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/episode_details/widgets/add_student.dart';
+import 'package:monitor_episodes/ui/views/home/widgets/setting/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../model/core/shared/response_content.dart';
@@ -37,7 +38,9 @@ class _HomeState extends State<Home> {
             title: Text(
               homeController.currentPageIndex == 2
                   ? 'about_as'.tr
-                  : 'monitor_episodes'.tr,
+                  : homeController.currentPageIndex == 3
+                      ? 'settings'.tr
+                      : 'monitor_episodes'.tr,
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 20.sp,
@@ -214,6 +217,25 @@ class _HomeState extends State<Home> {
                                 Get.back();
                               },
                             ),
+                            //settings
+                            ListTile(
+                              leading: const Icon(
+                                Icons.settings,
+                                color: Colors.white,
+                              ),
+                              title: Text(
+                                'settings'.tr,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w500),
+                                textScaleFactor: SizeConfig.textScaleFactor,
+                              ),
+                              onTap: () async {
+                                homeController.currentPageIndex = 3;
+                                Get.back();
+                              },
+                            ),
                             //logout
                             ListTile(
                               leading: const Icon(
@@ -270,7 +292,9 @@ class _HomeState extends State<Home> {
               Positioned.fill(
                   child: homeController.currentPageIndex == 1
                       ? const MonitorEpisodes()
-                      : const AboutUs()),
+                      : homeController.currentPageIndex == 2
+                          ? const AboutUs()
+                          : const Settings()),
             ]);
           }))),
     );
