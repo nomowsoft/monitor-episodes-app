@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart' as cupertino;
+import 'package:flutter/material.dart' as material;
 import 'package:monitor_episodes/model/core/educational/educational.dart';
 import 'package:monitor_episodes/model/core/educational/educational_plan.dart';
 import 'package:monitor_episodes/model/core/episodes/check_students_responce.dart';
@@ -23,6 +25,9 @@ import 'package:monitor_episodes/model/services/plan_lines_service.dart';
 import 'package:monitor_episodes/model/services/upload_service.dart';
 import 'package:monitor_episodes/model/services/students_of_episode_service.dart';
 import 'package:monitor_episodes/model/services/teacher_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
 import '../model/core/episodes/check_student_work_responce.dart';
 import '../model/core/episodes/check_episode.dart';
@@ -60,9 +65,71 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
+    //Timer(const Duration(seconds: 2), () { checkVersion();});
     //  sendToTheServerFunction();
   }
+  checkVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final databaseReference = FirebaseDatabase.instance.ref();
+    if (prefs.getString('version_app') == null) {
+      DataSnapshot dataSnapshot =
+          await databaseReference.child('version_app').get();
+      if (dataSnapshot.exists) {
+        await prefs.setString('version_app', dataSnapshot.value.toString());
+      }
+    }
 
+    databaseReference.child('version_app').onValue.listen((event) async {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      if (packageInfo.version != event.snapshot.value) {
+        await prefs.setString('version_app', event.snapshot.value.toString());
+        await CostomDailogs.dialogWithImageAndText(
+            text: 'update_app'.tr,
+            buttonText: 'update'.tr,
+            icon: material.Icon(
+              material.Icons.update,
+              color: Get.theme.secondaryHeaderColor,
+              size: 30,
+            ),
+            onPressed: () async {
+              await openStoreToUpdate();
+            });
+      }
+    });
+
+    if (prefs.getString('version_app') != null &&
+        packageInfo.version != prefs.getString('version_app')) {
+      await CostomDailogs.dialogWithImageAndText(
+          text: 'update_app'.tr,
+          buttonText: 'update'.tr,
+          icon: material.Icon(
+            material.Icons.update,
+            color: Get.theme.secondaryHeaderColor,
+            size: 30,
+          ),
+          onPressed: () async {
+            await openStoreToUpdate();
+          });
+    }
+  }
+    Future<void> openStoreToUpdate() async {
+    try {
+      if (Platform.isAndroid) {
+        await launchUrl(
+            Uri.parse(
+                'https://play.google.com/store/apps/details?id=org.maknon.monitor'),
+            mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(
+            Uri.parse(
+                'https://apps.apple.com/vn/app/مكنون-للمعلم-ة/id1603251064?platform=iphone'),
+            mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      CostomDailogs.warringDialogWithGet(msg: 'erorr_happened'.tr);
+    }
+  }
   initFilds() {
     _gettingEpisodes = false;
     _gettingStudentsOfEpisode = false;

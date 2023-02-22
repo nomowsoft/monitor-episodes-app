@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:monitor_episodes/controller/home_controller.dart';
 import 'package:monitor_episodes/model/core/educational/educational.dart';
 import 'package:monitor_episodes/model/core/episodes/episode.dart';
+import 'package:monitor_episodes/model/core/shared/constants.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:monitor_episodes/model/core/shared/status_and_types.dart';
 import 'package:monitor_episodes/ui/shared/widgets/buttons/custom_list_button_underlined.dart';
@@ -80,14 +81,70 @@ class _EducationalPlanState extends State<EducationalPlan> {
     HomeController homeController = Get.find<HomeController>();
     String tab = getLisTabs()[tabIndex];
     if (tab == PlanLinesType.listen) {
+      homeController.educationalPlan!.planListen.sort((a, b) {
+        var compareDate =
+            a.actualDate!.compareTo(b.actualDate!);
+        if (compareDate == 0) {
+          var compareSura = getSuraId(a.fromSuraName).compareTo(getSuraId(b.fromSuraName));
+          if (compareSura == 0) {
+            return a.toAya.compareTo(b.toAya);
+          } else {
+            return compareSura;
+          }
+        } else {
+          return compareDate;
+        }
+      });
       return homeController.educationalPlan!.planListen;
     }
     if (tab == PlanLinesType.reviewsmall) {
+      homeController.educationalPlan!.planReviewSmall.sort((a, b) {
+        var compareDate =
+            a.actualDate!.compareTo(b.actualDate!);
+        if (compareDate == 0) {
+          var compareSura = getSuraId(a.fromSuraName).compareTo(getSuraId(b.fromSuraName));
+          if (compareSura == 0) {
+            return a.toAya.compareTo(b.toAya);
+          } else {
+            return compareSura;
+          }
+        } else {
+          return compareDate;
+        }
+      });
       return homeController.educationalPlan!.planReviewSmall;
     }
     if (tab == PlanLinesType.reviewbig) {
+      homeController.educationalPlan!.planReviewbig.sort((a, b) {
+       var compareDate =
+            a.actualDate!.compareTo(b.actualDate!);
+        if (compareDate == 0) {
+          var compareSura = getSuraId(a.fromSuraName).compareTo(getSuraId(b.fromSuraName));
+          if (compareSura == 0) {
+            return a.toAya.compareTo(b.toAya);
+          } else {
+            return compareSura;
+          }
+        } else {
+          return compareDate;
+        }
+      });
       return homeController.educationalPlan!.planReviewbig;
     } else {
+      homeController.educationalPlan!.planTlawa.sort((a, b) {
+       var compareDate =
+            a.actualDate!.compareTo(b.actualDate!);
+        if (compareDate == 0) {
+          var compareSura = getSuraId(a.fromSuraName).compareTo(getSuraId(b.fromSuraName));
+          if (compareSura == 0) {
+            return a.toAya.compareTo(b.toAya);
+          } else {
+            return compareSura;
+          }
+        } else {
+          return compareDate;
+        }
+      });
       return homeController.educationalPlan!.planTlawa;
     }
   }
@@ -419,5 +476,11 @@ class _EducationalPlanState extends State<EducationalPlan> {
 
   String getDateTimeName(DateTime dateTime) {
     return DateFormat('yMd', 'ar').format(dateTime);
+  }
+
+  int getSuraId(String suraName) {
+    return Constants.listSurah
+        .firstWhere((element) => element.name == suraName)
+        .id;
   }
 }
