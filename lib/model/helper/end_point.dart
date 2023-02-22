@@ -15,5 +15,9 @@
   static String edisodes = 'get/teacher/halaqaa';
   static String checkStudentWorks = 'check_student_works';
   static String checkHalaqat = 'check_halaqat';
+  static String sendCode = 'send_code';
+  static String updateAccount = 'update_account';
+
+
  }
  //check_students

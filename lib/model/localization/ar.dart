@@ -214,4 +214,13 @@ Map<String, String> translateArabic = {
   "sync": "مزامنة",
   "the_student_cannot_be_deleted_because_it_is_linked_to_a_memorization_plan":
       "لايمكن حذف الطالب لانه مربوط بخطة حفظ أو مراجعة",
+  "password_recovery": "استرجاع كلمة المرور",
+  "send": "إرسال",
+  "verification": "تَحَقّق",
+  "enter_your_code_number": "أدخل رقم التحقق الخاص بك",
+  "verify": "تأكيد",
+  "resend_new_code": "إعادة إرسال رمز جديد",
+  "new_password": "تحديث كلمة المرور",
+  "verification_code_has_timed_out": "انتهت مهلة رمز التحقق",
+  "verification_code_is_incorrect": "رمز التحقق غير صحيح"
 };

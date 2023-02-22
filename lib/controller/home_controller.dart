@@ -429,56 +429,53 @@ class HomeController extends GetxController {
           }
         }
         if (hifz.isNotEmpty) {
-            var maxDate = hifz.reduce((min, e) => DateTime.parse(e.actualDate)
-                      .isAfter(DateTime.parse(min.actualDate))
-                  ? e
-                  : min);
-              var lastLine = hifz
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLinesStudent!.listen = getPlanLine(lastLine);
-        //  planLinesStudent!.listen = getPlanLine(hifz.last);
+          var maxDate = hifz.reduce((min, e) => DateTime.parse(e.actualDate)
+                  .isAfter(DateTime.parse(min.actualDate))
+              ? e
+              : min);
+          var lastLine = hifz
+              .where((element) => element.actualDate == maxDate.actualDate)
+              .reduce((value, element) =>
+                  value.toAya > element.toAya ? value : element);
+          planLinesStudent!.listen = getPlanLine(lastLine);
+          //  planLinesStudent!.listen = getPlanLine(hifz.last);
         }
         if (morajaS.isNotEmpty) {
-          var maxDate = morajaS.reduce((min, e) =>
-                  DateTime.parse(e.actualDate)
-                          .isAfter(DateTime.parse(min.actualDate))
-                      ? e
-                      : min);
-              var lastLine = morajaS
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLinesStudent!.reviewsmall = getPlanLine(lastLine);
-         // planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
+          var maxDate = morajaS.reduce((min, e) => DateTime.parse(e.actualDate)
+                  .isAfter(DateTime.parse(min.actualDate))
+              ? e
+              : min);
+          var lastLine = morajaS
+              .where((element) => element.actualDate == maxDate.actualDate)
+              .reduce((value, element) =>
+                  value.toAya > element.toAya ? value : element);
+          planLinesStudent!.reviewsmall = getPlanLine(lastLine);
+          // planLinesStudent!.reviewsmall = getPlanLine(morajaS.last);
         }
         if (morajaB.isNotEmpty) {
-          var maxDate = morajaB.reduce((min, e) =>
-                  DateTime.parse(e.actualDate)
-                          .isAfter(DateTime.parse(min.actualDate))
-                      ? e
-                      : min);
-              var lastLine = morajaB
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-               planLinesStudent!.reviewbig = getPlanLine(lastLine);
-         // planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
+          var maxDate = morajaB.reduce((min, e) => DateTime.parse(e.actualDate)
+                  .isAfter(DateTime.parse(min.actualDate))
+              ? e
+              : min);
+          var lastLine = morajaB
+              .where((element) => element.actualDate == maxDate.actualDate)
+              .reduce((value, element) =>
+                  value.toAya > element.toAya ? value : element);
+          planLinesStudent!.reviewbig = getPlanLine(lastLine);
+          // planLinesStudent!.reviewbig = getPlanLine(morajaB.last);
         }
-        if (tilawa.isNotEmpty) { 
-              var maxDate = tilawa.reduce((min, e) =>
-                  DateTime.parse(e.actualDate)
-                          .isAfter(DateTime.parse(min.actualDate))
-                      ? e
-                      : min);
-              var lastLine = tilawa
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLinesStudent!.tlawa = getPlanLine(lastLine);
-             
-         // planLinesStudent!.tlawa = getPlanLine(tilawa.last);
+        if (tilawa.isNotEmpty) {
+          var maxDate = tilawa.reduce((min, e) => DateTime.parse(e.actualDate)
+                  .isAfter(DateTime.parse(min.actualDate))
+              ? e
+              : min);
+          var lastLine = tilawa
+              .where((element) => element.actualDate == maxDate.actualDate)
+              .reduce((value, element) =>
+                  value.toAya > element.toAya ? value : element);
+          planLinesStudent!.tlawa = getPlanLine(lastLine);
+
+          // planLinesStudent!.tlawa = getPlanLine(tilawa.last);
         }
         await PlanLinesService().updatePlanLinesLocal(planLinesStudent!);
         if (planLines?.studentId == planLinesStudent.studentId) {
@@ -683,7 +680,7 @@ class HomeController extends GetxController {
           isCompleted =
               await PlanLinesService().updatePlanLinesLocal(planLines);
           for (var studentState in studetnt.studentState) {
-           await setAttendance(episodeId, studetnt.state, lastStudent.id!,
+            await setAttendance(episodeId, studetnt.state, lastStudent.id!,
                 studentState: StudentState(
                     ids: studentState.ids,
                     studentId: lastStudent.id!,
@@ -1148,8 +1145,8 @@ class HomeController extends GetxController {
 
         if (index >= 0) {
           if (_listStudentsOfEpisode[index].state == 'student_preparation'.tr) {
-           await setAttendance(_listStudentsOfEpisode[index].episodeId!, 'present',
-                _listStudentsOfEpisode[index].id!);
+            await setAttendance(_listStudentsOfEpisode[index].episodeId!,
+                'present', _listStudentsOfEpisode[index].id!);
             // _listStudentsOfEpisode[index].state = 'present'.tr;
             // _listStudentsOfEpisode[index].stateDate =
             //     DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -1293,76 +1290,81 @@ class HomeController extends GetxController {
             planLines.episodeId = epiId.id!;
             planLines.studentId = stuId!.id!;
             if (studetnt.isHifz!) {
-               if (hifz.isNotEmpty) {
-              var maxDate = hifz.reduce((min, e) => DateTime.parse(e.actualDate)
-                      .isAfter(DateTime.parse(min.actualDate))
-                  ? e
-                  : min);
-              var lastLine = hifz
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLines.listen = getPlanLine(lastLine);
-            } else {
-              planLines.listen = PlanLine.fromDefault();
-            }
+              if (hifz.isNotEmpty) {
+                var maxDate = hifz.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = hifz
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
+                planLines.listen = getPlanLine(lastLine);
+              } else {
+                planLines.listen = PlanLine.fromDefault();
+              }
               // planLines.listen = hifz.isEmpty
               //     ? PlanLine.fromDefault()
               //     : getPlanLine(hifz.last);
             }
             if (studetnt.isSmallReview!) {
               if (morajaS.isNotEmpty) {
-              var maxDate = morajaS.reduce((min, e) =>
-                  DateTime.parse(e.actualDate)
-                          .isAfter(DateTime.parse(min.actualDate))
-                      ? e
-                      : min);
-              var lastLine = morajaS
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLines.reviewsmall = getPlanLine(lastLine);
-            } else {
-              planLines.reviewsmall = PlanLine.fromDefault();
-            }
+                var maxDate = morajaS.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = morajaS
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
+                planLines.reviewsmall = getPlanLine(lastLine);
+              } else {
+                planLines.reviewsmall = PlanLine.fromDefault();
+              }
               // planLines.reviewsmall = morajaS.isEmpty
               //     ? PlanLine.fromDefault()
               //     : getPlanLine(morajaS.last);
             }
             if (studetnt.isBigReview!) {
               if (morajaB.isNotEmpty) {
-              var maxDate = morajaB.reduce((min, e) =>
-                  DateTime.parse(e.actualDate)
-                          .isAfter(DateTime.parse(min.actualDate))
-                      ? e
-                      : min);
-              var lastLine = morajaB
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLines.reviewbig = getPlanLine(lastLine);
-            } else {
-              planLines.reviewbig = PlanLine.fromDefault();
-            }
+                var maxDate = morajaB.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = morajaB
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
+                planLines.reviewbig = getPlanLine(lastLine);
+              } else {
+                planLines.reviewbig = PlanLine.fromDefault();
+              }
               // planLines.reviewbig = morajaB.isEmpty
               //     ? PlanLine.fromDefault()
               //     : getPlanLine(morajaB.last);
             }
             if (studetnt.isTilawa!) {
-                   if (tilawa.isNotEmpty) {
-              var maxDate = tilawa.reduce((min, e) =>
-                  DateTime.parse(e.actualDate)
-                          .isAfter(DateTime.parse(min.actualDate))
-                      ? e
-                      : min);
-              var lastLine = tilawa
-                  .where((element) => element.actualDate == maxDate.actualDate)
-                  .reduce((value, element) =>
-                      value.toAya > element.toAya ? value : element);
-              planLines.tlawa = getPlanLine(lastLine);
-            } else {
-              planLines.tlawa = PlanLine.fromDefault();
-            }
+              if (tilawa.isNotEmpty) {
+                var maxDate = tilawa.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = tilawa
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
+                planLines.tlawa = getPlanLine(lastLine);
+              } else {
+                planLines.tlawa = PlanLine.fromDefault();
+              }
               // planLines.tlawa = tilawa.isEmpty
               //     ? PlanLine.fromDefault()
               //     : getPlanLine(tilawa.last);
@@ -1374,7 +1376,7 @@ class HomeController extends GetxController {
             if (studetnt.newAttendances!.isNotEmpty) {
               for (NewAttendances newAttendances
                   in studetnt.newAttendances ?? []) {
-               await setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
+                await setAttendance(epiId.id!, studetnt.state!, studetnt.id!,
                     studentState: StudentState(
                         ids: newAttendances.id,
                         studentId: stuId.id!,

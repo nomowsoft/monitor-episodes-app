@@ -55,6 +55,20 @@ class _SignUpState extends State<SignUp> {
                   repeat: ImageRepeat.repeat,
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () => Get.back(),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 32,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
               Center(
                 child: SingleChildScrollView(
                   child: Column(
@@ -112,13 +126,56 @@ class _SignUpState extends State<SignUp> {
                                   height: 50.h,
                                 ),
 
-                                /// username
+                                /// email
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'username'.tr,
+                                      'email'.tr,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                      textScaleFactor:
+                                          SizeConfig.textScaleFactor,
+                                    ),
+                                    SizedBox(
+                                      height: 5.h,
+                                    ),
+                                    TextFormField(
+                                      textInputAction: TextInputAction.next,
+                                      keyboardType: TextInputType.emailAddress,
+                                      keyboardAppearance: Brightness.light,
+                                      validator: Validator.emailValidator,
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
+                                      controller: authControllerImp.username,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        hintText: 'enter_email'.tr,
+                                      ),
+                                      onChanged: (val) {},
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+
+                                /// name
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'name'.tr,
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14.sp,
@@ -145,7 +202,7 @@ class _SignUpState extends State<SignUp> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        hintText: 'enter_username'.tr,
+                                        hintText: 'enter_name'.tr,
                                       ),
                                       onChanged: (val) {},
                                     ),

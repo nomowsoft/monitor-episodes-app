@@ -130,8 +130,7 @@ class Validator {
         return null;
       }
     } else {
-       return null;
-      // return 'enter_email'.tr;
+      return 'enter_email'.tr;
     }
   }
 }

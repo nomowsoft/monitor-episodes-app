@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:monitor_episodes/model/core/shared/response_content.dart';
 import 'package:monitor_episodes/model/core/user/auth_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/core/shared/constants.dart';
 import '../model/services/auth_service.dart';
@@ -40,6 +43,11 @@ class AuthControllerImp extends GetxController implements AuthController {
   @override
   late TextEditingController mobile;
 
+  late TextEditingController email;
+  late TextEditingController newPasswordUser;
+
+  late TextEditingController code;
+
   List genders = ['male'.tr, 'female'.tr];
 
   bool _gettingData = true;
@@ -57,11 +65,14 @@ class AuthControllerImp extends GetxController implements AuthController {
 
   @override
   initFilds() {
+    email = TextEditingController();
     name = TextEditingController();
     password = TextEditingController();
     username = TextEditingController();
     mobile = TextEditingController();
     country = TextEditingController();
+    code = TextEditingController();
+    newPasswordUser = TextEditingController();
     countryID = 192;
     country.text = Constants.listCountries
         .firstWhere((element) => element.code == 'SA')
@@ -83,6 +94,7 @@ class AuthControllerImp extends GetxController implements AuthController {
   Future<ResponseContent> signUp() async {
     TeacherModel teacherModel = TeacherModel(
         name: name.text,
+        login: username.text,
         password: password.text,
         gender: gender,
         mobile: mobile.text,
@@ -92,7 +104,7 @@ class AuthControllerImp extends GetxController implements AuthController {
         await AuthService().postSignUp(teacherModel: teacherModel);
     if (response.isSuccess || response.isNoContent) {
       ResponseContent response = await AuthService()
-          .postSignIn(username: name.text, password: password.text);
+          .postSignIn(username: username.text, password: password.text);
       return response;
     }
     return response;
@@ -104,5 +116,45 @@ class AuthControllerImp extends GetxController implements AuthController {
         Constants.listCountries.firstWhere((element) => element.id == id).name;
     countryID = int.parse(id);
     update();
+  }
+
+  generateRandom() {
+    int min = 1000;
+    int max = 9999;
+    var randomizer = Random();
+    var rNum = min + randomizer.nextInt(max - min);
+    return rNum;
+  }
+
+  Future<ResponseContent> sendCode() async {
+    int number = generateRandom();
+    DateTime dateToday = DateTime.now();
+    String date = dateToday.toString();
+    // .substring(0, 10)
+    // print(dateToday.hour.toString() +
+    //     ":" +
+    //     dateToday.minute.toString() +
+    //     ":" +
+    //     dateToday.second.toString());
+    // print(date);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('time_random_number', date);
+
+    prefs.setInt('random_number', number);
+
+    ResponseContent response =
+        await AuthService().postSendCode(email.text, number);
+    return response;
+  }
+
+  Future<ResponseContent> newPassword() async {
+    ResponseContent response =
+        await AuthService().postNewPassword(email.text, newPasswordUser.text);
+    if (response.isSuccess || response.isNoContent) {
+      ResponseContent response = await AuthService()
+          .postSignIn(username: email.text, password: newPasswordUser.text);
+      return response;
+    }
+    return response;
   }
 }
