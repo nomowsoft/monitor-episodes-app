@@ -226,7 +226,6 @@ Map<String, String> translateArabic = {
   "settings":'إعدادات',
   "language":'اللغة',
   "delete_account": "حذف الحساب",
-
   "erorr_happened": "حدث خطأ من فضلك حاول مرة أخرى",
   "update_app": "تتوفر نسخة جديدة من التطبيق",
   "update": "قم بالتحديث الآن",
