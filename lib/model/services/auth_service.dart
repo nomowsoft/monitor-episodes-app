@@ -76,4 +76,31 @@ class AuthService {
         contentType: ContentTypeHeaders.applicationJson);
     return response;
   }
+
+  Future<ResponseContent> postSendCode(String email, int num) async {
+    Map<String, dynamic> data = {"login": email, "code": "$num"};
+    ResponseContent response = await _apiHelper.postV2(
+        EndPoint.sendCode, jsonEncode(data),
+        linkApi: "http://rased-api.maknon.org.sa",
+        contentType: ContentTypeHeaders.applicationJson);
+    if (response.success ?? false) {
+      return response;
+    } else {
+      return response;
+    }
+  }
+
+  Future<ResponseContent> postNewPassword(
+      String email, String newpassword) async {
+    Map<String, dynamic> data = {"login": email, "new_password": newpassword};
+    ResponseContent response = await _apiHelper.postV2(
+        EndPoint.updateAccount, jsonEncode(data),
+        linkApi: "http://rased-api.maknon.org.sa/cud",
+        contentType: ContentTypeHeaders.applicationJson);
+    if (response.success ?? false) {
+      return response;
+    } else {
+      return response;
+    }
+  }
 }

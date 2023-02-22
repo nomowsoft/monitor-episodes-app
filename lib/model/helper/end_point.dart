@@ -16,6 +16,9 @@
   static String checkStudentWorks = 'check_student_works';
   static String checkHalaqat = 'check_halaqat';
   static String deleteAccount = 'cud/delete_account';
+  static String sendCode = 'send_code';
+  static String updateAccount = 'update_account';
+
 
  }
  //check_students

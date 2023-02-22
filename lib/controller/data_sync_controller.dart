@@ -121,8 +121,18 @@ class DataSyncController extends GetxController {
                     lastEpi.id!, planListen);
               }
               if (student.studentWorks.planReviewSmall.isNotEmpty) {
+                 var maxDate = student.studentWorks.planReviewSmall.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = student.studentWorks.planReviewSmall
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
                 planLines.reviewsmall =
-                    getPlanLine(student.studentWorks.planReviewSmall.first);
+                    getPlanLine(lastLine);
               } else {
                 planLines.reviewsmall = PlanLine.fromDefault();
               }
@@ -133,8 +143,18 @@ class DataSyncController extends GetxController {
                     lastEpi.id!, planListen);
               }
               if (student.studentWorks.planReviewBig.isNotEmpty) {
+                 var maxDate = student.studentWorks.planReviewBig.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = student.studentWorks.planReviewBig
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
                 planLines.reviewbig =
-                    getPlanLine(student.studentWorks.planReviewBig.first);
+                    getPlanLine(lastLine);
               } else {
                 planLines.reviewbig = PlanLine.fromDefault();
               }
@@ -145,8 +165,18 @@ class DataSyncController extends GetxController {
                     PlanLinesType.tlawa, lastStu.id!, lastEpi.id!, planListen);
               }
               if (student.studentWorks.planTlawa.isNotEmpty) {
+                 var maxDate = student.studentWorks.planTlawa.reduce((min, e) =>
+                    DateTime.parse(e.actualDate)
+                            .isAfter(DateTime.parse(min.actualDate))
+                        ? e
+                        : min);
+                var lastLine = student.studentWorks.planTlawa
+                    .where(
+                        (element) => element.actualDate == maxDate.actualDate)
+                    .reduce((value, element) =>
+                        value.toAya > element.toAya ? value : element);
                 planLines.tlawa =
-                    getPlanLine(student.studentWorks.planTlawa.first);
+                    getPlanLine(lastLine);
               } else {
                 planLines.tlawa = PlanLine.fromDefault();
               }

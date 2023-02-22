@@ -10,6 +10,7 @@ import '../../../model/core/shared/response_content.dart';
 import '../../shared/utils/custom_dailogs.dart';
 import '../data_initialization/data_initialization.dart';
 import '../home/home.dart';
+import '../password_recovery/password_recovery.dart';
 import '../sign_up/sign_up.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -117,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'username'.tr,
+                                      'email'.tr,
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14.sp,
@@ -144,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.white,
-                                        hintText: 'enter_username'.tr,
+                                        hintText: 'enter_email'.tr,
                                       ),
                                       onChanged: (val) {},
                                     ),
@@ -207,32 +208,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ],
                                 ),
+                                SizedBox(
+                                  height: 20.h,
+                                ),
 
-                                SizedBox(
-                                  height: 30.h,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    Get.to(() => const SignUp());
-                                  },
-                                  child: Text(
-                                    'create_new_account'.tr,
-                                    style: TextStyle(
-                                      color: Get.theme.secondaryHeaderColor,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w800,
-                                      decoration: TextDecoration.underline,
-                                      decorationStyle:
-                                          TextDecorationStyle.dashed,
-                                      decorationColor: Colors.black,
-                                      decorationThickness: 3,
-                                    ),
-                                    textScaleFactor: SizeConfig.textScaleFactor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 30.h,
-                                ),
                                 Stack(
                                   children: [
                                     InkWell(
@@ -251,7 +230,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                               hasWaitAnim = true;
                                               loginErorr = false;
                                             });
-
                                             Get.off(
                                                 () =>
                                                     const DataInitialization(),
@@ -368,6 +346,51 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                   ],
+                                ),
+                                SizedBox(
+                                  height: 20.h,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Get.to(() => const SignUp());
+                                  },
+                                  child: Text(
+                                    'create_new_account'.tr,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      // decoration: TextDecoration.underline,
+                                      // decorationStyle:
+                                      //     TextDecorationStyle.dashed,
+                                      // decorationColor:
+                                      //     Get.theme.secondaryHeaderColor,
+                                      // decorationThickness: 3,
+                                    ),
+                                    textScaleFactor: SizeConfig.textScaleFactor,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 20.h,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Get.to(() => const PasswordRecoveryPage());
+                                  },
+                                  child: Text(
+                                    'password_recovery'.tr,
+                                    style: TextStyle(
+                                      color: Get.theme.secondaryHeaderColor,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      // decoration: TextDecoration.underline,
+                                      // decorationStyle:
+                                      //     TextDecorationStyle.dashed,
+                                      // decorationColor: Colors.black,
+                                      // decorationThickness: 3,
+                                    ),
+                                    textScaleFactor: SizeConfig.textScaleFactor,
+                                  ),
                                 ),
                               ],
                             ),
