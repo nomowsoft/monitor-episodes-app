@@ -222,4 +222,81 @@ class CostomDailogs {
         ) ??
         false);
   }
+
+   static Future<bool> dialogWithImageAndText(
+      {required String text,
+      required String buttonText,
+      Function()? onPressed,
+      required Icon icon}) async {
+    return (await Get.dialog(Builder(builder: (BuildContext dialogContext) {
+          return WillPopScope(
+              onWillPop: () async {
+                return false;
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        side: const BorderSide(color: Colors.white)),
+                    margin: const EdgeInsets.only(left: 40, right: 40),
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 20,),
+                        icon,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 30),
+                          child: Text(
+                            text,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontFamily: 'Loew-Next-Arabic',
+                                color: Colors.black,
+                                fontSize: 15,
+                                height: 1.5),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Get.theme.primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                        side: BorderSide(
+                                            color: Get.theme.primaryColor)),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                  ),
+                                  onPressed:onPressed?? () async {
+                                    Get.back(result: true);
+                                  },
+                                  child: Text(
+                                    buttonText,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ));
+        })) ??
+        false);
+  }
 }

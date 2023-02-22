@@ -1,5 +1,10 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:monitor_episodes/firebase_options.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +22,58 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Translation translation = Translation();
   await translation.fetchLocale();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  if (!kIsWeb) {
+    channel = const AndroidNotificationChannel(
+      'AllUsers', // id
+      'أشعارات راصد الحلقات', // title
+      description:
+          "هذه القناة لاشعارك بكل جديد \nيرجئ التحديث للحصول على العروض الجديده", // description
+      importance: Importance.high,
+    );
+  }
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  await flutterLocalNotificationsPlugin!
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel!);
+
+  /// Update the iOS foreground notification presentation options to allow
+  /// heads up notifications.
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   runApp(const MyApp());
+}
+
+AndroidNotificationChannel? channel;
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  flutterLocalNotificationsPlugin!.show(
+    message.notification.hashCode,
+    message.notification?.title,
+    message.notification?.body,
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        channel?.id ?? '',
+        channel?.name ?? '',
+        channelDescription: channel?.description ?? '',
+        importance: Importance.max,
+        priority: Priority.high,
+        playSound: true,
+        enableLights: true,
+        //sound: const RawResourceAndroidNotificationSound('sound')
+      ),
+      //iOS: DarwinNotificationDetails()
+    ),
+    //payload: 'Default Sound'
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -70,10 +126,39 @@ class _SplashScreenState extends State<SplashScreen>
     SizeConfig('initialSize').init(originalWidth: 428, originalHeight: 926);
     Constants().getConstants();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      // TeacherModel? teacherModel = await TeacherService().getUserLocal;
-      // if (teacherModel != null) {
-      //   isHome = true;
-      // }
+      await FirebaseMessaging.instance.subscribeToTopic('AllUsers');
+      var initialzationSettingsAndroid =
+          const AndroidInitializationSettings('@mipmap/ic_launcher');
+      var initialzationSettingsios = const DarwinInitializationSettings();
+      var initializationSettings = InitializationSettings(
+          android: initialzationSettingsAndroid, iOS: initialzationSettingsios);
+      flutterLocalNotificationsPlugin!.initialize(initializationSettings);
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        RemoteNotification? notification = message.notification;
+        AndroidNotification? android = message.notification?.android;
+        if (notification != null && android != null && !kIsWeb) {
+          flutterLocalNotificationsPlugin!.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel?.id ?? '',
+                channel?.name ?? '',
+                channelDescription: channel?.description ?? '',
+                importance: Importance.max,
+                priority: Priority.high,
+                icon: android.smallIcon,
+                playSound: true,
+                enableLights: true,
+                //sound: const RawResourceAndroidNotificationSound('sound')
+              ),
+            ),
+            //payload: 'Default Sound'
+          );
+        }
+      });
     });
 
     Timer(const Duration(seconds: 2), () async {
@@ -81,9 +166,11 @@ class _SplashScreenState extends State<SplashScreen>
         isclose = true;
       });
       Timer(const Duration(milliseconds: 500), () {
-        setState(() {
+        if(mounted) {
+          setState(() {
           isStartOpcity = true;
         });
+        }
       });
       final prefs = await SharedPreferences.getInstance();
       final isLogin = prefs.getBool('isLogin') ?? false;

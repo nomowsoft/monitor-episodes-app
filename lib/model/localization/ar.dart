@@ -222,5 +222,12 @@ Map<String, String> translateArabic = {
   "resend_new_code": "إعادة إرسال رمز جديد",
   "new_password": "تحديث كلمة المرور",
   "verification_code_has_timed_out": "انتهت مهلة رمز التحقق",
-  "verification_code_is_incorrect": "رمز التحقق غير صحيح"
+  "verification_code_is_incorrect": "رمز التحقق غير صحيح",
+  "settings":'إعدادات',
+  "language":'اللغة',
+  "delete_account": "حذف الحساب",
+
+  "erorr_happened": "حدث خطأ من فضلك حاول مرة أخرى",
+  "update_app": "تتوفر نسخة جديدة من التطبيق",
+  "update": "قم بالتحديث الآن",
 };
