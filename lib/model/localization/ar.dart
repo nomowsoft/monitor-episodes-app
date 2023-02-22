@@ -217,4 +217,5 @@ Map<String, String> translateArabic = {
       "settings":'إعدادات',
       "language":'اللغة',
       "delete_account": "حذف الحساب",
+      "confirm_delete_account":"هل انت متاكد من حذف الحساب وجميع البيانات",
 };

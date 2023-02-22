@@ -28,16 +28,19 @@ class ApiHelper {
       return false;
     }
   }
+
   Future<ResponseContent> getV1<T>(String endPoint,
-      {String? linkApi ,String linkCon = '', String header = ''}) async {
+      {String? linkApi, String linkCon = '', String header = ''}) async {
     final client = http.Client();
     try {
-      Uri uri = Uri.parse(linkApi!=null ? '$linkApi/$endPoint' : (link + url + endPoint));
+      Uri uri = Uri.parse(
+          linkApi != null ? '$linkApi/$endPoint' : (link + url + endPoint));
       final response = await client.get(uri, headers: {'Language': header});
       if (response.statusCode >= 200 && response.statusCode < 299) {
         try {
           var data = convert.jsonDecode(response.body);
-          ResponseContent result = ResponseContent.fromJsonList(data,response.statusCode);
+          ResponseContent result =
+              ResponseContent.fromJsonList(data, response.statusCode);
           return result;
         } catch (e) {
           return ResponseContent(
@@ -45,7 +48,8 @@ class ApiHelper {
         }
       } else if (response.statusCode >= 400 && response.statusCode < 499) {
         var data = convert.jsonDecode(response.body);
-        ResponseContent result = ResponseContent.fromJsonList(data,response.statusCode);
+        ResponseContent result =
+            ResponseContent.fromJsonList(data, response.statusCode);
         return result;
       } else {
         return ResponseContent(
@@ -107,9 +111,59 @@ class ApiHelper {
     }
   }
 
-    Future<ResponseContent> get<T>(String endPoint,
-      {String? linkApi, String? contentType, Map<String, String>? headers}) async {
+  Future<ResponseContent> postV3<T>(String endPoint, T value,
+      {String? linkApi,
+      String? contentType,
+      bool withToken = false,
+      Map<String, String>? headers}) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    final client = http.Client();
+    try {
+      Uri uri = Uri.parse(
+          linkApi != null ? '$linkApi/$endPoint' : (link + url + endPoint));
+      final response = await client.post(uri, body: value, headers: {
+        "Accept": "application/json",
+        "Content-Type": contentType ?? ContentTypeHeaders.formUrlEncoded,
+        'cookie': pref.getString('cookie') ?? '',
+        // 'Access-Token':
+        //     withToken ? Get.find<UserController>().userLogin?.token ?? '' : '',
+        ...?headers
+      });
+      // create 2,3
+      if (response.statusCode >= 200 && response.statusCode < 299) {
+        updateCookie(response, pref);
+        try {
+          var data = convert.jsonDecode(response.body);
+          print(data);
+          ResponseContent result =
+              ResponseContent.fromGetJson(data, response.statusCode);
+          return result;
+        } catch (e) {
+          print(e);
+          return ResponseContent(
+              success: false, statusCode: '401', message: 'Session Expire');
+        }
+      } else if (response.statusCode >= 400 && response.statusCode < 499) {
+        var data = convert.jsonDecode(response.body);
+        ResponseContent result =
+            ResponseContent.fromGetJson(data, response.statusCode);
+        return result;
+      } else {
+        return ResponseContent(
+            statusCode: '-${response.statusCode.toString()}',
+            message: response.body);
+      }
+    } catch (e) {
+      print(e);
+      return ResponseContent(
+          statusCode: '0', message: 'error_connect_to_netwotk'.tr);
+    }
+  }
 
+  Future<ResponseContent> get<T>(String endPoint,
+      {String? linkApi,
+      String? contentType,
+      Map<String, String>? headers}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final client = http.Client();
     try {
@@ -124,7 +178,8 @@ class ApiHelper {
       if (response.statusCode >= 200 && response.statusCode < 299) {
         try {
           var data = convert.jsonDecode(response.body);
-          ResponseContent result = ResponseContent.fromGetJson(data,response.statusCode);
+          ResponseContent result =
+              ResponseContent.fromGetJson(data, response.statusCode);
           return result;
         } catch (e) {
           return ResponseContent(
@@ -132,7 +187,8 @@ class ApiHelper {
         }
       } else if (response.statusCode >= 400 && response.statusCode < 499) {
         var data = convert.jsonDecode(response.body);
-        ResponseContent result = ResponseContent.fromJson(data,response.statusCode);
+        ResponseContent result =
+            ResponseContent.fromJson(data, response.statusCode);
         return result;
       } else {
         return ResponseContent(

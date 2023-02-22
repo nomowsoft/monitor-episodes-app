@@ -1,7 +1,7 @@
 Map<String, String> translateEnglish = {
   "title": "Halaqat Monitor",
   "logout": "Logout",
-  "please_wait": "Please wait",
+  "please_wait": "Please wait ...",
   "sign_in": "Sign In",
   "email": "E-mail",
   "email_error": "wrong email",
@@ -222,4 +222,5 @@ Map<String, String> translateEnglish = {
   "settings": 'Settings',
   "language": 'Language',
   "delete_account": "Delete account",
+  "confirm_delete_account": "Are you sure to delete the account and data?",
 };

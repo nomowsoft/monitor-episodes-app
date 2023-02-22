@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
       title: locale.languageCode == 'ar' ? "راصد الحلقات" : "Monitor Episodes",
       defaultTransition: Transition.fade,
       theme: ThemeLight.themeLight,
-      darkTheme: ThemeDark.themeDark,
+      darkTheme: ThemeLight.themeLight,
+     // darkTheme: ThemeDark.themeDark,
       supportedLocales: const [
         Locale('en', ''),
         Locale('ar', ''),

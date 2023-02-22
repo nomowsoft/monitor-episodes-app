@@ -68,4 +68,12 @@ class AuthService {
     }
     return response;
   }
+
+  Future<ResponseContent> deleteAccount() async {
+    ResponseContent response = await _apiHelper.postV3(
+        EndPoint.deleteAccount, null,
+        linkApi: "http://rased-api.maknon.org.sa",
+        contentType: ContentTypeHeaders.applicationJson);
+    return response;
+  }
 }
