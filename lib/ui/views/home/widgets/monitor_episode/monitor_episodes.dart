@@ -25,6 +25,8 @@ class _MonitorEpisodesState extends State<MonitorEpisodes> {
 
   @override
   Widget build(BuildContext context) {
+    final direction = Directionality.of(context);
+
     return GetBuilder(
       init: HomeController(),
       builder: (HomeController homeController) => Scaffold(body:
@@ -60,9 +62,13 @@ class _MonitorEpisodesState extends State<MonitorEpisodes> {
                                 ? Get.theme.secondaryHeaderColor
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
-                                borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                    bottomRight: Radius.circular(10)),
+                                borderRadius: direction == TextDirection.rtl
+                                    ? const BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10))
+                                    : const BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomRight: Radius.circular(10)),
                                 side: BorderSide(
                                     color: homeController.currentIndex == 1
                                         ? Get.theme.secondaryHeaderColor
@@ -100,9 +106,13 @@ class _MonitorEpisodesState extends State<MonitorEpisodes> {
                                 ? Get.theme.secondaryHeaderColor
                                 : Colors.white,
                             shape: RoundedRectangleBorder(
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(10),
-                                    bottomLeft: Radius.circular(10)),
+                                borderRadius: direction == TextDirection.rtl
+                                    ? const BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10))
+                                    : const BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomRight: Radius.circular(10)),
                                 side: BorderSide(
                                   color: homeController.currentIndex == 2
                                       ? Get.theme.secondaryHeaderColor

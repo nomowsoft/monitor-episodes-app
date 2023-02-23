@@ -4,7 +4,10 @@ import 'package:get/get.dart';
 import 'package:monitor_episodes/controller/home_controller.dart';
 import 'package:monitor_episodes/controller/statistics_controller.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
+import 'package:monitor_episodes/model/localization/translation.dart';
+import 'package:monitor_episodes/model/services/auth_service.dart';
 import 'package:monitor_episodes/ui/shared/utils/custom_dailogs.dart';
+import 'package:monitor_episodes/ui/shared/utils/waitting_dialog.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/monitor_episodes.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/add_episode.dart';
 import 'package:monitor_episodes/ui/views/home/widgets/monitor_episode/widgets/episode_details/widgets/add_student.dart';
@@ -23,8 +26,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late String language;
+  late Translation translation;
+  double bodyHeight = 0.0;
+  bool isOpen = false;
   @override
   void initState() {
+    language = Get.locale!.languageCode == 'ar' ? 'عربي' : 'English';
+    translation = Translation();
     super.initState();
   }
 
@@ -217,14 +226,262 @@ class _HomeState extends State<Home> {
                                 Get.back();
                               },
                             ),
-                            //settings
+                            ExpansionTile(
+                                tilePadding:
+                                    EdgeInsetsDirectional.only(end: 16.w),
+                                iconColor: Colors.white,
+                                collapsedIconColor: Colors.white,
+                                title: ListTile(
+                                  leading: const Icon(
+                                    Icons.translate,
+                                    color: Colors.white,
+                                  ),
+                                  title: Text(
+                                    'language'.tr,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w500),
+                                    textScaleFactor: SizeConfig.textScaleFactor,
+                                  ),
+                                ),
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      RadioListTile(
+                                        activeColor:
+                                            Get.theme.secondaryHeaderColor,
+                                        title: Text(
+                                          "عربي",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        value: "عربي",
+                                        groupValue: language,
+                                        onChanged: (value) {
+                                          if (language != 'عربي') {
+                                            language = value.toString();
+                                            translation.changeLanguage(
+                                                const Locale('ar'));
+                                          }
+                                        },
+                                      ),
+                                      RadioListTile(
+                                        activeColor:
+                                            Get.theme.secondaryHeaderColor,
+                                        title: Text(
+                                          "English",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        value: "English",
+                                        groupValue: language,
+                                        onChanged: (value) {
+                                          if (language != 'English') {
+                                            language = value.toString();
+                                            translation.changeLanguage(
+                                                const Locale('en'));
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ]),
+
+                            // Theme(
+                            //   data: Theme.of(context)
+                            //       .copyWith(brightness: Brightness.light),
+                            //   child: ExpansionPanelList(
+                            //     elevation: 0,
+                            //     expansionCallback: (panelIndex, isExpanded) {
+                            //       setState(() {
+                            //         isOpen = !isExpanded;
+                            //       });
+                            //     },
+                            //     children: [
+                            //       ExpansionPanel(
+                            //         canTapOnHeader: true,
+                            //         backgroundColor: Colors.transparent,
+                            //         isExpanded: isOpen,
+                            //         headerBuilder: (BuildContext context,
+                            //             bool isExpanded) {
+                            //           return ListTile(
+                            //             leading: const Icon(
+                            //               Icons.translate,
+                            //               color: Colors.white,
+                            //             ),
+                            //             trailing: const Icon(
+                            //               Icons.keyboard_arrow_down_rounded,
+                            //               color: Colors.white,
+                            //             ),
+                            //             title: Text(
+                            //               'language'.tr,
+                            //               style: TextStyle(
+                            //                   color: Colors.white,
+                            //                   fontSize: 16.sp,
+                            //                   fontWeight: FontWeight.w500),
+                            //               textScaleFactor:
+                            //                   SizeConfig.textScaleFactor,
+                            //             ),
+                            //           );
+                            //         },
+                            //         body: Column(
+                            //           crossAxisAlignment:
+                            //               CrossAxisAlignment.start,
+                            //           children: [
+                            //             RadioListTile(
+                            //               activeColor:
+                            //                   Get.theme.secondaryHeaderColor,
+                            //               title: Text(
+                            //                 "عربي",
+                            //                 style: TextStyle(
+                            //                     color: Colors.white,
+                            //                     fontSize: 14.sp,
+                            //                     fontWeight: FontWeight.w500),
+                            //               ),
+                            //               value: "عربي",
+                            //               groupValue: language,
+                            //               onChanged: (value) {
+                            //                 if (language != 'عربي') {
+                            //                   language = value.toString();
+                            //                   translation.changeLanguage(
+                            //                       const Locale('ar'));
+                            //                 }
+                            //               },
+                            //             ),
+                            //             RadioListTile(
+                            //               activeColor:
+                            //                   Get.theme.secondaryHeaderColor,
+                            //               title: Text(
+                            //                 "English",
+                            //                 style: TextStyle(
+                            //                     color: Colors.white,
+                            //                     fontSize: 14.sp,
+                            //                     fontWeight: FontWeight.w500),
+                            //               ),
+                            //               value: "English",
+                            //               groupValue: language,
+                            //               onChanged: (value) {
+                            //                 if (language != 'English') {
+                            //                   language = value.toString();
+                            //                   translation.changeLanguage(
+                            //                       const Locale('en'));
+                            //                 }
+                            //               },
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       )
+                            //     ],
+                            //   ),
+                            // ),
+
+                            // //Language
+                            // isOpen
+                            //     ? const Divider(
+                            //         thickness: 1.5,
+                            //       )
+                            //     : const SizedBox(),
+
+                            // ListTile(
+                            //   leading: const Icon(
+                            //     Icons.translate,
+                            //     color: Colors.white,
+                            //   ),
+                            //   trailing: const Icon(
+                            //     Icons.keyboard_arrow_down_rounded,
+                            //     color: Colors.white,
+                            //   ),
+                            //   title: Text(
+                            //     'language'.tr,
+                            //     style: TextStyle(
+                            //         color: Colors.white,
+                            //         fontSize: 16.sp,
+                            //         fontWeight: FontWeight.w500),
+                            //     textScaleFactor: SizeConfig.textScaleFactor,
+                            //   ),
+                            //   onTap: () async {
+                            //     // homeController.currentPageIndex = 3;
+                            //     // Get.back();
+                            //     isOpen = !isOpen;
+                            //     if (isOpen) {
+                            //       bodyHeight = 150.h;
+                            //     } else {
+                            //       bodyHeight = 0.0;
+                            //     }
+                            //     setState(() {});
+                            //   },
+                            // ),
+
+                            // AnimatedContainer(
+                            //   curve: Curves.easeInOut,
+                            //   duration: const Duration(milliseconds: 500),
+                            //   height: bodyHeight,
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     children: [
+                            //       RadioListTile(
+                            //         activeColor: Get.theme.secondaryHeaderColor,
+                            //         title: Text(
+                            //           "عربي",
+                            //           style: TextStyle(
+                            //               color: Colors.white,
+                            //               fontSize: 14.sp,
+                            //               fontWeight: FontWeight.w500),
+                            //         ),
+                            //         value: "عربي",
+                            //         groupValue: language,
+                            //         onChanged: (value) {
+                            //           if (language != 'عربي') {
+                            //             language = value.toString();
+                            //             translation
+                            //                 .changeLanguage(const Locale('ar'));
+                            //           }
+                            //         },
+                            //       ),
+                            //       RadioListTile(
+                            //         activeColor: Get.theme.secondaryHeaderColor,
+                            //         title: Text(
+                            //           "English",
+                            //           style: TextStyle(
+                            //               color: Colors.white,
+                            //               fontSize: 14.sp,
+                            //               fontWeight: FontWeight.w500),
+                            //         ),
+                            //         value: "English",
+                            //         groupValue: language,
+                            //         onChanged: (value) {
+                            //           if (language != 'English') {
+                            //             language = value.toString();
+                            //             translation
+                            //                 .changeLanguage(const Locale('en'));
+                            //           }
+                            //         },
+                            //       ),
+                            //     ],
+                            //   ),
+                            //   // color: Colors.red,
+                            // ),
+                            // isOpen
+                            //     ? const Divider(
+                            //         thickness: 1.5,
+                            //       )
+                            //     : const SizedBox(),
+                            
+                            // delete account
                             ListTile(
                               leading: const Icon(
-                                Icons.settings,
+                                Icons.delete,
                                 color: Colors.white,
                               ),
                               title: Text(
-                                'settings'.tr,
+                                'delete_account'.tr,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.sp,
@@ -232,8 +489,37 @@ class _HomeState extends State<Home> {
                                 textScaleFactor: SizeConfig.textScaleFactor,
                               ),
                               onTap: () async {
-                                homeController.currentPageIndex = 3;
-                                Get.back();
+                                bool result =
+                                    await CostomDailogs.yesNoDialogWithText(
+                                        text: 'confirm_delete_account'.tr);
+                                // remove from server
+                                if (result) {
+                                  Get.defaultDialog(
+                                      content: const WaitingDialog(),
+                                      title: '',
+                                      titlePadding: const EdgeInsets.all(5),
+                                      middleText: '');
+                                  var response =
+                                      await AuthService().deleteAccount();
+                                  Get.back();
+                                  if (response.isSuccess) {
+                                    // remove from local
+                                    var homeController =
+                                        Get.find<HomeController>();
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    prefs.clear();
+                                    prefs.setString('language_code',
+                                        Translation.locale.languageCode);
+                                    await homeController.deleteDatabase();
+                                    Get.offAll(() => const LoginScreen(),
+                                        duration: const Duration(seconds: 2),
+                                        curve: Curves.easeInOut,
+                                        transition: Transition.fadeIn);
+                                  } else {
+                                    CostomDailogs.snackBar(response: response);
+                                  }
+                                }
                               },
                             ),
                             //logout

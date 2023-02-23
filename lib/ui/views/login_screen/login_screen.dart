@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
+import 'package:monitor_episodes/model/localization/translation.dart';
 import 'package:monitor_episodes/ui/shared/utils/validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +10,6 @@ import '../../../controller/auth_controller.dart';
 import '../../../model/core/shared/response_content.dart';
 import '../../shared/utils/custom_dailogs.dart';
 import '../data_initialization/data_initialization.dart';
-import '../home/home.dart';
 import '../password_recovery/password_recovery.dart';
 import '../sign_up/sign_up.dart';
 
@@ -43,6 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final direction = Directionality.of(context);
+
     return GetBuilder(
       builder: (AuthControllerImp authControllerImp) => Scaffold(
         backgroundColor: Colors.white,
@@ -261,8 +263,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   .withOpacity(.7),
                                               Get.theme.secondaryHeaderColor,
                                             ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+                                            begin: direction == TextDirection.rtl
+                                                ? Alignment.topLeft
+                                                : Alignment.topRight,
+                                            end: direction == TextDirection.rtl
+                                                ? Alignment.bottomRight
+                                                : Alignment.bottomLeft,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                               islogin ? 70 : 14),

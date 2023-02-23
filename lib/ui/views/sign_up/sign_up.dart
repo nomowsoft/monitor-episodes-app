@@ -43,6 +43,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    final direction = Directionality.of(context);
     return GetBuilder(
       builder: (AuthControllerImp authControllerImp) => Scaffold(
         backgroundColor: Colors.white,
@@ -556,8 +557,12 @@ class _SignUpState extends State<SignUp> {
                                                   .withOpacity(.7),
                                               Get.theme.secondaryHeaderColor,
                                             ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+                                          begin: direction == TextDirection.rtl
+                                                ? Alignment.topLeft
+                                                : Alignment.topRight,
+                                            end: direction == TextDirection.rtl
+                                                ? Alignment.bottomRight
+                                                : Alignment.bottomLeft,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                               islogin ? 70 : 14),
