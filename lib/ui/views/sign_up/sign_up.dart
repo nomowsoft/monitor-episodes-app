@@ -56,20 +56,6 @@ class _SignUpState extends State<SignUp> {
                   repeat: ImageRepeat.repeat,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                    onTap: () => Get.back(),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 32,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-              ),
               Center(
                 child: SingleChildScrollView(
                   child: Column(
@@ -653,6 +639,20 @@ class _SignUpState extends State<SignUp> {
                         ),
                       )
                     ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () => Get.back(),
+                    child:  Icon(
+                     direction == TextDirection.rtl ? Icons.arrow_back : Icons.arrow_forward,
+                      size: 32,
+                      color: Colors.black54,
+                    ),
                   ),
                 ),
               ),

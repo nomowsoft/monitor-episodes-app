@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       textInputAction: TextInputAction.next,
                                       keyboardType: TextInputType.emailAddress,
                                       keyboardAppearance: Brightness.light,
-                                      validator: Validator.nameValidator,
+                                      validator: Validator.emailValidator,
                                       autovalidateMode:
                                           AutovalidateMode.onUserInteraction,
                                       controller: authControllerImp.username,

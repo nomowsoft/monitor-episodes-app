@@ -21,7 +21,6 @@ class InvestigationPage extends StatefulWidget {
 class _InvestigationPageState extends State<InvestigationPage> {
   AuthControllerImp controller = Get.put(AuthControllerImp());
 
-  final _pinPutController = TextEditingController();
   final _pinPutController1 = TextEditingController();
   final _pinPutController2 = TextEditingController();
   final _pinPutController3 = TextEditingController();
@@ -41,7 +40,6 @@ class _InvestigationPageState extends State<InvestigationPage> {
   @override
   Widget build(BuildContext context) {
     final direction = Directionality.of(context);
-
     return GetBuilder(
       builder: (AuthControllerImp authControllerImp) => Scaffold(
         backgroundColor: Colors.white,
@@ -179,8 +177,15 @@ class _InvestigationPageState extends State<InvestigationPage> {
                                                     dt1.difference(timeNow);
                                                 if (diff.inMinutes.abs() <=
                                                     10) {
-                                                  var code =
-                                                      "${_pinPutController1.text}${_pinPutController2.text}${_pinPutController3.text}${_pinPutController4.text}";
+                                                  String code;
+                                                  if (direction ==
+                                                      TextDirection.rtl) {
+                                                    code =
+                                                        "${_pinPutController4.text}${_pinPutController3.text}${_pinPutController2.text}${_pinPutController1.text}";
+                                                  } else {
+                                                    code =
+                                                        "${_pinPutController1.text}${_pinPutController2.text}${_pinPutController3.text}${_pinPutController4.text}";
+                                                  }
                                                   if (int.parse(code).toInt() ==
                                                       codeNumber) {
                                                     setState(() {
@@ -242,8 +247,14 @@ class _InvestigationPageState extends State<InvestigationPage> {
                                                     Get.theme
                                                         .secondaryHeaderColor,
                                                   ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
+                                                  begin: direction ==
+                                                          TextDirection.rtl
+                                                      ? Alignment.topLeft
+                                                      : Alignment.topRight,
+                                                  end: direction ==
+                                                          TextDirection.rtl
+                                                      ? Alignment.bottomRight
+                                                      : Alignment.bottomLeft,
                                                 ),
                                                 borderRadius:
                                                     BorderRadius.circular(
@@ -290,12 +301,8 @@ class _InvestigationPageState extends State<InvestigationPage> {
                                                   Get.theme
                                                       .secondaryHeaderColor,
                                                 ],
-                                                 begin: direction == TextDirection.rtl
-                                                ? Alignment.topLeft
-                                                : Alignment.topRight,
-                                            end: direction == TextDirection.rtl
-                                                ? Alignment.bottomRight
-                                                : Alignment.bottomLeft,
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(
@@ -383,7 +390,7 @@ class _InvestigationPageState extends State<InvestigationPage> {
   }
 
   Widget _textFieldOTP(TextEditingController c, {required bool first, last}) {
-    return Container(
+    return SizedBox(
       height: 80.h,
       child: AspectRatio(
         aspectRatio: 1.0,

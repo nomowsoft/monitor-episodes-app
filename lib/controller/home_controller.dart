@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart' as cupertino;
@@ -28,20 +27,15 @@ import 'package:monitor_episodes/model/services/teacher_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../main.dart';
 import '../model/core/episodes/check_student_work_responce.dart';
 import '../model/core/episodes/check_episode.dart';
 import '../model/core/episodes/episode.dart';
-import '../model/core/shared/enums.dart';
 import '../model/core/shared/response_content.dart';
 import '../model/data/database_helper.dart';
 import '../model/services/check_episode_service.dart';
 import '../model/services/episodes_service.dart';
 import '../ui/shared/utils/custom_dailogs.dart';
 import '../ui/shared/utils/waitting_dialog.dart';
-import '../ui/views/data_initialization/data_initialization.dart';
-import '../ui/views/home/home.dart';
-import 'data_sync_controller.dart';
 
 class HomeController extends GetxController {
   bool _isUpload = false;
@@ -65,8 +59,8 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
-    //Timer(const Duration(seconds: 2), () { checkVersion();});
-    //  sendToTheServerFunction();
+   Timer(const Duration(seconds: 2), () { checkVersion();});
+     sendToTheServerFunction();
   }
   checkVersion() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();

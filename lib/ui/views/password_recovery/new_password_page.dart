@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:monitor_episodes/model/core/shared/globals/size_config.dart';
+import 'package:monitor_episodes/ui/views/login_screen/login_screen.dart';
 
 import '../../../controller/auth_controller.dart';
 import '../../../model/core/shared/response_content.dart';
@@ -134,8 +135,8 @@ class _NewPasswordState extends State<NewPassword> {
                                             keyboardType: TextInputType.name,
                                             keyboardAppearance:
                                                 Brightness.light,
-                                            controller:
-                                                authControllerImp.newPasswordUser,
+                                            controller: authControllerImp
+                                                .newPasswordUser,
                                             validator:
                                                 Validator.passwordValidator,
                                             autovalidateMode: AutovalidateMode
@@ -195,13 +196,12 @@ class _NewPasswordState extends State<NewPassword> {
                                                     hasWaitAnim = true;
                                                     loginErorr = false;
                                                   });
-                                                  Get.off(
-                                                      () =>
-                                                          const Home(),
-                                                      duration:
-                                                          const Duration(seconds: 1),
+                                                  Get.off(() => const LoginScreen(),
+                                                      duration: const Duration(
+                                                          seconds: 1),
                                                       curve: Curves.easeInOut,
-                                                      transition: Transition.fadeIn);
+                                                      transition:
+                                                          Transition.fadeIn);
                                                 } else {
                                                   setState(() {
                                                     islogin = false;
@@ -230,8 +230,14 @@ class _NewPasswordState extends State<NewPassword> {
                                                     Get.theme
                                                         .secondaryHeaderColor,
                                                   ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
+                                                  begin: direction ==
+                                                          TextDirection.rtl
+                                                      ? Alignment.topLeft
+                                                      : Alignment.topRight,
+                                                  end: direction ==
+                                                          TextDirection.rtl
+                                                      ? Alignment.bottomRight
+                                                      : Alignment.bottomLeft,
                                                 ),
                                                 borderRadius:
                                                     BorderRadius.circular(
@@ -278,12 +284,14 @@ class _NewPasswordState extends State<NewPassword> {
                                                   Get.theme
                                                       .secondaryHeaderColor,
                                                 ],
-                                                begin: direction == TextDirection.rtl
-                                                ? Alignment.topLeft
-                                                : Alignment.topRight,
-                                            end: direction == TextDirection.rtl
-                                                ? Alignment.bottomRight
-                                                : Alignment.bottomLeft,
+                                                begin: direction ==
+                                                        TextDirection.rtl
+                                                    ? Alignment.topLeft
+                                                    : Alignment.topRight,
+                                                end: direction ==
+                                                        TextDirection.rtl
+                                                    ? Alignment.bottomRight
+                                                    : Alignment.bottomLeft,
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(

@@ -24,6 +24,14 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
   double opacityLogin = 1.0;
   final formKey = GlobalKey<FormState>();
   @override
+  void initState() {
+    // ignore: todo
+    // TODO: implement initState
+    super.initState();
+    AuthControllerImp authControllerImp = Get.put(AuthControllerImp());
+    authControllerImp.initFilds();
+  }
+  @override
   Widget build(BuildContext context) {
     final direction = Directionality.of(context);
     return GetBuilder(
@@ -36,20 +44,6 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                 child: Image.asset(
                   'images/bgR2.png',
                   repeat: ImageRepeat.repeat,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                    onTap: () => Get.back(),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 32,
-                      color: Colors.black54,
-                    ),
-                  ),
                 ),
               ),
               Center(
@@ -328,6 +322,20 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                         ),
                       )
                     ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () => Get.back(),
+                    child:  Icon(
+                    direction == TextDirection.rtl ? Icons.arrow_back : Icons.arrow_forward, 
+                      size: 32,
+                      color: Colors.black54,
+                    ),
                   ),
                 ),
               ),
