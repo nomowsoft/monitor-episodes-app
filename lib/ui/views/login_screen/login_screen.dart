@@ -240,6 +240,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 curve: Curves.easeInOut,
                                                 transition: Transition.fadeIn);
                                           } else {
+                                            responseContent.message =
+                                                responseContent.message?.tr;
+                                            print(responseContent.message);
                                             setState(() {
                                               islogin = false;
                                               opacityLogin = 1.0;
@@ -263,9 +266,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   .withOpacity(.7),
                                               Get.theme.secondaryHeaderColor,
                                             ],
-                                            begin: direction == TextDirection.rtl
-                                                ? Alignment.topLeft
-                                                : Alignment.topRight,
+                                            begin:
+                                                direction == TextDirection.rtl
+                                                    ? Alignment.topLeft
+                                                    : Alignment.topRight,
                                             end: direction == TextDirection.rtl
                                                 ? Alignment.bottomRight
                                                 : Alignment.bottomLeft,

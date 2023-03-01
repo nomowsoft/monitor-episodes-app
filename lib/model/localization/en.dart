@@ -235,4 +235,6 @@ Map<String, String> translateEnglish = {
   "erorr_happened": "An error occurred, please try again",
   "update_app": "A new version of the application is available.",
   "update": "Update now",
+  "Access Denied":"Wrong email or password",
+
 };

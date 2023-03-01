@@ -230,4 +230,5 @@ Map<String, String> translateArabic = {
   "erorr_happened": "حدث خطأ من فضلك حاول مرة أخرى",
   "update_app": "تتوفر نسخة جديدة من التطبيق",
   "update": "قم بالتحديث الآن",
+  "Access Denied":"خطأ في البريد الالكتروني او كلمة المرور",
 };
