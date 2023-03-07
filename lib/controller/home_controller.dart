@@ -78,7 +78,10 @@ class HomeController extends GetxController {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       if (packageInfo.version != event.snapshot.value) {
         await prefs.setString('version_app', event.snapshot.value.toString());
-        await CostomDailogs.dialogWithImageAndText(
+        List<String> listVersion = packageInfo.version.split('.');
+        List<String> listVersionLast = event.snapshot.value.toString().split('.');
+        if(int.parse(listVersion[2])  < int.parse(listVersionLast[2])){
+          await CostomDailogs.dialogWithImageAndText(
             text: 'update_app'.tr,
             buttonText: 'update'.tr,
             icon: material.Icon(
@@ -89,22 +92,39 @@ class HomeController extends GetxController {
             onPressed: () async {
               await openStoreToUpdate();
             });
+        }
+        
       }
     });
 
     if (prefs.getString('version_app') != null &&
         packageInfo.version != prefs.getString('version_app')) {
-      await CostomDailogs.dialogWithImageAndText(
-          text: 'update_app'.tr,
-          buttonText: 'update'.tr,
-          icon: material.Icon(
-            material.Icons.update,
-            color: Get.theme.secondaryHeaderColor,
-            size: 30,
-          ),
-          onPressed: () async {
-            await openStoreToUpdate();
-          });
+          List<String> listVersion = packageInfo.version.split('.');
+        List<String> listVersionLast = prefs.getString('version_app').toString().split('.');
+        if(int.parse(listVersion[2])  < int.parse(listVersionLast[2])){
+          await CostomDailogs.dialogWithImageAndText(
+            text: 'update_app'.tr,
+            buttonText: 'update'.tr,
+            icon: material.Icon(
+              material.Icons.update,
+              color: Get.theme.secondaryHeaderColor,
+              size: 30,
+            ),
+            onPressed: () async {
+              await openStoreToUpdate();
+            });
+        }
+      // await CostomDailogs.dialogWithImageAndText(
+      //     text: 'update_app'.tr,
+      //     buttonText: 'update'.tr,
+      //     icon: material.Icon(
+      //       material.Icons.update,
+      //       color: Get.theme.secondaryHeaderColor,
+      //       size: 30,
+      //     ),
+      //     onPressed: () async {
+      //       await openStoreToUpdate();
+      //     });
     }
   }
     Future<void> openStoreToUpdate() async {
@@ -117,7 +137,7 @@ class HomeController extends GetxController {
       } else {
         await launchUrl(
             Uri.parse(
-                'https://apps.apple.com/vn/app/مكنون-للمعلم-ة/id1603251064?platform=iphone'),
+                'https://apps.apple.com/vn/app/id376771144'),
             mode: LaunchMode.externalApplication);
       }
     } catch (e) {
