@@ -59,9 +59,12 @@ class HomeController extends GetxController {
     initFilds();
     loadData();
     await getTeacherLocal();
-   Timer(const Duration(seconds: 2), () { checkVersion();});
-     sendToTheServerFunction();
+    Timer(const Duration(seconds: 2), () {
+      checkVersion();
+    });
+    sendToTheServerFunction();
   }
+
   checkVersion() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -79,30 +82,31 @@ class HomeController extends GetxController {
       if (packageInfo.version != event.snapshot.value) {
         await prefs.setString('version_app', event.snapshot.value.toString());
         List<String> listVersion = packageInfo.version.split('.');
-        List<String> listVersionLast = event.snapshot.value.toString().split('.');
-        if(int.parse(listVersion[2])  < int.parse(listVersionLast[2])){
+        List<String> listVersionLast =
+            event.snapshot.value.toString().split('.');
+        if (int.parse(listVersion[2]) < int.parse(listVersionLast[2])) {
           await CostomDailogs.dialogWithImageAndText(
-            text: 'update_app'.tr,
-            buttonText: 'update'.tr,
-            icon: material.Icon(
-              material.Icons.update,
-              color: Get.theme.secondaryHeaderColor,
-              size: 30,
-            ),
-            onPressed: () async {
-              await openStoreToUpdate();
-            });
+              text: 'update_app'.tr,
+              buttonText: 'update'.tr,
+              icon: material.Icon(
+                material.Icons.update,
+                color: Get.theme.secondaryHeaderColor,
+                size: 30,
+              ),
+              onPressed: () async {
+                await openStoreToUpdate();
+              });
         }
-        
       }
     });
 
     if (prefs.getString('version_app') != null &&
         packageInfo.version != prefs.getString('version_app')) {
-          List<String> listVersion = packageInfo.version.split('.');
-        List<String> listVersionLast = prefs.getString('version_app').toString().split('.');
-        if(int.parse(listVersion[2])  < int.parse(listVersionLast[2])){
-          await CostomDailogs.dialogWithImageAndText(
+      List<String> listVersion = packageInfo.version.split('.');
+      List<String> listVersionLast =
+          prefs.getString('version_app').toString().split('.');
+      if (int.parse(listVersion[2]) < int.parse(listVersionLast[2])) {
+        await CostomDailogs.dialogWithImageAndText(
             text: 'update_app'.tr,
             buttonText: 'update'.tr,
             icon: material.Icon(
@@ -113,21 +117,11 @@ class HomeController extends GetxController {
             onPressed: () async {
               await openStoreToUpdate();
             });
-        }
-      // await CostomDailogs.dialogWithImageAndText(
-      //     text: 'update_app'.tr,
-      //     buttonText: 'update'.tr,
-      //     icon: material.Icon(
-      //       material.Icons.update,
-      //       color: Get.theme.secondaryHeaderColor,
-      //       size: 30,
-      //     ),
-      //     onPressed: () async {
-      //       await openStoreToUpdate();
-      //     });
+      }
     }
   }
-    Future<void> openStoreToUpdate() async {
+
+  Future<void> openStoreToUpdate() async {
     try {
       if (Platform.isAndroid) {
         await launchUrl(
@@ -137,13 +131,14 @@ class HomeController extends GetxController {
       } else {
         await launchUrl(
             Uri.parse(
-                'https://apps.apple.com/vn/app/id376771144'),
+                'https://apps.apple.com/app/راصد-الحلقات/id1670320999?platform=iphone'),
             mode: LaunchMode.externalApplication);
       }
     } catch (e) {
       CostomDailogs.warringDialogWithGet(msg: 'erorr_happened'.tr);
     }
   }
+
   initFilds() {
     _gettingEpisodes = false;
     _gettingStudentsOfEpisode = false;
