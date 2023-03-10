@@ -1,8 +1,6 @@
 import 'package:monitor_episodes/model/core/episodes/episode.dart';
 import 'package:monitor_episodes/model/core/episodes/student_of_episode.dart';
 import 'package:monitor_episodes/model/core/episodes/student_state.dart';
-import 'package:monitor_episodes/model/core/plan_lines/plan_line.dart';
-import 'package:monitor_episodes/model/core/plan_lines/plan_lines.dart';
 
 import '../listen_line/listen_line.dart';
 

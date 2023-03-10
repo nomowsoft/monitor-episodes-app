@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:monitor_episodes/model/localization/translation.dart';
-import 'package:monitor_episodes/model/theme/theme_dark.dart';
 import 'package:monitor_episodes/model/theme/theme_light.dart';
 import 'package:monitor_episodes/ui/views/home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
